@@ -181,7 +181,11 @@ public class MainFrame extends javax.swing.JFrame{
         
         try {
             // Setup des variables utiles
-            CRS.getRConnexion().voidEval("data<-read.table(\"E:/Dropbox/B3/e-Commerce/Application_DataMining/1_Anova_asthme.csv\",h=TRUE,sep=\";\")"); 
+            
+            //Path Zeydax :
+            //CRS.getRConnexion().voidEval("data<-read.table(\"E:/Dropbox/B3/e-Commerce/Application_DataMining/1_Anova_asthme.csv\",h=TRUE,sep=\";\")"); 
+            // Path Doublon : 
+            CRS.getRConnexion().voidEval("data<-read.table(\"C:/Users/Doublon/Desktop/R_jar/1_Anova_asthme.csv\",h=TRUE,sep=\";\")"); 
             CRS.getRConnexion().voidEval("attach(data)");
             Headers = CRS.getRConnexion().eval("colnames(data)").asStrings();            
             NbValues = CRS.getRConnexion().eval("length(data$" + Headers[1] + ")").asInteger();
@@ -191,10 +195,12 @@ public class MainFrame extends javax.swing.JFrame{
             CurrentLevel = CRS.getRConnexion().eval("data$" + Headers[0] + "[1]").asString();            
             for (int i = 1, j = 1 ; j <= NbValues ; j++) {
                 Temp = CRS.getRConnexion().eval("data$" + Headers[0] + "[" + j + "]").asString();
+                //System.out.println("Temp : " +Temp);
                 if (j != 1 && !Temp.equals(CurrentLevel)) {
                     //System.out.println("Check : " + i);
                     ds.add(list, "Serie 1", CurrentLevel);
                     CurrentLevel = Temp;
+                   //System.out.println("CurrentLevel : " +CurrentLevel);
                     i++;
                     list.clear();
                 }
@@ -262,7 +268,65 @@ public class MainFrame extends javax.swing.JFrame{
     }
     
     private void jButtonEx2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonEx2ActionPerformed
+        Double mean, median, FirstQT, ThirdQT, min, max;
+        int jMin = 1, iMax = 11;
+        int NbValues, NbLevels1 , NbLevels2;
+        List<Double> list = new ArrayList<>();
+        String CurrentLevel1 = null, Temp1 = null ,CurrentLevel2 = null , Temp2= null ;
+        String[] Headers;
+        DefaultBoxAndWhiskerCategoryDataset ds = new DefaultBoxAndWhiskerCategoryDataset();
         
+        
+        //jInternalFrameGraphique.getContentPane().removeAll();
+        //jInternalFrameGraphique.removeAll();
+        //jInternalFrameGraphique.getContentPane().revalidate();
+        //jInternalFrameGraphique.repaint();
+
+        try
+        {
+            //Temp2=Deuxieme colonne Idem NbLevels2
+            CRS.getRConnexion().voidEval("data<-read.table(\"C:/Users/Doublon/Desktop/R_jar/2_Batracie.csv\",h=TRUE,sep=\";\")"); 
+            Headers = CRS.getRConnexion().eval("colnames(data)").asStrings();  
+            NbValues = CRS.getRConnexion().eval("length(data$" + Headers[1] + ")").asInteger();
+            NbLevels1 = CRS.getRConnexion().eval("length(levels(data$" + Headers[0] + "))").asInteger();
+            NbLevels2 = CRS.getRConnexion().eval("length(levels(data$" + Headers[1] + "))").asInteger();
+            CurrentLevel1 = CRS.getRConnexion().eval("data$" + Headers[0] + "[1]").asString();     
+            CurrentLevel2 = CRS.getRConnexion().eval("data$" + Headers[1] + "[1]").asString();  
+            
+            for (int j = 1 ; j <= NbValues ; j++) 
+            {
+                Temp1 = CRS.getRConnexion().eval("data$" + Headers[0] + "[" + j + "]").asString();
+                Temp2 = CRS.getRConnexion().eval("data$" + Headers[1] + "[" + j + "]").asString();
+                if(j != 1 && !Temp1.equals(CurrentLevel1))
+                {
+                    ds.add(list, CurrentLevel2, CurrentLevel1);
+                    CurrentLevel1=Temp1;
+                    if(!Temp2.equals(CurrentLevel2))
+                    {
+                        CurrentLevel2 = Temp2;
+                    }
+                    list.clear();
+                }
+                list.add(CRS.getRConnexion().eval("data$" + Headers[2] + "[" + j + "]").asDouble());
+                //list.add(CRS.getRConnexion().eval("data$" + Headers[2] + "[" + j + "]").asDouble());
+                //System.out.println("Valeur : " + CRS.getRConnexion().eval("data$Mesure[" + j + "]").asInteger());                
+            }        
+            ds.add(list, CurrentLevel2 ,CurrentLevel1);
+            
+            JFreeChart jfc = ChartFactory.createBoxAndWhiskerChart("Exercice 2", Headers[1]+Headers[0], Headers[2], ds, false);
+            CategoryPlot plot = (CategoryPlot) jfc.getCategoryPlot();
+            BoxAndWhiskerRenderer renderer = new BoxAndWhiskerRenderer();
+            /*renderer.setSeriesPaint(0, Color.GREEN);
+            plot.setRenderer(0, renderer); */          
+            ChartPanel cp = new ChartPanel(jfc);
+            jInternalFrameGraphique.setContentPane(cp);
+            jInternalFrameGraphique.setVisible(true);
+            
+        }
+        catch(RserveException | REXPMismatchException Ex)
+        {           
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, Ex);
+        }
     }//GEN-LAST:event_jButtonEx2ActionPerformed
 
     /**
