@@ -52,6 +52,7 @@ public class MainFrame extends javax.swing.JFrame{
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextAreaConclusion = new javax.swing.JTextArea();
         jInternalFrameGraphique = new javax.swing.JInternalFrame();
+        DeleteValButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -98,8 +99,11 @@ public class MainFrame extends javax.swing.JFrame{
         );
         jInternalFrameGraphiqueLayout.setVerticalGroup(
             jInternalFrameGraphiqueLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 524, Short.MAX_VALUE)
+            .addGap(0, 540, Short.MAX_VALUE)
         );
+
+        DeleteValButton.setText("Retirer Les valeurs abérantes");
+        DeleteValButton.setEnabled(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -110,23 +114,29 @@ public class MainFrame extends javax.swing.JFrame{
                 .addComponent(jButtonConnexion)
                 .addGap(244, 244, 244))
             .addGroup(layout.createSequentialGroup()
-                .addGap(138, 138, 138)
-                .addComponent(jButtonEx1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButtonEx2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButtonEx3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButtonEx4)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jInternalFrameGraphique)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane1)
+                        .addContainerGap())))
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jInternalFrameGraphique)
-                .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1)
-                .addContainerGap())
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(138, 138, 138)
+                        .addComponent(jButtonEx1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonEx2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonEx3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonEx4))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(215, 215, 215)
+                        .addComponent(DeleteValButton)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -141,8 +151,10 @@ public class MainFrame extends javax.swing.JFrame{
                     .addComponent(jButtonEx4))
                 .addGap(18, 18, 18)
                 .addComponent(jInternalFrameGraphique, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
+                .addGap(2, 2, 2)
+                .addComponent(DeleteValButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -178,6 +190,9 @@ public class MainFrame extends javax.swing.JFrame{
         String CurrentLevel = null, Temp = null;
         String[] Headers;
         DefaultBoxAndWhiskerCategoryDataset ds = new DefaultBoxAndWhiskerCategoryDataset();
+        
+        DeleteValButton.setEnabled(false);
+        jTextAreaConclusion.setText(null);
         
         try {
             // Setup des variables utiles
@@ -275,12 +290,12 @@ public class MainFrame extends javax.swing.JFrame{
         String CurrentLevel1 = null, Temp1 = null ,CurrentLevel2 = null , Temp2= null ;
         String[] Headers;
         DefaultBoxAndWhiskerCategoryDataset ds = new DefaultBoxAndWhiskerCategoryDataset();
+        //String[] pvalue = null;
+        Double pvalue = null ;
+        Double pvalue2 = null;
         
-        
-        //jInternalFrameGraphique.getContentPane().removeAll();
-        //jInternalFrameGraphique.removeAll();
-        //jInternalFrameGraphique.getContentPane().revalidate();
-        //jInternalFrameGraphique.repaint();
+        DeleteValButton.setEnabled(true);
+        jTextAreaConclusion.setText(null);
 
         try
         {
@@ -291,14 +306,16 @@ public class MainFrame extends javax.swing.JFrame{
             NbLevels1 = CRS.getRConnexion().eval("length(levels(data$" + Headers[0] + "))").asInteger();
             NbLevels2 = CRS.getRConnexion().eval("length(levels(data$" + Headers[1] + "))").asInteger();
             CurrentLevel1 = CRS.getRConnexion().eval("data$" + Headers[0] + "[1]").asString();     
-            CurrentLevel2 = CRS.getRConnexion().eval("data$" + Headers[1] + "[1]").asString();  
+            CurrentLevel2 = CRS.getRConnexion().eval("data$" + Headers[1] + "[1]").asString(); 
             
+            //Recup VAL
             for (int j = 1 ; j <= NbValues ; j++) 
             {
                 Temp1 = CRS.getRConnexion().eval("data$" + Headers[0] + "[" + j + "]").asString();
                 Temp2 = CRS.getRConnexion().eval("data$" + Headers[1] + "[" + j + "]").asString();
                 if(j != 1 && !Temp1.equals(CurrentLevel1))
                 {
+                    //On ajoute dans le DateSet sous forme : Val,Molecules,Administration => l'inverse de notre fichier.csv
                     ds.add(list, CurrentLevel2, CurrentLevel1);
                     CurrentLevel1=Temp1;
                     if(!Temp2.equals(CurrentLevel2))
@@ -307,21 +324,48 @@ public class MainFrame extends javax.swing.JFrame{
                     }
                     list.clear();
                 }
-                list.add(CRS.getRConnexion().eval("data$" + Headers[2] + "[" + j + "]").asDouble());
-                //list.add(CRS.getRConnexion().eval("data$" + Headers[2] + "[" + j + "]").asDouble());
-                //System.out.println("Valeur : " + CRS.getRConnexion().eval("data$Mesure[" + j + "]").asInteger());                
+                list.add(CRS.getRConnexion().eval("data$" + Headers[2] + "[" + j + "]").asDouble());           
             }        
             ds.add(list, CurrentLevel2 ,CurrentLevel1);
             
+            //Construction du Grahique
             JFreeChart jfc = ChartFactory.createBoxAndWhiskerChart("Exercice 2", Headers[1]+Headers[0], Headers[2], ds, false);
             CategoryPlot plot = (CategoryPlot) jfc.getCategoryPlot();
-            BoxAndWhiskerRenderer renderer = new BoxAndWhiskerRenderer();
-            /*renderer.setSeriesPaint(0, Color.GREEN);
-            plot.setRenderer(0, renderer); */          
+            BoxAndWhiskerRenderer renderer = new BoxAndWhiskerRenderer();        
             ChartPanel cp = new ChartPanel(jfc);
             jInternalFrameGraphique.setContentPane(cp);
             jInternalFrameGraphique.setVisible(true);
             
+            //Conclusion
+            CRS.getRConnexion().voidEval("model<-lm(data$" + Headers[2] + "~" +"data$"+ Headers[0] + "+ data$"+Headers[1]+" )");
+            CRS.getRConnexion().voidEval("aov<-anova(model)");
+            CRS.getRConnexion().voidEval("temp<-aov[5]");
+            
+            pvalue=CRS.getRConnexion().eval("temp[1,1]").asDouble();
+            jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value de H0 = " + pvalue +"\n");
+            if(pvalue<0.05)
+            {
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Vu que la p_value est inferieur a 5% , nous pouvons rejeter l'Hypothese H0\n");
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"C'est-a-dire qu'il n'y a pas de differences significative entres les population\n" );
+            }
+            else
+            {
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Vu que la p_value est supérieur a 5% , nous pouvons garder l'Hypothese H0\n");
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"C'est-a-dire qu'il a une differences significative entres les population\n" );                
+            }
+            
+            pvalue2=CRS.getRConnexion().eval("temp[3,1]").asDouble();
+            System.out.println("pvalue2 : "+pvalue2);
+            /*jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value de l'interraction = " + pvalue +"\n");
+            if(pvalue<0.05)
+            {
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+
+                        "Vu que la p_value est inferieur a 5% , nous pouvons dire qu'il n'y a pas d'interaction entre : "+Headers[0]+" et : "+Headers[1]+"\n");
+            }
+            else
+            {
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Vu que la p_value est supérieur a 5% , nous pouvons garder l'Hypothese H0\n");               
+            }*/
         }
         catch(RserveException | REXPMismatchException Ex)
         {           
@@ -365,6 +409,7 @@ public class MainFrame extends javax.swing.JFrame{
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton DeleteValButton;
     private javax.swing.JButton jButtonConnexion;
     private javax.swing.JButton jButtonEx1;
     private javax.swing.JButton jButtonEx2;
