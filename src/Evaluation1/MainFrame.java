@@ -291,8 +291,8 @@ public class MainFrame extends javax.swing.JFrame{
         String[] Headers;
         DefaultBoxAndWhiskerCategoryDataset ds = new DefaultBoxAndWhiskerCategoryDataset();
         //String[] pvalue = null;
-        Double pvalue = null ;
-        Double pvalue2 = null;
+        //Double[] pvalue = null ;
+        //Double pvalue2 = null;
         
         DeleteValButton.setEnabled(true);
         jTextAreaConclusion.setText(null);
@@ -337,13 +337,14 @@ public class MainFrame extends javax.swing.JFrame{
             jInternalFrameGraphique.setVisible(true);
             
             //Conclusion
-            CRS.getRConnexion().voidEval("model<-lm(data$" + Headers[2] + "~" +"data$"+ Headers[0] + "+ data$"+Headers[1]+" )");
+            CRS.getRConnexion().voidEval("model<-lm(data$" + Headers[2] + "~" +"data$"+ Headers[0] + "* data$"+Headers[1]+" )");
             CRS.getRConnexion().voidEval("aov<-anova(model)");
-            CRS.getRConnexion().voidEval("temp<-aov[5]");
+            CRS.getRConnexion().voidEval("temp<-aov$\"Pr(>F)\"");
             
-            pvalue=CRS.getRConnexion().eval("temp[1,1]").asDouble();
-            jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value de H0 = " + pvalue +"\n");
-            if(pvalue<0.05)
+            double[] pvalue =CRS.getRConnexion().eval("temp").asDoubles();
+            //pvalue !=pvalue[0]
+            jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value de H0 = " + pvalue[0] +"\n");
+            if(pvalue[0]<0.05)
             {
                 jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Vu que la p_value est inferieur a 5% , nous pouvons rejeter l'Hypothese H0\n");
                 jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"C'est-a-dire qu'il n'y a pas de differences significative entres les population\n" );
@@ -354,8 +355,11 @@ public class MainFrame extends javax.swing.JFrame{
                 jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"C'est-a-dire qu'il a une differences significative entres les population\n" );                
             }
             
-            pvalue2=CRS.getRConnexion().eval("temp[3,1]").asDouble();
-            System.out.println("pvalue2 : "+pvalue2);
+           
+            System.out.println("pvalue : "+pvalue[0]);
+            System.out.println("pvalue : "+pvalue[1]);
+            System.out.println("pvalue : "+pvalue[2]);
+            //System.out.println("pvalue[2] : "+pvalue[2]);
             /*jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value de l'interraction = " + pvalue +"\n");
             if(pvalue<0.05)
             {
