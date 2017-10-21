@@ -291,7 +291,7 @@ public class MainFrame extends javax.swing.JFrame{
         String[] Headers;
         DefaultBoxAndWhiskerCategoryDataset ds = new DefaultBoxAndWhiskerCategoryDataset();
         //String[] pvalue = null;
-        //Double[] pvalue = null ;
+        Double pvalue = null ;
         //Double pvalue2 = null;
         
         DeleteValButton.setEnabled(true);
@@ -341,13 +341,13 @@ public class MainFrame extends javax.swing.JFrame{
             CRS.getRConnexion().voidEval("aov<-anova(model)");
             CRS.getRConnexion().voidEval("temp<-aov$\"Pr(>F)\"");
             
-            double[] pvalue =CRS.getRConnexion().eval("temp").asDoubles();
+            pvalue =CRS.getRConnexion().eval("temp[3]").asDouble();
             //pvalue !=pvalue[0]
-            jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value de H0 = " + pvalue[0] +"\n");
-            if(pvalue[0]<0.05)
+            jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value de l'interaction = " + pvalue+"\n");
+            if(pvalue<0.05)
             {
-                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Vu que la p_value est inferieur a 5% , nous pouvons rejeter l'Hypothese H0\n");
-                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"C'est-a-dire qu'il n'y a pas de differences significative entres les population\n" );
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Vu que la p_value est inferieur a 5% , nous pouvons dire qu'il n'y pas d'interaction siginificative.\n");
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"C'est-a-dire qu'on ne sait pas dire si : "+Headers[0]+" et/ou : " +Headers[1]+" ont une influence soit une soit les deux!\n" );
             }
             else
             {
@@ -356,9 +356,9 @@ public class MainFrame extends javax.swing.JFrame{
             }
             
            
-            System.out.println("pvalue : "+pvalue[0]);
-            System.out.println("pvalue : "+pvalue[1]);
-            System.out.println("pvalue : "+pvalue[2]);
+            //System.out.println("pvalue : "+pvalue[0]);
+            //System.out.println("pvalue : "+pvalue[1]);
+            //System.out.println("pvalue : "+pvalue[2]);
             //System.out.println("pvalue[2] : "+pvalue[2]);
             /*jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value de l'interraction = " + pvalue +"\n");
             if(pvalue<0.05)
