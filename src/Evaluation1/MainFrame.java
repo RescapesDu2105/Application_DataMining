@@ -99,11 +99,16 @@ public class MainFrame extends javax.swing.JFrame{
         );
         jInternalFrameGraphiqueLayout.setVerticalGroup(
             jInternalFrameGraphiqueLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 540, Short.MAX_VALUE)
+            .addGap(0, 544, Short.MAX_VALUE)
         );
 
         DeleteValButton.setText("Retirer Les valeurs abérantes");
         DeleteValButton.setEnabled(false);
+        DeleteValButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DeleteValButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -116,12 +121,9 @@ public class MainFrame extends javax.swing.JFrame{
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jInternalFrameGraphique)
-                        .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jScrollPane1)
-                        .addContainerGap())))
+                    .addComponent(jInternalFrameGraphique)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addContainerGap())
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -283,16 +285,12 @@ public class MainFrame extends javax.swing.JFrame{
     }
     
     private void jButtonEx2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonEx2ActionPerformed
-        Double mean, median, FirstQT, ThirdQT, min, max;
-        int jMin = 1, iMax = 11;
         int NbValues, NbLevels1 , NbLevels2;
         List<Double> list = new ArrayList<>();
         String CurrentLevel1 = null, Temp1 = null ,CurrentLevel2 = null , Temp2= null ;
         String[] Headers;
         DefaultBoxAndWhiskerCategoryDataset ds = new DefaultBoxAndWhiskerCategoryDataset();
-        //String[] pvalue = null;
         Double pvalue = null ;
-        //Double pvalue2 = null;
         
         DeleteValButton.setEnabled(true);
         jTextAreaConclusion.setText(null);
@@ -342,7 +340,6 @@ public class MainFrame extends javax.swing.JFrame{
             CRS.getRConnexion().voidEval("temp<-aov$\"Pr(>F)\"");
             
             pvalue =CRS.getRConnexion().eval("temp[3]").asDouble();
-            //pvalue !=pvalue[0]
             jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value de l'interaction = " + pvalue+"\n");
             if(pvalue<0.05)
             {
@@ -351,31 +348,91 @@ public class MainFrame extends javax.swing.JFrame{
             }
             else
             {
-                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Vu que la p_value est supérieur a 5% , nous pouvons garder l'Hypothese H0\n");
-                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"C'est-a-dire qu'il a une differences significative entres les population\n" );                
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Vu que la p_value est superieur a 5% , nous pouvons dire qu'il y a une d'interaction siginificative.\n");
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"C'est-a-dire qu'on peut dire que : "+Headers[0]+" et : " +Headers[1]+" ont une influence sur les resultats!\n" );   
             }
-            
-           
-            //System.out.println("pvalue : "+pvalue[0]);
-            //System.out.println("pvalue : "+pvalue[1]);
-            //System.out.println("pvalue : "+pvalue[2]);
-            //System.out.println("pvalue[2] : "+pvalue[2]);
-            /*jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value de l'interraction = " + pvalue +"\n");
-            if(pvalue<0.05)
-            {
-                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+
-                        "Vu que la p_value est inferieur a 5% , nous pouvons dire qu'il n'y a pas d'interaction entre : "+Headers[0]+" et : "+Headers[1]+"\n");
-            }
-            else
-            {
-                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Vu que la p_value est supérieur a 5% , nous pouvons garder l'Hypothese H0\n");               
-            }*/
         }
         catch(RserveException | REXPMismatchException Ex)
         {           
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, Ex);
         }
     }//GEN-LAST:event_jButtonEx2ActionPerformed
+
+    private void DeleteValButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteValButtonActionPerformed
+        int NbValues, NbLevels1 , NbLevels2;
+        List<Double> list = new ArrayList<>();
+        String CurrentLevel1 = null, Temp1 = null ,CurrentLevel2 = null , Temp2= null ;
+        String[] Headers;
+        DefaultBoxAndWhiskerCategoryDataset ds = new DefaultBoxAndWhiskerCategoryDataset();
+        Double pvalue = null ;
+        
+        DeleteValButton.setEnabled(true);
+        jTextAreaConclusion.setText(null);
+
+        try
+        {
+            //Temp2=Deuxieme colonne Idem NbLevels2
+            CRS.getRConnexion().voidEval("data<-read.table(\"C:/Users/Doublon/Desktop/R_jar/2_Batracie.csv\",h=TRUE,sep=\";\")"); 
+            //Retrait de la valeur
+            CRS.getRConnexion().voidEval("data<-data[-44,]");
+            Headers = CRS.getRConnexion().eval("colnames(data)").asStrings();  
+            NbValues = CRS.getRConnexion().eval("length(data$" + Headers[1] + ")").asInteger();
+            NbLevels1 = CRS.getRConnexion().eval("length(levels(data$" + Headers[0] + "))").asInteger();
+            NbLevels2 = CRS.getRConnexion().eval("length(levels(data$" + Headers[1] + "))").asInteger();
+            CurrentLevel1 = CRS.getRConnexion().eval("data$" + Headers[0] + "[1]").asString();     
+            CurrentLevel2 = CRS.getRConnexion().eval("data$" + Headers[1] + "[1]").asString(); 
+            
+            //Recup VAL
+            for (int j = 1 ; j <= NbValues ; j++) 
+            {
+                Temp1 = CRS.getRConnexion().eval("data$" + Headers[0] + "[" + j + "]").asString();
+                Temp2 = CRS.getRConnexion().eval("data$" + Headers[1] + "[" + j + "]").asString();
+                if(j != 1 && !Temp1.equals(CurrentLevel1))
+                {
+                    //On ajoute dans le DateSet sous forme : Val,Molecules,Administration => l'inverse de notre fichier.csv
+                    ds.add(list, CurrentLevel2, CurrentLevel1);
+                    CurrentLevel1=Temp1;
+                    if(!Temp2.equals(CurrentLevel2))
+                    {
+                        CurrentLevel2 = Temp2;
+                    }
+                    list.clear();
+                }
+                list.add(CRS.getRConnexion().eval("data$" + Headers[2] + "[" + j + "]").asDouble());           
+            }        
+            ds.add(list, CurrentLevel2 ,CurrentLevel1);
+            
+            //Construction du Grahique
+            JFreeChart jfc = ChartFactory.createBoxAndWhiskerChart("Exercice 2", Headers[1]+Headers[0], Headers[2], ds, false);
+            CategoryPlot plot = (CategoryPlot) jfc.getCategoryPlot();
+            BoxAndWhiskerRenderer renderer = new BoxAndWhiskerRenderer();        
+            ChartPanel cp = new ChartPanel(jfc);
+            jInternalFrameGraphique.setContentPane(cp);
+            jInternalFrameGraphique.setVisible(true);
+            
+            //Conclusion
+            CRS.getRConnexion().voidEval("model<-lm(data$" + Headers[2] + "~" +"data$"+ Headers[0] + "* data$"+Headers[1]+" )");
+            CRS.getRConnexion().voidEval("aov<-anova(model)");
+            CRS.getRConnexion().voidEval("temp<-aov$\"Pr(>F)\"");
+            
+            pvalue =CRS.getRConnexion().eval("temp[3]").asDouble();
+            jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value de l'interaction = " + pvalue+"\n");
+            if(pvalue<0.05)
+            {
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Vu que la p_value est inferieur a 5% , nous pouvons dire qu'il n'y pas d'interaction siginificative.\n");
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"C'est-a-dire qu'on ne sait pas dire si : "+Headers[0]+" et/ou : " +Headers[1]+" ont une influence soit une soit les deux!\n" );
+            }
+            else
+            {
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Vu que la p_value est superieur a 5% , nous pouvons dire qu'il y a une d'interaction siginificative.\n");
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"C'est-a-dire qu'on peut dire que : "+Headers[0]+" et : " +Headers[1]+" ont une influence sur les resultats!\n" );   
+            }
+        }
+        catch(RserveException | REXPMismatchException Ex)
+        {           
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, Ex);
+        }        // TODO add your handling code here:
+    }//GEN-LAST:event_DeleteValButtonActionPerformed
 
     /**
      * @param args the command line arguments
