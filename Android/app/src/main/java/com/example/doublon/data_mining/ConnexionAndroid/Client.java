@@ -1,4 +1,4 @@
-package ConnexionAndroid;
+package com.example.doublon.data_mining.ConnexionAndroid;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -18,11 +18,11 @@ public class Client
     private DataOutputStream dos = null;
     private InetAddress IP ;
 
-    Client()
+    public Client()
     {
         try
         {
-            setIP(InetAddress.getByName("127.0.0.1"));
+            setIP(InetAddress.getByName("192.168.1.5"));//127.0.0.1
             setCliSock(new Socket(getIP(),50000));
             setDis(new DataInputStream(cliSock.getInputStream()));
             setDos(new DataOutputStream(cliSock.getOutputStream()));
