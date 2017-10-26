@@ -86,6 +86,17 @@ public class MainActivity extends AppCompatActivity
         {
             dis = new DataInputStream(cliSock.getInputStream());
             dos = new DataOutputStream(cliSock.getOutputStream());
+            if(dis !=null && dos !=null)
+            {
+                try
+                {
+                    dos.writeUTF(Login);
+                    dos.writeUTF(Psw);
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         catch (IOException e)
         {
