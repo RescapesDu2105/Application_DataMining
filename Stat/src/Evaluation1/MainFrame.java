@@ -185,8 +185,6 @@ public class MainFrame extends javax.swing.JFrame{
     }//GEN-LAST:event_jButtonConnexionActionPerformed
 
     private void jButtonEx1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonEx1ActionPerformed
-        Double mean, median, FirstQT, ThirdQT, min, max;
-        int jMin = 1, iMax = 11;
         int NbValues, NbLevels;
         List<Double> list = new ArrayList<>();
         String CurrentLevel = null, Temp = null;

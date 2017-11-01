@@ -10,15 +10,17 @@ import android.widget.EditText;
 import android.widget.Toast;
 import com.example.doublon.data_mining.ConnexionAndroid.Client;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+
+import ProtocoleLUGAPM.*;
 
 public class MainActivity extends AppCompatActivity
 {
+    private Client Client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,20 +41,6 @@ public class MainActivity extends AppCompatActivity
 
                 if (!valueLogin.equals("")) {
                     contacteServeur(valueLogin, valuePsw);
-                    /*Client cl =new Client();
-
-                    try
-                    {
-                        DataInputStream dis = new DataInputStream(cl.getCliSock().getInputStream());;
-                        DataOutputStream dos = new DataOutputStream(cl.getCliSock().getOutputStream());;
-                        cl.getDos().writeUTF(valueLogin);
-                        cl.getDos().writeUTF(valuePsw);
-                        String Response = cl.getDis().readUTF();
-                        Toast.makeText(MainActivity.this, Response, Toast.LENGTH_LONG).show();
-                        Toast.makeText(MainActivity.this, "ok", Toast.LENGTH_LONG).show();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }*/
                 } else {
                     text = (EditText) findViewById(R.id.LoginPlainText);
                     text.setHintTextColor(Color.parseColor("#B9121B"));
@@ -63,44 +51,52 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    private void contacteServeur(String Login,String Psw)
+    public void contacteServeur(String Login,String Psw)
     {
-        Socket cliSock = null;
-        DataInputStream dis = null;
-        DataOutputStream dos = null;
+        this.Client = new Client();
+
         try
         {
-            cliSock = new Socket(InetAddress.getByName("10.59.22.31"),30042);
-            Toast.makeText(MainActivity.this, "ok", Toast.LENGTH_LONG).show();
-        }
-        catch (UnknownHostException e)
-        {
-            e.printStackTrace();
+            this.Client.setIP(InetAddress.getByName("192.168.0.3"));
+            this.Client.setPort(30042);
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
 
+        ReponseLUGAPM Rep = null;
         try
         {
-            dis = new DataInputStream(cliSock.getInputStream());
-            dos = new DataOutputStream(cliSock.getOutputStream());
-            if(dis !=null && dos !=null)
-            {
-                try
-                {
-                    dos.writeUTF(Login);
-                    dos.writeUTF(Psw);
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            Rep = (ReponseLUGAPM) this.Client.Authenfication(new RequeteLUGAPM(RequeteLUGAPM.REQUEST_LOGIN_RAMP_AGENT), Login, Psw);
         }
         catch (IOException e)
         {
             e.printStackTrace();
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            e.printStackTrace();
+        }
+        catch (NoSuchProviderException e)
+        {
+            e.printStackTrace();
+        }
+
+        if (Rep != null)
+        {
+            if (Rep.getCode() == ReponseLUGAPM.LOGIN_OK)
+            {
+                System.out.println("Rep = " + Rep.getChargeUtile().get("Message"));
+                this.Client.setNomUtilisateur(Rep.getChargeUtile().get("Prenom").toString() + " " + (Rep.getChargeUtile().get("Nom").toString()));
+
+                Toast.makeText(MainActivity.this, "Logged", Toast.LENGTH_LONG).show();
+            }
+            else
+            {
+                Toast.makeText(MainActivity.this, Rep.getChargeUtile().get("Message").toString(), Toast.LENGTH_LONG).show();
+                this.Client.Deconnexion(new RequeteLUGAPM(RequeteLUGAPM.REQUEST_LOG_OUT_RAMP_AGENT));
+            }
         }
     }
 
