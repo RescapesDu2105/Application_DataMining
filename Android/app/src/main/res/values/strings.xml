@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Application_Pistes</string>
-    <string name="title_activity_login">Application_Pistes - Connexion</string>
 
     <!-- Strings related to login -->
     <string name="prompt_login">Nom d\'utilisateur</string>
@@ -11,4 +10,12 @@
     <string name="error_invalid_password">Le mot de passe est trop court</string>
     <string name="error_incorrect_login_password">Le nom d\'utilisateur ou le mot de passe est incorrect</string>
     <string name="error_field_required">Le champ est requis</string>
+    <string name="title_activity_login">Application_Pistes - Connexion</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="label_language_choice">Choix de la langue</string>
+    <string name="radio_button_french">Français</string>
+    <string name="confirm_button">Confirmer</string>
+    <string name="radio_button_dutch">Neerlandais</string>
+    <string name="radio_button_english">Anglais</string>
+    <string name="title_activity_language">Application_Pistes - Choix de la langue</string>
 </resources>

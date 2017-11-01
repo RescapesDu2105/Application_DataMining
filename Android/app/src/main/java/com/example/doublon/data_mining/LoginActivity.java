@@ -3,6 +3,7 @@ package com.example.doublon.data_mining;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -170,11 +171,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mLoginView.setError(getString(R.string.error_field_required));
             focusView = mLoginView;
             cancel = true;
-        } /*else if (!isEmailValid(login)) {
-            mLoginView.setError(getString(R.string.error_invalid_login));
-            focusView = mLoginView;
-            cancel = true;
-        }*/
+        }
 
         if (cancel) {
             // There was an error; don't attempt login and focus the first
@@ -314,6 +311,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         Client.setNomUtilisateur(Reponse.getChargeUtile().get("Prenom").toString() + " " + (Reponse.getChargeUtile().get("Nom").toString()));
 
                         //Toast.makeText(LoginActivity.this, "Logged", Toast.LENGTH_LONG).show();
+                        isConnected = true;
                     }
                     else
                     {
@@ -328,9 +326,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 return false;
             }
 
-            if (Reponse.getCode() == ReponseLUGAPM.LOGIN_OK)
-                isConnected = true;
-
             return isConnected;
         }
 
@@ -342,7 +337,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             if (success)
             {
                 //finish();
-
+                final Intent LanguagePicker = new Intent().setClass(LoginActivity.this, LanguageActivity.class);
+                startActivity(LanguagePicker);
             } else {
                 mLoginView.setError(getString(R.string.error_incorrect_login_password));
                 mPasswordView.setError(getString(R.string.error_incorrect_login_password));
