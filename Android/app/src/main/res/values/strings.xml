@@ -17,5 +17,5 @@
     <string name="confirm_button">Confirmer</string>
     <string name="radio_button_dutch">Neerlandais</string>
     <string name="radio_button_english">Anglais</string>
-    <string name="title_activity_language">Application_Pistes - Choix de la langue</string>
+    <string name="title_activity_language">Choix de la langue</string>
 </resources>

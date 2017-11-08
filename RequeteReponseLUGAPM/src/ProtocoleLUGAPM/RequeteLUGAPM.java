@@ -27,9 +27,7 @@ import requetepoolthreads.Requete;
  * @author Philippe
  */
 public class RequeteLUGAPM implements Requete, Serializable 
-{
-    private static final long serialVersionUID = 4296258939822015079L;
-    
+{    
     public final static int REQUEST_LOG_OUT_RAMP_AGENT = 0;
     public final static int REQUEST_LOGIN_RAMP_AGENT = 1;
     public final static int REQUEST_LOAD_LUGAGES = 2;

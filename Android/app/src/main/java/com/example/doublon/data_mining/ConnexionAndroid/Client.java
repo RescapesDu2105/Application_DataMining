@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -33,7 +34,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  *
  * @author Philippe
  */
-public class Client {    
+public class Client implements Serializable{
     private int Port;
     private InetAddress IP;
     private Socket cliSocket = null;
@@ -52,7 +53,7 @@ public class Client {
     }
     
     
-    public void LireProperties() throws UnknownHostException, IOException
+    public void LireProperties() throws IOException
     {
         FileInputStream fis = null;
         FileOutputStream fos = null;
