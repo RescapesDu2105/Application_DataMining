@@ -89,6 +89,11 @@ public class MainFrame extends javax.swing.JFrame{
 
         jButtonEx4.setText("Exercice 4");
         jButtonEx4.setEnabled(false);
+        jButtonEx4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonEx4ActionPerformed(evt);
+            }
+        });
 
         jTextAreaConclusion.setColumns(20);
         jTextAreaConclusion.setRows(5);
@@ -450,74 +455,113 @@ public class MainFrame extends javax.swing.JFrame{
         double [] t = null;
         jInternalFrameGraphique.setVisible(false);
         jTextAreaConclusion.setText(null);
-           try
-           { 
-               //Path Zeydax :
-               // Path Doublon : 
-               CRS.getRConnexion().voidEval("data<-read.table(\"C:/Users/Doublon/Desktop/R_jar/3_Demenagement.csv\",h=TRUE,sep=\";\")");
-               Headers = CRS.getRConnexion().eval("colnames(data)").asStrings(); 
-               CRS.getRConnexion().voidEval("test<-lm(data$" +Headers[0]+ "~data$" +Headers[1]+ "+data$" +Headers[2]+ ")");
-               H0=CRS.getRConnexion().eval("summary(test)$coefficients[,\"Pr(>|t|)\"]").asDouble();
-               Coef=CRS.getRConnexion().eval("summary(test)$r.squared").asDouble();
-               jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value de H0 = " + H0+"\n");
-               jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Coéficient de corrélation = " + Coef+"\n");
-               if(H0<0.05)
-               {
-                   jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"les tests de signification sur les coefficients indiquent un rejet de l'hypothèse nulle, à 5%\n");;
-                   CRS.getRConnexion().voidEval("fstat<-summary(test)$fstatistic");
-                   p_value=CRS.getRConnexion().eval("pf(fstat[1],fstat[2],fstat[3],lower.tail=FALSE)").asDouble();
-                   jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value = " + p_value+"\n");
-                   if(p_value<0.05)
-                   {
-                       jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"le test de signification de la régression nous fait rejeter l'hypothèse nulle, à 5%\n");
-                       jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"et nous conduit à accepter l'existence d'une régression fondée\n");
-                   }
-                    jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"\n");
-                    CRS.getRConnexion().voidEval("test<-lm(data$temps~data$volume+data$nombre.de.grandes.pieces-1)");
-                    t=CRS.getRConnexion().eval("summary(test)$coefficients[,\"Pr(>|t|)\"]").asDoubles();
-                    for(int i = 0 ; i<t.length;i++)
-                    {
-                        jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"t : " +Headers[i]+ " : " +t[i]+ "\n");
-                        if(t[i]>0.05)
-                        {
-                            jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Comme le terme "+Headers[i]+" est peu significatif on peut passer au sous-modèle qui ne l'utilise pas\n");
-                        }
-                        else
-                           jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Comme le terme "+Headers[i]+" significatif on peut le garder pour une eventuel sous-modèle\n");
-                    }
-                    
-                    Coef=CRS.getRConnexion().eval("summary(test)$r.squared").asDouble();
-                    jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Nouveau coéficient de corrélation = " + Coef+"\n");
-                    CRS.getRConnexion().voidEval("fstat<-summary(test)$fstatistic");
-                    p_value=CRS.getRConnexion().eval("pf(fstat[1],fstat[2],fstat[3],lower.tail=FALSE)").asDouble();
-                    jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value = " + p_value+"\n");
-                    if(p_value<0.05)
-                    {
-                        jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"le test de signification de la régression nous fait rejeter l'hypothèse nulle, à 5%\n");
-                        jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"et nous conduit à accepter l'existence d'une régression fondée\n");
-                    }                     
-               }
-               else
-               {
-                   jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"les tests de signification sur les coefficients indiquent une acceptation de l'hypothèse nulle, à 5%\n");
-                   p_value=CRS.getRConnexion().eval("pf(fstat[1],fstat[2],fstat[3],lower.tail=FALSE)").asDouble();
-                   jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value = " + p_value+"\n");
-                   if(p_value<0.05)
-                   {
-                       jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"le test de signification de la régression nous fait rejeter l'hypothèse nulle, à 5%\n");
-                       jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"et nous conduit à accepter l'existence d'une régression fondée\n");
-                   }
-               }
-           } 
-           catch (RserveException ex) 
-           {
-               Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-           } 
-           catch (REXPMismatchException ex) 
-           {
-               Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-           }
+        try
+        { 
+            //Path Zeydax :
+            // Path Doublon : 
+            CRS.getRConnexion().voidEval("data<-read.table(\"C:/Users/Doublon/Desktop/R_jar/3_Demenagement.csv\",h=TRUE,sep=\";\")");
+            Headers = CRS.getRConnexion().eval("colnames(data)").asStrings(); 
+            CRS.getRConnexion().voidEval("test<-lm(data$" +Headers[0]+ "~data$" +Headers[1]+ "+data$" +Headers[2]+ ")");
+            H0=CRS.getRConnexion().eval("summary(test)$coefficients[,\"Pr(>|t|)\"]").asDouble();
+            Coef=CRS.getRConnexion().eval("summary(test)$r.squared").asDouble();
+            jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value de H0 = " + H0+"\n");
+            jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Coéficient de corrélation = " + Coef+"\n");
+            if(H0<0.05)
+            {
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"les tests de signification sur les coefficients indiquent un rejet de l'hypothèse nulle, à 5%\n");;
+                CRS.getRConnexion().voidEval("fstat<-summary(test)$fstatistic");
+                p_value=CRS.getRConnexion().eval("pf(fstat[1],fstat[2],fstat[3],lower.tail=FALSE)").asDouble();
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value = " + p_value+"\n");
+                if(p_value<0.05)
+                {
+                    jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"le test de signification de la régression nous fait rejeter l'hypothèse nulle, à 5%\n");
+                    jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"et nous conduit à accepter l'existence d'une régression fondée\n");
+                }
+                 jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"\n");
+                 CRS.getRConnexion().voidEval("test<-lm(data$temps~data$volume+data$nombre.de.grandes.pieces-1)");
+                 t=CRS.getRConnexion().eval("summary(test)$coefficients[,\"Pr(>|t|)\"]").asDoubles();
+                 for(int i = 0 ; i<t.length;i++)
+                 {
+                     jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"t : " +Headers[i]+ " : " +t[i]+ "\n");
+                     if(t[i]>0.05)
+                     {
+                         jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Comme le terme "+Headers[i]+" est peu significatif on peut passer au sous-modèle qui ne l'utilise pas\n");
+                     }
+                     else
+                        jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Comme le terme "+Headers[i]+" significatif on peut le garder pour une eventuel sous-modèle\n");
+                 }
+
+                 Coef=CRS.getRConnexion().eval("summary(test)$r.squared").asDouble();
+                 jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Nouveau coéficient de corrélation = " + Coef+"\n");
+                 CRS.getRConnexion().voidEval("fstat<-summary(test)$fstatistic");
+                 p_value=CRS.getRConnexion().eval("pf(fstat[1],fstat[2],fstat[3],lower.tail=FALSE)").asDouble();
+                 jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value = " + p_value+"\n");
+                 if(p_value<0.05)
+                 {
+                     jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"le test de signification de la régression nous fait rejeter l'hypothèse nulle, à 5%\n");
+                     jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"et nous conduit à accepter l'existence d'une régression fondée\n");
+                 }                     
+            }
+            else
+            {
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"les tests de signification sur les coefficients indiquent une acceptation de l'hypothèse nulle, à 5%\n");
+                p_value=CRS.getRConnexion().eval("pf(fstat[1],fstat[2],fstat[3],lower.tail=FALSE)").asDouble();
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p-value = " + p_value+"\n");
+                if(p_value<0.05)
+                {
+                    jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"le test de signification de la régression nous fait rejeter l'hypothèse nulle, à 5%\n");
+                    jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"et nous conduit à accepter l'existence d'une régression fondée\n");
+                }
+            }
+        } 
+        catch (RserveException ex) 
+        {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        catch (REXPMismatchException ex) 
+        {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jButtonEx3ActionPerformed
+
+    private void jButtonEx4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonEx4ActionPerformed
+        String[] Headers,HeadersTemp;
+        Double H0,CoefX,CoefY,p_value;
+        double [] t = null;
+        jInternalFrameGraphique.setVisible(false);
+        jTextAreaConclusion.setText(null);
+        
+        try 
+        {
+            CRS.getRConnexion().voidEval("data<-read.table(\"C:/Users/Doublon/Desktop/R_jar/RdtFromage.txt\",h=TRUE)");
+            Headers = CRS.getRConnexion().eval("colnames(data)").asStrings();
+            System.out.println(Headers[16]);
+            for(int i=0 ; i<3 ; i++)
+            {
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"TEST SUR : "+Headers[i]+"\n");
+                CRS.getRConnexion().voidEval("regression<-lm(data$"+Headers[i]+"~data$"+Headers[Headers.length-1]+")");
+                CRS.getRConnexion().voidEval("test<-summary(regression)");
+                t=CRS.getRConnexion().eval("test$coefficients[,\"Pr(>|t|)\"]").asDoubles();
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"valeurs des tests de signification sur les coefficients : "+t[0]+" et : "+t[1]+"\n");
+                CRS.getRConnexion().voidEval("fstat<-test$fstatistic");
+                p_value=CRS.getRConnexion().eval("pf(fstat[1],fstat[2],fstat[3],lower.tail=FALSE)").asDouble();
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"p_value du test : "+p_value+"\n");
+                CRS.getRConnexion().voidEval("droite<-test$coefficients");
+                CoefY=CRS.getRConnexion().eval("test$coefficients[1]").asDouble();
+                CoefX=CRS.getRConnexion().eval("test$coefficients[2]").asDouble();
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Equation de la droite de régréssion : y = "+CoefX+"x + "+CoefY+"\n");
+                CRS.getRConnexion().voidEval("newdata<-data.frame(data$"+Headers[i]+",data$"+Headers[Headers.length-1]+")");
+                CRS.getRConnexion().voidEval("correlation<-cor(newdata)");
+                CoefX=CRS.getRConnexion().eval("correlation[2]").asDouble();
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Coéfficient de corrélation de "+CoefX+"\n");
+                jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"\n");
+            }
+        } 
+        catch (RserveException | REXPMismatchException ex) 
+        {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }         
+    }//GEN-LAST:event_jButtonEx4ActionPerformed
 
     /**
      * @param args the command line arguments
