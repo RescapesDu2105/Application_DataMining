@@ -260,10 +260,69 @@ public class RequeteLUGAPM implements Requete, Serializable
         BD_airport.Deconnexion();
     }
     
-    public void traiteRequeteLoadLugages()
+    private void traiteRequeteLoadLugages()
     {
-        Reponse = new ReponseLUGAPM(ReponseLUGAPM.LUGAGES_LOADED);
-        Reponse.getChargeUtile().put("Message", ReponseLUGAPM.LUGAGES_LOADED_MESSAGE);
+        Bean_DB_Access BD_airport;
+        ResultSet RS;
+        int i = 1;
+        
+        BD_airport = Connexion_DB();
+        
+        if (BD_airport != null)
+        {
+            try
+            {                        
+                RS = BD_airport.Select("SELECT IdBagage, Poids, TypeBagage, Receptionne, Charge, Verifie, Remarques " +
+                                        "FROM bd_airport.vols NATURAL JOIN bd_airport.billets NATURAL JOIN bd_airport.bagages " +
+                                        "WHERE bd_airport.vols.IdVol = " + getChargeUtile().get("IdVol"));
+                if (RS != null) 
+                {
+                    Reponse = new ReponseLUGAPM(ReponseLUGAPM.LUGAGES_LOADED);
+                    while(RS.next())
+                    {
+                        HashMap<String, Object> hm = new HashMap<>();
+
+                        String IdBagage = RS.getString("IdBagage");
+                        float Poids = RS.getFloat("Poids");
+                        String TypeBagage = RS.getString("TypeBagage");
+                        char Receptionne = RS.getString("Receptionne").charAt(0);
+                        char Charge = RS.getString("Charge").charAt(0);
+                        char Verifie = RS.getString("Verifie").charAt(0);
+                        String Remarques = RS.getString("Remarques");
+
+                        hm.put("IdBagage", IdBagage);
+                        hm.put("Poids", Poids);
+                        hm.put("TypeBagage", TypeBagage);
+                        hm.put("Receptionne", Receptionne);
+                        hm.put("Charge", Charge);
+                        hm.put("Verifie", Verifie);
+                        hm.put("Remarques", Remarques);
+
+                        Reponse.getChargeUtile().put(Integer.toString(i), hm);
+
+                        i++;
+                    }                
+                    Reponse.getChargeUtile().put("IdVol", getChargeUtile().get("IdVol"));
+                    Reponse.getChargeUtile().put("Message", ReponseLUGAPM.NO_LUGAGES_MESSAGE);
+                }
+                else
+                {
+                    if (Reponse == null)
+                        Reponse = new ReponseLUGAPM(ReponseLUGAPM.INTERNAL_SERVER_ERROR);
+
+                    Reponse.getChargeUtile().put("Message", ReponseLUGAPM.INTERNAL_SERVER_ERROR_MESSAGE);
+                    System.out.println(ReponseLUGAPM.INTERNAL_SERVER_ERROR_MESSAGE);
+                }
+            }
+            catch (SQLException ex) 
+            {
+                Reponse = new ReponseLUGAPM(ReponseLUGAPM.INTERNAL_SERVER_ERROR);
+                Reponse.getChargeUtile().put("Message", ReponseLUGAPM.INTERNAL_SERVER_ERROR_MESSAGE);
+                System.out.println(ReponseLUGAPM.INTERNAL_SERVER_ERROR_MESSAGE);
+            }     
+        }
+        
+        BD_airport.Deconnexion();
     }
     
     public Bean_DB_Access Connexion_DB()

@@ -81,10 +81,13 @@ public class CheckingLugagesActivity extends AppCompatActivity {
         private ReponseLUGAPM RecupererBagages()
         {
             RequeteLUGAPM Req = new RequeteLUGAPM(RequeteLUGAPM.REQUEST_LOAD_LUGAGES);
-            ReponseLUGAPM Rep = null;
+            HashMap <String, Object> hm = new HashMap<>();
+
+            hm.put("IdVol", IdVol);
+            Req.setChargeUtile(hm);
 
             Client.EnvoyerRequete(Req);
-            Rep = (ReponseLUGAPM) Client.RecevoirReponse();
+            ReponseLUGAPM Rep = (ReponseLUGAPM) Client.RecevoirReponse();
 
             return Rep;
         }
@@ -92,66 +95,57 @@ public class CheckingLugagesActivity extends AppCompatActivity {
         private void CreerListeBagages(ReponseLUGAPM Rep)
         {
             final ListView listview = (ListView) findViewById(R.id.listViewCLA);
-            String[] values = new String[] { "752-11112017-0001",  "752-11112017-0002", "752-11112017-0003", "752-11112017-0004",
-                    "752-11112017-0005", "752-11112017-0006", "752-11112017-0007", "752-11112017-0008", "752-11112017-0009", "752-11112017-0010"};
+            /*String[] values = new String[] { "752-11112017-0001",  "752-11112017-0002", "752-11112017-0003", "752-11112017-0004",
+                    "752-11112017-0005", "752-11112017-0006", "752-11112017-0007", "752-11112017-0008", "752-11112017-0009", "752-11112017-0010"};*/
+            HashMap<String, Object> Bagages = Rep.getChargeUtile();
 
-            HashMap <String, Object> hm = new HashMap<>();
 
-            hm.put("IdVol", getVols().get("IdVol"));
-            Req.setChargeUtile(hm);
 
-            getClient().EnvoyerRequete(Req);
-            ReponseLUGAP Rep = getClient().RecevoirReponse();
 
             if (Rep != null)
             {
-                if (Rep.getCode() == ReponseLUGAP.LUGAGES_LOADED)
+                if (Rep.getCode() == ReponseLUGAPM.LUGAGES_LOADED)
                 {
-                    DefaultTableModel dtm = (DefaultTableModel) jTableBagages.getModel();
-                    HashMap<String, Object> Bagages = Rep.getChargeUtile();
-                    Object[] ligne = new Object[7];
+                    String[] values = new String[Rep.getChargeUtile().size() - 2];
+                    System.out.println("Bagages = " + Bagages);
 
                     for (int Cpt = 1 ; Cpt <= Bagages.size() - 2 ; Cpt++)
                     {
-                        hm = (HashMap) Bagages.get(Integer.toString(Cpt));
-                        ligne[0] = hm.get("IdBagage");
-                        ligne[1] = hm.get("Poids");
-                        ligne[2] = hm.get("TypeBagage");
-                        ligne[3] = hm.get("Receptionne");
-                        ligne[4] = hm.get("Charge");
-                        ligne[5] = hm.get("Verifie");
-                        ligne[6] = hm.get("Remarques");
-                        dtm.insertRow(Cpt - 1, ligne);
+                        HashMap <String, Object> hm = (HashMap) Bagages.get(Integer.toString(Cpt));
+                        System.out.println("Bagage = " + hm.get("IdBagage").toString() + " " + hm.get("Poids").toString() + " " + " " + hm.get("TypeBagage").toString());
+                        values[Cpt-1] = hm.get("IdBagage").toString() + " " + hm.get("Poids").toString() + " " + " " + hm.get("TypeBagage").toString();
                     }
+
+                    final ArrayList<String> list = new ArrayList<>();
+                    for (int i = 0; i < values.length; ++i) {
+                        list.add(values[i]);
+                    }
+                    adapter = new StableArrayAdapter(CheckingLugagesActivity.this,
+                            android.R.layout.simple_list_item_multiple_choice, list);
+                    listview.setAdapter(adapter);
+
+                    listview.setOnItemClickListener(new AdapterView.OnItemClickListener()
+                    {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, final View pView, int position, long id)
+                        {
+                            view = pView;
+                            pView.animate().setDuration(50).alpha(0).withEndAction(runnableCheck);
+                        }
+                    });
                 }
                 else if (Rep != null)
                 {
-                    JOptionPane.showMessageDialog(this, ReponseLUGAP.INTERNAL_SERVER_ERROR_MESSAGE, "Impossible de charger les bagages !", JOptionPane.ERROR_MESSAGE);
-                    System.exit(1);
+                    //JOptionPane.showMessageDialog(this, ReponseLUGAP.INTERNAL_SERVER_ERROR_MESSAGE, "Impossible de charger les bagages !", JOptionPane.ERROR_MESSAGE);
+                    //System.exit(1);
                 }
             }
             else
             {
-                JOptionPane.showMessageDialog(this, "Le serveur s'est déconnecté !", "Erreur", JOptionPane.ERROR_MESSAGE);
+                //JOptionPane.showMessageDialog(this, "Le serveur s'est déconnecté !", "Erreur", JOptionPane.ERROR_MESSAGE);
             }
 
-            final ArrayList<String> list = new ArrayList<>();
-            for (int i = 0; i < values.length; ++i) {
-                list.add(values[i]);
-            }
-            adapter = new StableArrayAdapter(CheckingLugagesActivity.this,
-                    android.R.layout.simple_list_item_multiple_choice, list);
-            listview.setAdapter(adapter);
 
-            listview.setOnItemClickListener(new AdapterView.OnItemClickListener()
-            {
-                @Override
-                public void onItemClick(AdapterView<?> parent, final View pView, int position, long id)
-                {
-                    view = pView;
-                    pView.animate().setDuration(50).alpha(0).withEndAction(runnableCheck);
-                }
-            });
         }
     }
 
