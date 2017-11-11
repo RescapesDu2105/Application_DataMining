@@ -16,6 +16,8 @@ import requetepoolthreads.Reponse;
 public class ReponseLUGAPM implements Reponse, Serializable 
 {
     //public final static int STATUS_OK = 200;    
+    public final static int FLIGHTS_LOADED = 203;    
+    public final static String FLIGHTS_LOADED_MESSAGE = "Informations sur les vols envoyés";
     public final static int LUGAGES_LOADED = 204;    
     public final static String LUGAGES_LOADED_MESSAGE = "Informations sur les bagages envoyés";
     

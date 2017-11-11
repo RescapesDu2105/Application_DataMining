@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.example.doublon.data_mining.ConnexionAndroid;
+package com.example.doublon.data_mining.ConnexionServeur;
 
 import requetepoolthreads.Reponse;
 import requetepoolthreads.Requete;
@@ -16,10 +16,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -34,18 +33,18 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  *
  * @author Philippe
  */
-public class Client implements Serializable{
-    private int Port;
-    private InetAddress IP;
-    private Socket cliSocket = null;
+public class Client {
+    private static int Port;
+    private static InetAddress IP;
+    private static Socket cliSocket = null;
     
-    private ObjectInputStream ois = null;
-    private ObjectOutputStream oos = null;
+    private static ObjectInputStream ois = null;
+    private static ObjectOutputStream oos = null;
     
     private Properties Prop = new Properties();
     
-    private String NomUtilisateur;
-    private boolean ConnectedToServer;
+    private static String NomUtilisateur;
+    private static boolean ConnectedToServer;
     
     public Client()
     {
@@ -87,7 +86,12 @@ public class Client implements Serializable{
     
     public void Connexion() throws IOException
     {
-        setCliSocket(new Socket(getIP(), getPort()));
+        System.out.println("IP = " + getIP());
+        //setCliSocket(new Socket(getIP(), getPort()));
+        setCliSocket(new Socket());
+        getCliSocket().connect(new InetSocketAddress(getIP(), getPort()), 1000);
+        //getCliSocket().setSoTimeout(15);
+        //getCliSocket().connect(getCliSocket().getRemoteSocketAddress(), 15);
         
         if (getCliSocket().isConnected()) 
         {
@@ -190,8 +194,9 @@ public class Client implements Serializable{
     public Reponse Authenfication(Requete Req, String Login, String Password) throws IOException, NoSuchAlgorithmException, NoSuchProviderException
     {
         Reponse Rep = null;
-        
-        Connexion();        
+
+        if (!isConnectedToServer())
+            Connexion();
         
         Security.addProvider(new BouncyCastleProvider());
 
@@ -224,7 +229,7 @@ public class Client implements Serializable{
         return Rep;
     }
     
-    public void EnvoyerRequete(Requete Req)
+    public static void EnvoyerRequete(Requete Req)
     {
         try 
         {            
@@ -233,24 +238,24 @@ public class Client implements Serializable{
         } 
         catch (IOException ex) 
         {
-            setConnectedToServer(false);
+            ConnectedToServer = false;
         }
     }
     
-    public Reponse RecevoirReponse()
+    public static Reponse RecevoirReponse()
     {
         Reponse Rep = null;
         
         try 
         {
             if (getOis() == null)
-                setOis(new ObjectInputStream(getCliSocket().getInputStream()));
+                ois = new ObjectInputStream(getCliSocket().getInputStream());
             
             Rep = (Reponse) getOis().readObject();
         } 
         catch (IOException ex) 
         {
-            setConnectedToServer(false);
+            ConnectedToServer = false;
             Rep = null;
         }
         catch (ClassNotFoundException ex)
@@ -263,7 +268,7 @@ public class Client implements Serializable{
                 
         
     // Getters - Setters
-    public ObjectInputStream getOis() {
+    public static ObjectInputStream getOis() {
         return ois;
     }
 
@@ -271,7 +276,7 @@ public class Client implements Serializable{
         this.ois = ois;
     }
 
-    public ObjectOutputStream getOos() {
+    public static ObjectOutputStream getOos() {
         return oos;
     }
 
@@ -295,12 +300,12 @@ public class Client implements Serializable{
         this.IP = IP;
     }
 
-    public Socket getCliSocket() {
+    public static synchronized Socket getCliSocket() {
         return cliSocket;
     }
 
-    public void setCliSocket(Socket cliSocket) {
-        this.cliSocket = cliSocket;
+    public synchronized void setCliSocket(Socket cS) {
+        cliSocket = cS;
     }
 
     public Properties getProp() {

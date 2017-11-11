@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Application_Pistes</string>
+
+    <string name="prompt_login">Username</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_login">Log in</string>
+    <string name="action_login_short">Log in</string>
+    <string name="error_invalid_login">The username is invalid</string>
+    <string name="error_invalid_password">The password is too short</string>
+    <string name="error_incorrect_login_password">The username or the password is incorrect</string>
+    <string name="error_field_required">The field is required</string>
+    <string name="title_activity_login">Application_Pistes - Log in</string>
+    <string name="radio_button_french">French</string>
+    <string name="radio_button_dutch">Dutch</string>
+    <string name="radio_button_english">English</string>
+    <string name="confirm_button">Confirm</string>
+    <string name="title_activity_language">Language choice</string>
+    <string name="title_activity_checkinglugages">Verify lugages</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_activity_selectingflights">Select a flight</string>
+</resources>

@@ -1,21 +1,15 @@
-package com.example.doublon.data_mining;
+package com.example.doublon.data_mining.ConnexionServeur;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
 
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -25,12 +19,11 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.doublon.data_mining.ConnexionAndroid.Client;
+import com.example.doublon.data_mining.LanguageActivity;
+import com.example.doublon.data_mining.R;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.InetAddress;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -38,15 +31,9 @@ import java.security.NoSuchProviderException;
 import ProtocoleLUGAPM.ReponseLUGAPM;
 import ProtocoleLUGAPM.RequeteLUGAPM;
 
-/**
- * A login screen that offers login via email/password.
- */
 public class LoginActivity extends AppCompatActivity {
     private Client Client = null;
 
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
     private UserLoginTask mAuthTask = null;
 
     // UI references.
@@ -100,6 +87,9 @@ public class LoginActivity extends AppCompatActivity {
         // Reset errors.
         mLoginView.setError(null);
         mPasswordView.setError(null);
+
+        mLoginView.setText("Zeydax");
+        mPasswordView.setText("123");
 
         // Store values at the time of the login attempt.
         String login = mLoginView.getText().toString();
@@ -234,7 +224,6 @@ public class LoginActivity extends AppCompatActivity {
             if (success)
             {
                 final Intent LanguagePicker = new Intent().setClass(LoginActivity.this, LanguageActivity.class);
-                LanguagePicker.putExtra("Client", getClient());
                 startActivity(LanguagePicker);
                 finish();
             }
@@ -256,19 +245,21 @@ public class LoginActivity extends AppCompatActivity {
     public ReponseLUGAPM contacteServeur(String Login, String Psw)
     {
         Client = new Client();
+        String[] AddressesIP = {"192.168.0.3", "10.59.22.101", "10.59.14.45"};
 
-        try
+        Client.setPort(30042);
+        for(int i = 0 ; i < AddressesIP.length && !Client.isConnectedToServer(); i++)
         {
-            //Client.setIP(InetAddress.getByName("10.59.14.141"));
-            Client.setIP(InetAddress.getByName("192.168.0.3"));
-            //Client.setIP(InetAddress.getLocalHost());
-            System.out.println("Client = " + Client.getIP());
-            Client.setPort(30042);
+            try
+            {
+                Client.setIP(InetAddress.getByName(AddressesIP[i]));
+                Client.Connexion();
+            }
+            catch (IOException e) {}
         }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+
+        if (!Client.isConnectedToServer())
+            System.exit(1); // Affiche une erreur
 
         ReponseLUGAPM Rep = null;
         try

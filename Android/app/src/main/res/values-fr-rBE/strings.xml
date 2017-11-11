@@ -16,7 +16,7 @@
     <string name="radio_button_english">Anglais</string>
     <string name="title_activity_language">Choix de la langue</string>
     <string name="title_activity_checkinglugages">Vérifier les bagages</string>
-    <string name="title_notifications">Notifications</string>
     <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
     <string name="title_activity_selectingflights">Selection du vol</string>
 </resources>

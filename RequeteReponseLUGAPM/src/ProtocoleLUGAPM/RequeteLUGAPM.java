@@ -17,6 +17,7 @@ import java.security.NoSuchProviderException;
 import java.security.Security;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Properties;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -30,7 +31,8 @@ public class RequeteLUGAPM implements Requete, Serializable
 {    
     public final static int REQUEST_LOG_OUT_RAMP_AGENT = 0;
     public final static int REQUEST_LOGIN_RAMP_AGENT = 1;
-    public final static int REQUEST_LOAD_LUGAGES = 2;
+    public final static int REQUEST_LOAD_FLIGHTS = 2;
+    public final static int REQUEST_LOAD_LUGAGES = 3;
     
     private int Type;
     private HashMap<String, Object> chargeUtile;
@@ -76,6 +78,15 @@ public class RequeteLUGAPM implements Requete, Serializable
                     }            
                 };
             
+            case REQUEST_LOAD_FLIGHTS:
+                return new Runnable() 
+                {
+                    public void run() 
+                    {
+                        traiteRequeteLoadFlights();
+                    }            
+                };
+                
             case REQUEST_LOAD_LUGAGES:
                 return new Runnable() 
                 {
@@ -188,9 +199,71 @@ public class RequeteLUGAPM implements Requete, Serializable
         return Champs;
     }
     
+    public void traiteRequeteLoadFlights()
+    {
+        Bean_DB_Access BD_airport;
+        ResultSet RS;
+        int i = 1;
+        
+        BD_airport = Connexion_DB();
+        
+        if (BD_airport != null)
+        {
+            try
+            {                        
+                RS = BD_airport.Select("SELECT bd_airport.vols.IdVol, bd_airport.vols.NumeroVol, bd_airport.compagnies.NomCompagnie, bd_airport.vols.Destination, bd_airport.vols.HeureDepart "
+                        + "FROM bd_airport.vols NATURAL JOIN avions NATURAL JOIN bd_airport.compagnies "
+                        + "WHERE bd_airport.vols.HeureDepart BETWEEN current_time() AND ADDTIME(current_time(), '04:00:00') "
+                        + "ORDER BY bd_airport.vols.HeureDepart");
+
+                if (RS != null) 
+                {         
+                    Reponse = new ReponseLUGAPM(ReponseLUGAPM.FLIGHTS_LOADED);
+                    while(RS.next())
+                    {
+                        int IdVol = RS.getInt("IdVol");
+                        int NumeroVol = RS.getInt("NumeroVol");
+                        String NomCompagnie = RS.getString("NomCompagnie");
+                        String Destination = RS.getString("Destination");
+                        Timestamp DateHeureDepart = RS.getTimestamp("HeureDepart");
+
+                        HashMap<String, Object> hm = new HashMap<>();
+                        
+                        //boolean bContient = Tab.containsValue(IdVol);
+                        //System.out.println("Tab = " + Tab);
+                        //System.out.println("bContient = " + bContient);
+                        //if (!bContient) {
+                            hm.put("IdVol", IdVol);
+                            hm.put("NumeroVol", NumeroVol);
+                            hm.put("NomCompagnie", NomCompagnie);
+                            hm.put("Destination", Destination);
+                            hm.put("DateHeureDepart", DateHeureDepart);
+                        //} hm.put("BagagesChargés", bContient);
+
+                        Reponse.getChargeUtile().put(Integer.toString(i), hm);
+                        i++;
+                    } 
+                    Reponse.getChargeUtile().put("Message", ReponseLUGAPM.FLIGHTS_LOADED_MESSAGE);
+                }
+            }
+            catch (SQLException ex) 
+            {
+                if (Reponse == null)
+                    Reponse = new ReponseLUGAPM(ReponseLUGAPM.INTERNAL_SERVER_ERROR);
+                else
+                    Reponse.setCode(ReponseLUGAPM.INTERNAL_SERVER_ERROR);
+                
+                Reponse.getChargeUtile().put("Message", ReponseLUGAPM.INTERNAL_SERVER_ERROR_MESSAGE);
+            }
+        }
+        
+        BD_airport.Deconnexion();
+    }
+    
     public void traiteRequeteLoadLugages()
     {
-        
+        Reponse = new ReponseLUGAPM(ReponseLUGAPM.LUGAGES_LOADED);
+        Reponse.getChargeUtile().put("Message", ReponseLUGAPM.LUGAGES_LOADED_MESSAGE);
     }
     
     public Bean_DB_Access Connexion_DB()
@@ -199,7 +272,7 @@ public class RequeteLUGAPM implements Requete, Serializable
         String Error;
         
         BD_airport = new Bean_DB_Access(Bean_DB_Access.DRIVER_MYSQL, getProp().getProperty("HOST_BD"), getProp().getProperty("PORT_BD"), "Zeydax", "1234", getProp().getProperty("SCHEMA_BD"));
-        //BD_airport = new Bean_DB_Access(Bean_DB_Access.DRIVER_MYSQL, "localhost", "3306", "Zeydax", "1234", "bd_airport");
+        
         if (BD_airport != null)
         {
             Error = BD_airport.Connexion();
