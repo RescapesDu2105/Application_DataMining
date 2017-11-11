@@ -2,35 +2,35 @@ DROP SCHEMA `bd_airport` ;
 CREATE SCHEMA `bd_airport` ;
 
 CREATE TABLE `bd_airport`.`compagnies`(
-	`IdCompagnie` INT NOT NULL,
-    `Nom` VARCHAR(45) NOT NULL,
+	`IdCompagnie` INT NOT NULL AUTO_INCREMENT,
+    `NomCompagnie` VARCHAR(45) NOT NULL,
     CONSTRAINT IdCompagnie_PK PRIMARY KEY (`IdCompagnie`),
-    CONSTRAINT NomUNIQUE UNIQUE(`Nom`)
-);
-
-CREATE TABLE `bd_airport`.`vols` (
-	`IdVol` INT NOT NULL,
-	`Destination` VARCHAR(45) NOT NULL,
-	`HeureDepart` DATETIME NOT NULL,
-	`HeureArrive` DATETIME NOT NULL,
-	CONSTRAINT IdVol_PK PRIMARY KEY (`IdVol`)
+    CONSTRAINT NomUNIQUE UNIQUE(`NomCompagnie`)
 );
 
 CREATE TABLE `bd_airport`.`avions` (
-	`IdAvion` INT NOT NULL,
+	`IdAvion` INT NOT NULL AUTO_INCREMENT,
 	`NomAvion` VARCHAR(15) NOT NULL,
 	`Modele` VARCHAR(25) NULL,
-	`NbPlace` INT NULL,
-	`IdCompagnie` INT NOT NULL,    
-	`IdVol` INT NULL,
+	`NbPlaces` INT NULL,
+	`IdCompagnie` INT NOT NULL,
 	PRIMARY KEY (`IdAvion`),
-	INDEX `Vol_idx` (`IdVol` ASC),
-	CONSTRAINT `Vol`
-		FOREIGN KEY (`IdVol`)
-		REFERENCES `bd_airport`.`vols` (`IdVol`),
 	CONSTRAINT `Compagnie` 
 		FOREIGN KEY (`IdCompagnie`)
 		REFERENCES `bd_airport`.`compagnies` (`IdCompagnie`)
+);
+
+CREATE TABLE `bd_airport`.`vols` (
+	`IdVol` INT NOT NULL AUTO_INCREMENT,
+    `NumeroVol` INT NOT NULL,
+	`Destination` VARCHAR(45) NOT NULL,
+	`HeureDepart` DATETIME NOT NULL,
+	`HeureArrive` DATETIME NOT NULL,
+    `IdAvion` INT NOT NULL,
+	CONSTRAINT IdVol_PK PRIMARY KEY (`IdVol`, `HeureDepart`),
+	CONSTRAINT `IdAvion`
+		FOREIGN KEY (`IdAvion`)
+		REFERENCES `bd_airport`.`avions` (`IdAvion`)
 );
 
 CREATE TABLE `bd_airport`.`billets` (
@@ -44,7 +44,7 @@ CREATE TABLE `bd_airport`.`billets` (
   PRIMARY KEY (`IdBillet`),
   INDEX `Vol_idx` (`IdVol` ASC),
   CONSTRAINT `Vol_FK`
-    FOREIGN KEY (`IdVol`)
+	FOREIGN KEY (`IdVol`)
     REFERENCES `bd_airport`.`vols` (`IdVol`),
   CONSTRAINT Classe_CK CHECK(Classe IN ('Premiere','Economique')),
   CONSTRAINT NbAccompagnant_CK CHECK(NbAccompagnant >=0 AND NbAccompagnant<=10)
@@ -68,24 +68,15 @@ CREATE TABLE `bd_airport`.`bagages` (
    CONSTRAINT Receptionne_CK Check(Receptionne IN ('O', 'N')),
    CONSTRAINT Charge_CK Check(Charge IN ('O', 'N')),
    CONSTRAINT Verifie_CK Check(Verifie IN ('O', 'N'))
-  -- , CONSTRAINT Poids_CK CHECK(Poids>=0)) , CONSTRAINT IdBagage_CK CHECK(IdBagage = )
 );
 
 CREATE TABLE `bd_airport`.`agents` (
   `IdAgent` INT NOT NULL,
-  `NomAgent` VARCHAR(25) NOT NULL,
-  `PrenomAgent` VARCHAR(25) NOT NULL,
+  `Nom` VARCHAR(25) NOT NULL,
+  `Prenom` VARCHAR(25) NOT NULL,
   `DateNaissance` DATE NOT NULL,
   `Poste` VARCHAR(45) NOT NULL,
+  `Login` VARCHAR(25),
+  `Password` VARCHAR(25),
+  CONSTRAINT `LoginUnique` UNIQUE(`Login`),
   PRIMARY KEY (`IdAgent`));
-   
-CREATE TABLE `bd_airport`.`comptes`(
-  `IdCompte` INT NOT NULL,
-  `Login` VARCHAR(25) NOT NULL,
-  `Password` VARCHAR(25) NOT NULL,
-  `IdAgent`INT NOT NULL,
-  PRIMARY KEY(`IdCompte`),
-  INDEX `Compte_idx` (`IdAgent` ASC),
-  CONSTRAINT `IdAgent` FOREIGN KEY (`IdAgent`) REFERENCES `bd_airport`.`agents` (`IdAgent`),
-  CONSTRAINT `LoginUnique` UNIQUE(`Login`)
-);

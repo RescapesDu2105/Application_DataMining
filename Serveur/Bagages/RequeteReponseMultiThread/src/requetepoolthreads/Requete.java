@@ -5,12 +5,17 @@
  */
 package requetepoolthreads;
 
-import java.net.Socket;
+import java.util.HashMap;
+import java.util.Properties;
 
 /**
  *
  * @author Philippe
  */
 public interface Requete {
-    public Runnable createRunnable(Socket s, ConsoleServeur cs);
+    public Runnable createRunnable(Properties Prop);
+    //public Runnable createRunnable(HashMap<String, Object> Tab);
+    public Reponse getReponse();
+    public HashMap getChargeUtile();
+    public String getNomTypeRequete();
 }

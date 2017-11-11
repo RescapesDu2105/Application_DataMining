@@ -8,10 +8,10 @@ package clientpoolthreads;
 import ProtocoleLUGAP.ReponseLUGAP;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
 /**
@@ -23,11 +23,22 @@ public class FenAuthentification extends javax.swing.JFrame {
     /**
      * Creates new form Login_GUI
      */
-    public FenAuthentification() {
-        this.Client = new Client();  
+    public FenAuthentification() 
+    {
         setLocationRelativeTo(null); 
         initComponents();
         this.getRootPane().setDefaultButton(jButton_Connexion);
+        
+        try 
+        {  
+            this.Client = new Client();
+        } 
+        catch (IOException ex) 
+        {
+            JOptionPane.showMessageDialog(this, "Problème interne au client !", "Erreur", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
+        
         //this.jButton_ConnexionActionPerformed(null);
     }
 
@@ -147,17 +158,17 @@ public class FenAuthentification extends javax.swing.JFrame {
 
             if (Rep != null) 
             {
-                if(Rep.getCode() == ReponseLUGAP.STATUS_OK)
+                if(Rep.getCode() == ReponseLUGAP.LOGIN_OK)
                 {
                     System.out.println("Rep = " + Rep.getChargeUtile().get("Message"));
-                    getClient().setNomUtilisateur(jTF_Login.getText());
+                    getClient().setNomUtilisateur(Rep.getChargeUtile().get("Prenom").toString() + " " + (Rep.getChargeUtile().get("Nom").toString()));
 
                     this.dispose();
                     FenAuthentification Test = this;
                     //getClient().setNomUtilisateur("Zeydax");
                     java.awt.EventQueue.invokeLater(new Runnable() {
                         public void run() {
-                            new MainFrame(Test, getClient()).setVisible(true);
+                            new FlightsFrame(Test, getClient()).setVisible(true);
                         }
                     });
                     this.jButton_EffacerActionPerformed(null);
@@ -222,6 +233,10 @@ public class FenAuthentification extends javax.swing.JFrame {
 
     public void setClient(Client Client) {
         this.Client = Client;
+    }
+
+    public JButton getjButton_Connexion() {
+        return jButton_Connexion;
     }
 
     

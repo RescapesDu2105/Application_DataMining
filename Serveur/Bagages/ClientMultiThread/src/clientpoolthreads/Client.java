@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -42,41 +43,44 @@ public class Client {
     private Properties Prop = new Properties();
     
     private String NomUtilisateur;
+    private boolean ConnectedToServer;
     
-    public Client() {
+    public Client() throws IOException, UnknownHostException
+    {
         LireProperties();
     }
     
     
-    public void LireProperties() 
+    public void LireProperties() throws UnknownHostException, IOException
     {
         FileInputStream fis = null;
+        FileOutputStream fos = null;
         String nomFichier = System.getProperty("user.dir").split("/dist")[0] + System.getProperty("file.separator")+ "src" + System.getProperty("file.separator") + this.getClass().getPackage().getName()+ System.getProperty("file.separator") + "config.properties";
-            
-        try {
+        
+        
+        try 
+        {
             fis = new FileInputStream(nomFichier);
             getProp().load(fis);
             fis.close();
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(FenAuthentification.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(FenAuthentification.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        //System.out.println("FILS DE PUTE");
-        if (fis != null) {
-            setPort(Integer.parseInt(getProp().getProperty("PORT_BAGAGES")));
-            try {
-                setIP(InetAddress.getByName(getProp().getProperty("ADRESSEIP")));
-            } catch (UnknownHostException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        } 
+        catch (FileNotFoundException ex) 
+        {            
+            fos = new FileOutputStream(nomFichier);
+
+            getProp().setProperty("PORT_BAGAGES", Integer.toString(30042));
+            getProp().setProperty("ADRESSEIP", "127.0.0.1");
+            
+            getProp().store(fos, null);
+        } 
+        
+        if (fis != null || fos != null) 
+        {
+            setPort(Integer.parseInt(getProp().getProperty("PORT_BAGAGES")));            
+            setIP(InetAddress.getByName(getProp().getProperty("ADRESSEIP")));
             
             System.out.println("Port : " + getPort());
             System.out.println("IP : " + getIP());
-        }
-        else {
-            System.out.println("FUCKED UP 3");
-            System.exit(1);
         }
 }
     
@@ -93,7 +97,7 @@ public class Client {
                 System.out.println("Création des flux");
                 setOos(new ObjectOutputStream(getCliSocket().getOutputStream()));
                 getOos().flush();
-            System.out.println("Fin de la création des flux");
+                System.out.println("Fin de la création des flux");
             }
             catch(IOException ex) 
             {
@@ -101,6 +105,7 @@ public class Client {
             }
             System.out.println("Client prêt");
             System.out.println("Connected = " + getCliSocket().isConnected());
+            setConnectedToServer(true);
         }
         else 
         {            
@@ -108,22 +113,46 @@ public class Client {
         }
     }
 
-    public void Deconnexion() 
+    public String Deconnexion() 
     {
-        try 
+        RequeteLUGAP Req = new RequeteLUGAP(RequeteLUGAP.REQUEST_LOG_OUT_PORTER);
+        ReponseLUGAP Rep;
+        
+        EnvoyerRequete(Req);
+        Rep = RecevoirReponse();
+        
+        if (Rep != null)
         {
-            getOis().close();
-            setOis(null);
-            getOos().close();
-            setOos(null);
-            getCliSocket().close();
-            setCliSocket(null);            
-            setNomUtilisateur("");
-        } 
-        catch (IOException ex) 
+            if (Rep.getCode() == ReponseLUGAP.LOG_OUT_OK)
+            {
+                try 
+                {
+                    getOis().close();
+                    setOis(null);
+                    getOos().close();
+                    setOos(null);
+                    getCliSocket().close();
+                    setCliSocket(null);            
+                    setNomUtilisateur("");                
+                } 
+                catch (IOException ex) 
+                {
+                    Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                    System.exit(1);
+                }
+                setConnectedToServer(false);
+
+                return null;
+            }
+            else
+            {
+                return Rep.getChargeUtile().get("Message").toString();
+            }
+        }
+        else
         {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-            System.exit(1);
+            setConnectedToServer(false);
+            return null;
         }
     }
     
@@ -173,7 +202,7 @@ public class Client {
         } 
         catch (IOException ex) 
         {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            setConnectedToServer(false);
         }
     }
     
@@ -188,7 +217,12 @@ public class Client {
             
             Rep = (ReponseLUGAP) getOis().readObject();
         } 
-        catch (IOException | ClassNotFoundException ex) 
+        catch (IOException ex) 
+        {
+            setConnectedToServer(false);
+            Rep = null;
+        }
+        catch (ClassNotFoundException ex)
         {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -252,6 +286,14 @@ public class Client {
 
     public void setNomUtilisateur(String NomUtilisateur) {
         this.NomUtilisateur = NomUtilisateur;
+    }
+
+    public boolean isConnectedToServer() {
+        return ConnectedToServer;
+    }
+
+    public void setConnectedToServer(boolean ConnectedToServer) {
+        this.ConnectedToServer = ConnectedToServer;
     }
     
     

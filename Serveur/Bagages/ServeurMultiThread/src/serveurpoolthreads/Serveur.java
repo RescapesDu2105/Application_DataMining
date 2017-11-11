@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import requetepoolthreads.ConsoleServeur;
 
 /**
@@ -37,7 +35,6 @@ public class Serveur extends Thread{
             this.Prop = (new ServerProperties()).getProp();
             this.Port_Bagages = Integer.parseInt(this.Prop.getProperty("PORT_BAGAGES"));
             this.MaxClients = Integer.parseInt(this.Prop.getProperty("MAX_CLIENTS"));
-            System.out.println(this.Prop.getProperty("ADRESSEIP"));
         } 
         catch (IOException ex) 
         {
@@ -52,10 +49,9 @@ public class Serveur extends Thread{
         setSSocket_Bagages(new ServerSocket(getPort_Bagages()));
         //setSSocket_CheckIN(new ServerSocket(getPort_CheckIN()));
         
-        System.out.println("MaxClients : " + getMaxClients());
         for (int i = 0 ; i < getMaxClients() ; i++) 
         {
-            getThreads().add(new ThreadClient("Thread du pool n°" + String.valueOf(i + 1), getSSocket_Bagages(), getGUIApplication()));
+            getThreads().add(new ThreadClient("Thread du pool n°" + String.valueOf(i + 1), getSSocket_Bagages(), getGUIApplication(), getProp()));
             getThreads().get(i).start();
         }
     }        
