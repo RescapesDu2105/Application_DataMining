@@ -44,7 +44,7 @@ CREATE TABLE `bd_airport`.`billets` (
   PRIMARY KEY (`IdBillet`),
   INDEX `Vol_idx` (`IdVol` ASC),
   CONSTRAINT `Vol_FK`
-	FOREIGN KEY (`IdVol`)
+    FOREIGN KEY (`IdVol`)
     REFERENCES `bd_airport`.`vols` (`IdVol`),
   CONSTRAINT Classe_CK CHECK(Classe IN ('Premiere','Economique')),
   CONSTRAINT NbAccompagnant_CK CHECK(NbAccompagnant >=0 AND NbAccompagnant<=10)
@@ -68,6 +68,7 @@ CREATE TABLE `bd_airport`.`bagages` (
    CONSTRAINT Receptionne_CK Check(Receptionne IN ('O', 'N')),
    CONSTRAINT Charge_CK Check(Charge IN ('O', 'N')),
    CONSTRAINT Verifie_CK Check(Verifie IN ('O', 'N'))
+  -- , CONSTRAINT Poids_CK CHECK(Poids>=0)) , CONSTRAINT IdBagage_CK CHECK(IdBagage = )
 );
 
 CREATE TABLE `bd_airport`.`agents` (

@@ -13,6 +13,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import application_datamining.*;
 
 /**
  *
@@ -168,7 +169,7 @@ public class FenAuthentification extends javax.swing.JFrame {
                     //getClient().setNomUtilisateur("Zeydax");
                     java.awt.EventQueue.invokeLater(new Runnable() {
                         public void run() {
-                            new FlightsFrame(Test, getClient()).setVisible(true);
+                            new MainFrame_AppDataMining().setVisible(true);
                         }
                     });
                     this.jButton_EffacerActionPerformed(null);

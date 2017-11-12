@@ -296,7 +296,7 @@ public class Application_Test_JDBC extends javax.swing.JFrame {
                 {        
                     if (jTF_From_Set.getText().toUpperCase().equals("DUAL"))
                         From = jTF_From_Set.getText();
-                    else if (!jButtonConnectMySQL.isEnabled())
+                    else if (jButtonConnectMySQL.isEnabled())
                     {
                         String[] Tokens;
 
@@ -398,6 +398,9 @@ public class Application_Test_JDBC extends javax.swing.JFrame {
                     TypeColonnes[nCol - 1] = RS.getMetaData().getColumnTypeName(nCol);
                 }
                 
+                int Temp = RS.getRow();
+                RS.last();
+                int MaxLignes = RS.getRow() - Temp + 1;
                 DefaultTableModel dtm = new DefaultTableModel(NomColonnes, 0);
                 
                 RS.beforeFirst();
@@ -405,7 +408,7 @@ public class Application_Test_JDBC extends javax.swing.JFrame {
                 while(RS.next()) 
                 {
                     nCol = 1;
-                    String[] ligne = new String[MaxColonnes];
+                    String[] ligne = new String[MaxLignes];
                     
                     while (nCol <= MaxColonnes) 
                     {
