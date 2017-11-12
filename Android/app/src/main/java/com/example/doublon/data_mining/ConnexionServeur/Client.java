@@ -149,7 +149,7 @@ public class Client {
         }
     }
 
-    public String Deconnexion(Requete Req)
+    public static String Deconnexion(Requete Req)
     {
         Reponse Rep;
         
@@ -163,19 +163,19 @@ public class Client {
                 try 
                 {
                     getOis().close();
-                    setOis(null);
+                    ois = null;
                     getOos().close();
-                    setOos(null);
+                    oos = null;
                     getCliSocket().close();
-                    setCliSocket(null);            
-                    setNomUtilisateur("");                
+                    cliSocket = null;
+                    NomUtilisateur = "";
                 } 
                 catch (IOException ex) 
                 {
                     Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
                     System.exit(1);
                 }
-                setConnectedToServer(false);
+                ConnectedToServer = false;
 
                 return null;
             }
@@ -186,7 +186,7 @@ public class Client {
         }
         else
         {
-            setConnectedToServer(false);
+            ConnectedToServer = false;
             return null;
         }
     }

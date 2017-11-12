@@ -1,7 +1,11 @@
 package com.example.doublon.data_mining;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -13,6 +17,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.doublon.data_mining.ConnexionServeur.Client;
+import com.example.doublon.data_mining.ConnexionServeur.LoginActivity;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -30,6 +35,7 @@ public class CheckingLugagesActivity extends AppCompatActivity {
     private int IdVol;
     private int NbBagages;
     private int NbBagages_Checked = 0;
+    private ArrayList<String> IdsBagages = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,8 +131,6 @@ public class CheckingLugagesActivity extends AppCompatActivity {
         private void CreerListeBagages(ReponseLUGAPM Rep)
         {
             final ListView listview = (ListView) findViewById(R.id.listViewCLA);
-            /*String[] values = new String[] { "752-11112017-0001",  "752-11112017-0002", "752-11112017-0003", "752-11112017-0004",
-                    "752-11112017-0005", "752-11112017-0006", "752-11112017-0007", "752-11112017-0008", "752-11112017-0009", "752-11112017-0010"};*/
             HashMap<String, Object> Bagages = Rep.getChargeUtile();
 
             if (Rep != null)
@@ -140,6 +144,7 @@ public class CheckingLugagesActivity extends AppCompatActivity {
                     for (int Cpt = 1 ; Cpt <= Bagages.size() - 2 ; Cpt++)
                     {
                         HashMap <String, Object> hm = (HashMap) Bagages.get(Integer.toString(Cpt));
+                        IdsBagages.add(hm.get("IdBagage").toString());
                         System.out.println("Bagage = " + hm.get("IdBagage").toString() + " " + hm.get("Poids").toString() + " " + " " + hm.get("TypeBagage").toString());
                         values[Cpt-1] = hm.get("IdBagage").toString() + " " + hm.get("Poids").toString() + " " + " " + hm.get("TypeBagage").toString();
                     }
@@ -179,6 +184,7 @@ public class CheckingLugagesActivity extends AppCompatActivity {
     {
         Runnable runnableSendLugages;
         ReponseLUGAPM Reponse = null;
+        String ErrorMsg = "";
 
         EnvoyerBagagesTask()
         {
@@ -198,6 +204,7 @@ public class CheckingLugagesActivity extends AppCompatActivity {
             HashMap <String, Object> hm = new HashMap<>();
 
             hm.put("IdVol", IdVol);
+            hm.put("IdsBagages", IdsBagages);
             Req.setChargeUtile(hm);
 
             Client.EnvoyerRequete(Req);
@@ -215,17 +222,32 @@ public class CheckingLugagesActivity extends AppCompatActivity {
             boolean Ok;
 
             Ok = EnvoyerBagages();
-            if (Ok)
+            //Ok = false; // TEST
+            if (!Ok)
             {
-                String msg = "Tous les bagages sont dans la soute !";
+                ErrorMsg = "Problème interne au serveur !";
+            }
+            Client.Deconnexion(new RequeteLUGAPM(RequeteLUGAPM.REQUEST_LOG_OUT_RAMP_AGENT));
+
+            return Ok;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success)
+        {
+            finish();
+            final Intent LoginActivity = new Intent().setClass(CheckingLugagesActivity.this, LoginActivity.class);
+            startActivity(LoginActivity);
+
+            if(success)
+            {
+                String msg = "Tous les bagages sont dans la soute, vous êtes donc déconnecté du serveur!";
                 Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
             }
             else
             {
-                String msg = "Problème interne au serveur !";
-                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), ErrorMsg, Toast.LENGTH_LONG).show();
             }
-            return null;
         }
     }
 }

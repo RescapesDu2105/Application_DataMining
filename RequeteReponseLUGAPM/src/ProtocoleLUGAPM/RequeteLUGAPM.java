@@ -18,6 +18,7 @@ import java.security.Security;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -224,6 +225,7 @@ public class RequeteLUGAPM implements Requete, Serializable
                 RS = BD_airport.Select("SELECT bd_airport.vols.IdVol, bd_airport.vols.NumeroVol, bd_airport.compagnies.NomCompagnie, bd_airport.vols.Destination, bd_airport.vols.HeureDepart "
                         + "FROM bd_airport.vols NATURAL JOIN avions NATURAL JOIN bd_airport.compagnies "
                         + "WHERE bd_airport.vols.HeureDepart BETWEEN current_time() AND ADDTIME(current_time(), '04:00:00') "
+                        //+ "AND bd_airport.vols.IdVol IN (SELECT DISTINCT IdVol FROM bd_airport.bagages NATURAL JOIN bd_airport.billets WHERE Charge != 'O') "
                         + "ORDER BY bd_airport.vols.HeureDepart");
 
                 if (RS != null) 
@@ -282,9 +284,9 @@ public class RequeteLUGAPM implements Requete, Serializable
         {
             try
             {                        
-                RS = BD_airport.Select("SELECT IdBagage, Poids, TypeBagage, Receptionne, Charge, Verifie, Remarques " +
-                                        "FROM bd_airport.vols NATURAL JOIN bd_airport.billets NATURAL JOIN bd_airport.bagages " +
-                                        "WHERE bd_airport.vols.IdVol = " + getChargeUtile().get("IdVol"));
+                RS = BD_airport.Select("SELECT IdBagage, Poids, TypeBagage " +
+                                        "FROM bd_airport.billets NATURAL JOIN bd_airport.bagages " +
+                                        "WHERE bd_airport.billets.IdVol = " + getChargeUtile().get("IdVol"));
                 if (RS != null) 
                 {
                     Reponse = new ReponseLUGAPM(ReponseLUGAPM.LUGAGES_LOADED);
@@ -295,25 +297,20 @@ public class RequeteLUGAPM implements Requete, Serializable
                         String IdBagage = RS.getString("IdBagage");
                         float Poids = RS.getFloat("Poids");
                         String TypeBagage = RS.getString("TypeBagage");
-                        char Receptionne = RS.getString("Receptionne").charAt(0);
-                        char Charge = RS.getString("Charge").charAt(0);
-                        char Verifie = RS.getString("Verifie").charAt(0);
-                        String Remarques = RS.getString("Remarques");
 
                         hm.put("IdBagage", IdBagage);
                         hm.put("Poids", Poids);
                         hm.put("TypeBagage", TypeBagage);
-                        hm.put("Receptionne", Receptionne);
-                        hm.put("Charge", Charge);
-                        hm.put("Verifie", Verifie);
-                        hm.put("Remarques", Remarques);
 
                         Reponse.getChargeUtile().put(Integer.toString(i), hm);
 
                         i++;
                     }                
                     Reponse.getChargeUtile().put("IdVol", getChargeUtile().get("IdVol"));
-                    Reponse.getChargeUtile().put("Message", ReponseLUGAPM.NO_LUGAGES_MESSAGE);
+                    if(i > 1)
+                        Reponse.getChargeUtile().put("Message", ReponseLUGAPM.LUGAGES_LOADED_MESSAGE);
+                    else
+                        Reponse.getChargeUtile().put("Message", ReponseLUGAPM.NO_LUGAGES_MESSAGE);
                 }
                 else
                 {
@@ -342,31 +339,34 @@ public class RequeteLUGAPM implements Requete, Serializable
         int Ok = 0;
         
         BD_airport = Connexion_DB();
+        System.out.println("Test3 : " + BD_airport == null);
         
-        if (BD_airport != null && Reponse == null)// || (Reponse != null && !Reponse.getChargeUtile().get("Message").equals(ReponseLUGAP.INTERNAL_SERVER_ERROR_MESSAGE)))
+        if (BD_airport != null)// || (Reponse != null && !Reponse.getChargeUtile().get("Message").equals(ReponseLUGAP.INTERNAL_SERVER_ERROR_MESSAGE)))
         {
-            //int IdVol = (int)getChargeUtile().get("IdVol");
-            //System.out.println("IdVol = " + IdVol);
-            //Tab.put("IdVol", IdVol);
-            //Tab.put("Test", "Test");
-            //System.out.println("Tab = " + Tab);
+            System.out.println("Test 3.1");
+            int IdVol = -1;
+            IdVol = (int)getChargeUtile().get("IdVol");
+            ArrayList<String> IdsBagages = (ArrayList<String>) getChargeUtile().get("IdsBagages");
+            System.out.println("IdsBagages.size() = " + IdsBagages.size());
             
-            //System.out.println("getChargeUtile() = " + getChargeUtile());
-            //System.out.println("getChargeUtile().size() = " + getChargeUtile().size());
-            
-            for (int i = 1 ; i <= getChargeUtile().size() - 1 ; i++) 
+            if(IdVol != -1 && IdsBagages != null)
             {
-                HashMap<String, Object> hm = (HashMap<String, Object>) getChargeUtile().get(Integer.toString(i));
-                System.out.println("i = " + i);
-                try 
+                for (int i = 0; i < IdsBagages.size(); i++) 
                 {
-                    Ok = BD_airport.Update("UPDATE Bagages "
-                            + "SET Receptionne = 'O', Charge = 'O', Verifie = 'O', Remarques = ''"
-                            + "WHERE IdVol = \"" + hm.get("IdVol") + "\"");
-                } 
-                catch (SQLException ex) {}
+                    try 
+                    {
+                        System.out.println("IdsBagages.get(i) = " + IdsBagages.get(i));
+                        Ok = Ok + BD_airport.Update("UPDATE bd_airport.Bagages "
+                                + "SET Receptionne = 'O', Charge = 'O', Verifie = 'O', Remarques = '' "
+                                + "WHERE IdBagage = '" + IdsBagages.get(i) + "'");
+                    } 
+                    catch (SQLException ex) { ex.printStackTrace();}
 
-                if (Ok == getChargeUtile().size())
+                    System.out.println("Ok = " + Ok);
+                }
+                
+
+                if (Ok == IdsBagages.size())
                 {     
                     Reponse = new ReponseLUGAPM(ReponseLUGAPM.LUGAGES_SAVED);
                     Reponse.getChargeUtile().put("Message", ReponseLUGAPM.LUGAGES_SAVED_MESSAGE);
@@ -379,6 +379,7 @@ public class RequeteLUGAPM implements Requete, Serializable
             } 
         }
         
+        System.out.println("Test4");
         BD_airport.Deconnexion();
     }
     
@@ -389,6 +390,7 @@ public class RequeteLUGAPM implements Requete, Serializable
         
         BD_airport = new Bean_DB_Access(Bean_DB_Access.DRIVER_MYSQL, getProp().getProperty("HOST_BD"), getProp().getProperty("PORT_BD"), "Zeydax", "1234", getProp().getProperty("SCHEMA_BD"));
         
+        System.out.println("Test1");
         if (BD_airport != null)
         {
             Error = BD_airport.Connexion();
@@ -400,6 +402,7 @@ public class RequeteLUGAPM implements Requete, Serializable
             }                
         }        
         
+        System.out.println("Test2 : " + BD_airport == null);
         return BD_airport;
     }
     
