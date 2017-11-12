@@ -33,6 +33,7 @@ public class RequeteLUGAPM implements Requete, Serializable
     public final static int REQUEST_LOGIN_RAMP_AGENT = 1;
     public final static int REQUEST_LOAD_FLIGHTS = 2;
     public final static int REQUEST_LOAD_LUGAGES = 3;
+    public final static int REQUEST_SAVE_LUGAGES = 4;
     
     private int Type;
     private HashMap<String, Object> chargeUtile;
@@ -93,6 +94,15 @@ public class RequeteLUGAPM implements Requete, Serializable
                     public void run() 
                     {
                         traiteRequeteLoadLugages();
+                    }            
+                };
+            
+            case REQUEST_SAVE_LUGAGES:
+                return new Runnable() 
+                {
+                    public void run() 
+                    {
+                        traiteRequeteSaveLugages();
                     }            
                 };
             
@@ -325,6 +335,53 @@ public class RequeteLUGAPM implements Requete, Serializable
         BD_airport.Deconnexion();
     }
     
+    private void traiteRequeteSaveLugages()//HashMap<String, Object> Tab)
+    {
+        Bean_DB_Access BD_airport;
+        ResultSet RS;
+        int Ok = 0;
+        
+        BD_airport = Connexion_DB();
+        
+        if (BD_airport != null && Reponse == null)// || (Reponse != null && !Reponse.getChargeUtile().get("Message").equals(ReponseLUGAP.INTERNAL_SERVER_ERROR_MESSAGE)))
+        {
+            //int IdVol = (int)getChargeUtile().get("IdVol");
+            //System.out.println("IdVol = " + IdVol);
+            //Tab.put("IdVol", IdVol);
+            //Tab.put("Test", "Test");
+            //System.out.println("Tab = " + Tab);
+            
+            //System.out.println("getChargeUtile() = " + getChargeUtile());
+            //System.out.println("getChargeUtile().size() = " + getChargeUtile().size());
+            
+            for (int i = 1 ; i <= getChargeUtile().size() - 1 ; i++) 
+            {
+                HashMap<String, Object> hm = (HashMap<String, Object>) getChargeUtile().get(Integer.toString(i));
+                System.out.println("i = " + i);
+                try 
+                {
+                    Ok = BD_airport.Update("UPDATE Bagages "
+                            + "SET Receptionne = 'O', Charge = 'O', Verifie = 'O', Remarques = ''"
+                            + "WHERE IdVol = \"" + hm.get("IdVol") + "\"");
+                } 
+                catch (SQLException ex) {}
+
+                if (Ok == getChargeUtile().size())
+                {     
+                    Reponse = new ReponseLUGAPM(ReponseLUGAPM.LUGAGES_SAVED);
+                    Reponse.getChargeUtile().put("Message", ReponseLUGAPM.LUGAGES_SAVED_MESSAGE);
+                }    
+                else 
+                {
+                    Reponse = new ReponseLUGAPM(ReponseLUGAPM.INTERNAL_SERVER_ERROR);
+                    Reponse.getChargeUtile().put("Message", ReponseLUGAPM.INTERNAL_SERVER_ERROR_MESSAGE);
+                }
+            } 
+        }
+        
+        BD_airport.Deconnexion();
+    }
+    
     public Bean_DB_Access Connexion_DB()
     {
         Bean_DB_Access BD_airport;
@@ -394,7 +451,9 @@ public class RequeteLUGAPM implements Requete, Serializable
         {
             case REQUEST_LOG_OUT_RAMP_AGENT : return "REQUEST_LOG_OUT_RAMP_AGENT";
             case REQUEST_LOGIN_RAMP_AGENT: return "REQUEST_LOGIN_RAMP_AGENT";  
-            case REQUEST_LOAD_LUGAGES: return "REQUEST_LOAD_LUGAGES";
+            case REQUEST_LOAD_FLIGHTS: return "REQUEST_LOAD_FLIGHTS"; 
+            case REQUEST_LOAD_LUGAGES: return "REQUEST_LOAD_LUGAGES"; 
+            case REQUEST_SAVE_LUGAGES: return "REQUEST_SAVE_LUGAGES";
             default : return null;
         }
     }

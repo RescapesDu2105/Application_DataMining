@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.doublon.data_mining.ConnexionServeur.Client;
 
@@ -23,29 +25,52 @@ import ProtocoleLUGAPM.RequeteLUGAPM;
 
 public class CheckingLugagesActivity extends AppCompatActivity {
 
-    private CommunicationServerTask cTask = null;
+    private ListeBagagesTask LBTask = null;
+    private EnvoyerBagagesTask EBTask = null;
     private int IdVol;
+    private int NbBagages;
+    private int NbBagages_Checked = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         IdVol = (int) getIntent().getExtras().get("IdVol");
         setContentView(R.layout.activity_checking_lugages);
+        LBTask = new ListeBagagesTask();
+        EBTask = new EnvoyerBagagesTask();
+        Button bConfirmer = findViewById(R.id.button_confirm);
+        bConfirmer.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                if (NbBagages_Checked == NbBagages)
+                {
+                    EBTask.execute();
+                }
+                else
+                {
+                    String msg = "Certains bagages ne sont pas dans la soute !";
+                    Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+                }
+            }
+        });
 
-        cTask = new CommunicationServerTask();
-        cTask.execute((Void) null);
+        LBTask.execute();
 
         System.out.println("Langue 3 = " + getResources().getConfiguration().locale);
     }
 
-    public class CommunicationServerTask extends AsyncTask<Void, Void, Boolean> {
+    public class ListeBagagesTask extends AsyncTask<Void, Void, Boolean>
+    {
         Runnable runnableCheck;
         Runnable runnableLugages;
+        Runnable runnableSendLugages;
         ReponseLUGAPM Reponse = null;
         StableArrayAdapter adapter = null;
         View view = null;
 
-        CommunicationServerTask()
+        ListeBagagesTask()
         {
             runnableCheck = new Runnable()
             {
@@ -53,6 +78,11 @@ public class CheckingLugagesActivity extends AppCompatActivity {
                 public void run()
                 {
                     CheckedTextView check = (CheckedTextView)view;
+                    if(!check.isChecked())
+                        NbBagages_Checked++;
+                    else
+                        NbBagages_Checked--;
+
                     check.setChecked(!check.isChecked());
                     adapter.notifyDataSetChanged();
                     view.setAlpha(1);
@@ -99,14 +129,12 @@ public class CheckingLugagesActivity extends AppCompatActivity {
                     "752-11112017-0005", "752-11112017-0006", "752-11112017-0007", "752-11112017-0008", "752-11112017-0009", "752-11112017-0010"};*/
             HashMap<String, Object> Bagages = Rep.getChargeUtile();
 
-
-
-
             if (Rep != null)
             {
                 if (Rep.getCode() == ReponseLUGAPM.LUGAGES_LOADED)
                 {
-                    String[] values = new String[Rep.getChargeUtile().size() - 2];
+                    NbBagages = Rep.getChargeUtile().size() - 2;
+                    String[] values = new String[NbBagages];
                     System.out.println("Bagages = " + Bagages);
 
                     for (int Cpt = 1 ; Cpt <= Bagages.size() - 2 ; Cpt++)
@@ -144,10 +172,60 @@ public class CheckingLugagesActivity extends AppCompatActivity {
             {
                 //JOptionPane.showMessageDialog(this, "Le serveur s'est déconnecté !", "Erreur", JOptionPane.ERROR_MESSAGE);
             }
-
-
         }
     }
 
+    public class EnvoyerBagagesTask extends AsyncTask<Void, Void, Boolean>
+    {
+        Runnable runnableSendLugages;
+        ReponseLUGAPM Reponse = null;
 
+        EnvoyerBagagesTask()
+        {
+            runnableSendLugages = new Runnable() {
+                @Override
+                public void run() {
+                    EnvoyerBagages();
+                }
+            };
+        }
+
+        public boolean EnvoyerBagages()
+        {
+            boolean Ok = false;
+
+            RequeteLUGAPM Req = new RequeteLUGAPM(RequeteLUGAPM.REQUEST_SAVE_LUGAGES);
+            HashMap <String, Object> hm = new HashMap<>();
+
+            hm.put("IdVol", IdVol);
+            Req.setChargeUtile(hm);
+
+            Client.EnvoyerRequete(Req);
+            ReponseLUGAPM Rep = (ReponseLUGAPM) Client.RecevoirReponse();
+
+            if(Rep.getCode() == ReponseLUGAPM.LUGAGES_SAVED)
+                Ok = true;
+
+            return Ok;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids)
+        {
+            boolean Ok;
+
+            Ok = EnvoyerBagages();
+            if (Ok)
+            {
+                String msg = "Tous les bagages sont dans la soute !";
+                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+            }
+            else
+            {
+                String msg = "Problème interne au serveur !";
+                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+            }
+            return null;
+        }
+    }
 }

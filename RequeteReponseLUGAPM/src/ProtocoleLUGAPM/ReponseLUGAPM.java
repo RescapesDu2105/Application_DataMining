@@ -20,6 +20,9 @@ public class ReponseLUGAPM implements Reponse, Serializable
     public final static String FLIGHTS_LOADED_MESSAGE = "Informations sur les vols envoyés";
     public final static int LUGAGES_LOADED = 204;    
     public final static String LUGAGES_LOADED_MESSAGE = "Informations sur les bagages envoyés";
+    public final static int LUGAGES_SAVED = 205;
+    public final static String LUGAGES_SAVED_MESSAGE = "Bagages sauvés";    
+    
     public final static int NO_LUGAGES = 404;
     public final static String NO_LUGAGES_MESSAGE = "Aucun bagage à charger";
     
