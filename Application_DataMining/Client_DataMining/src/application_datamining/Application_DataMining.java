@@ -5,6 +5,9 @@
  */
 package application_datamining;
 
+import ProtocoleLUGANAP.ReponseLUGANAP;
+import ProtocoleLUGANAP.RequeteLUGANAP;
+
 /**
  *
  * @author Doublon
@@ -27,7 +30,23 @@ public class Application_DataMining extends javax.swing.JFrame {
     
     public void InitialisationSpinners() 
     {
+        ReponseLUGANAP Rep = null;
         
+        RequeteLUGANAP Req = new RequeteLUGANAP(RequeteLUGANAP.REQUEST_INIT);
+        Client.EnvoyerRequete(Req);
+        Rep = Client.RecevoirReponse();
+        
+        if(Rep != null)
+        {
+            if(Rep.getCode() == ReponseLUGANAP.INITIATED)
+            {
+                
+            }
+        }
+        else
+        {
+            
+        }
     }
     
     /**

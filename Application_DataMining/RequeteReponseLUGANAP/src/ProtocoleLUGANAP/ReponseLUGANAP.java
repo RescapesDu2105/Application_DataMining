@@ -17,13 +17,8 @@ public class ReponseLUGANAP implements Reponse, Serializable
 {
     //public final static int STATUS_OK = 200;    
     
-    public final static int FLIGHTS_LOADED = 203;
-    public final static int LUGAGES_LOADED = 204;
-    public final static int LUGAGES_SAVED = 205;
-    
-    public final static String FLIGHTS_LOADED_MESSAGE = "Informations sur les vols envoyés";
-    public final static String LUGAGES_LOADED_MESSAGE = "Informations sur les bagages envoyés";
-    public final static String LUGAGES_SAVED_MESSAGE = "Informations sur les bagages sauvés";
+    public final static int INITIATED = 203;    
+    public final static String INITIATED_MESSAGE = "Informations d'initialisation envoyés";
     
     private int Code;
     private HashMap<String, Object> ChargeUtile;

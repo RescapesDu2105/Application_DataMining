@@ -30,6 +30,7 @@ public class RequeteLUGANAP implements Requete, Serializable
 {
     public final static int REQUEST_LOG_OUT_ANALYST = 0;
     public final static int REQUEST_LOGIN_ANALYST = 1;
+    public final static int REQUEST_INIT = 2;
         
     private int Type;
     private HashMap<String, Object> chargeUtile;
