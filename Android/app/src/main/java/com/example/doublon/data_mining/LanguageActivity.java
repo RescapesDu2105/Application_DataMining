@@ -1,6 +1,7 @@
 package com.example.doublon.data_mining;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -13,7 +14,11 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.widget.Toast;
 
+import com.example.doublon.data_mining.ConnexionServeur.Client;
+
 import java.util.Locale;
+
+import ProtocoleLUGAPM.RequeteLUGAPM;
 
 public class LanguageActivity extends AppCompatActivity
 {
@@ -78,8 +83,36 @@ public class LanguageActivity extends AppCompatActivity
         });
     }
 
+// Tentative de deconnexion au serveur avant de fermer l'application
+    /*@Override
+    protected void onDestroy() {
+        System.out.println("Destroy");
+        DeconnexionServeurTask DST = new DeconnexionServeurTask();
+        DST.execute();
 
-    @SuppressWarnings("deprecation")
+        super.onDestroy();
+    }
+
+    public class DeconnexionServeurTask extends AsyncTask<Void, Void, Boolean>
+    {
+        @Override
+        protected Boolean doInBackground(Void... voids)
+        {
+            Client.Deconnexion(new RequeteLUGAPM(RequeteLUGAPM.REQUEST_LOG_OUT_RAMP_AGENT));
+
+            return true;
+        }
+
+    }
+
+    @Override
+    protected void onStop() {
+        System.out.println("Stop");
+        super.onStop();
+    }*/
+
+// Tentative de changement de langue
+    /*@SuppressWarnings("deprecation")
     public Locale getSystemLocaleLegacy(Configuration config){
         return config.locale;
     }
@@ -112,5 +145,5 @@ public class LanguageActivity extends AppCompatActivity
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1)
             context.getApplicationContext().getResources().updateConfiguration(config,
                     context.getResources().getDisplayMetrics());
-    }
+    }*/
 }

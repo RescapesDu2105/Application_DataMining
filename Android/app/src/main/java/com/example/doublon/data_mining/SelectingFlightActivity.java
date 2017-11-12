@@ -8,8 +8,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.doublon.data_mining.ConnexionServeur.Client;
+import com.example.doublon.data_mining.ConnexionServeur.LoginActivity;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -35,21 +37,11 @@ public class SelectingFlightActivity extends AppCompatActivity
 
     public class CommunicationServerTask extends AsyncTask<Void, Void, Boolean>
     {
-        Runnable runnableFlights;
-        Runnable runnableLugages;
         ReponseLUGAPM Reponse = null;
         ArrayList<Integer> listIdVol = new ArrayList<>();
 
 
-        CommunicationServerTask()
-        {
-            runnableFlights = new Runnable() {
-                @Override
-                public void run() {
-                    CreerListeVols(Reponse);
-                }
-            };
-        }
+        CommunicationServerTask(){}
 
         @Override
         protected Boolean doInBackground(Void... params)
@@ -58,9 +50,37 @@ public class SelectingFlightActivity extends AppCompatActivity
             ReponseLUGAPM Rep;
 
             Reponse = RecupererVols();
-            runOnUiThread(runnableFlights);
+
+            if(Reponse != null)
+            {
+                if (Reponse.getCode() != ReponseLUGAPM.FLIGHTS_LOADED)
+                    Ok = false;
+            }
+            else
+                Ok = false;
+
+            //Ok = false; // Test
+            if(!Ok)
+                Client.Deconnexion(new RequeteLUGAPM(RequeteLUGAPM.REQUEST_LOG_OUT_RAMP_AGENT));
 
             return Ok;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success)
+        {
+            if(success)
+            {
+                CreerListeVols(Reponse);
+            }
+            else
+            {
+                finish();
+                final Intent LoginActivity = new Intent().setClass(SelectingFlightActivity.this, com.example.doublon.data_mining.ConnexionServeur.LoginActivity.class);
+                startActivity(LoginActivity);
+
+                Toast.makeText(getApplicationContext(), Reponse.getChargeUtile().get("Message").toString(), Toast.LENGTH_LONG).show();
+            }
         }
 
         private ReponseLUGAPM RecupererVols()
@@ -103,10 +123,10 @@ public class SelectingFlightActivity extends AppCompatActivity
                 {
                     System.out.println("position = " + position);
 
+                    finish();
                     final Intent CheckingLugagesActivity = new Intent().setClass(SelectingFlightActivity.this, CheckingLugagesActivity.class);
                     CheckingLugagesActivity.putExtra("IdVol", listIdVol.get(position));
                     startActivity(CheckingLugagesActivity);
-                    finish();
                 }
             });
         }

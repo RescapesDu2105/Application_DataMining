@@ -1,16 +1,11 @@
 package com.example.doublon.data_mining;
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
@@ -19,11 +14,8 @@ import android.widget.Toast;
 import com.example.doublon.data_mining.ConnexionServeur.Client;
 import com.example.doublon.data_mining.ConnexionServeur.LoginActivity;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 
 import ProtocoleLUGAPM.ReponseLUGAPM;
 import ProtocoleLUGAPM.RequeteLUGAPM;
@@ -69,49 +61,47 @@ public class CheckingLugagesActivity extends AppCompatActivity {
 
     public class ListeBagagesTask extends AsyncTask<Void, Void, Boolean>
     {
-        Runnable runnableCheck;
-        Runnable runnableLugages;
-        Runnable runnableSendLugages;
         ReponseLUGAPM Reponse = null;
-        StableArrayAdapter adapter = null;
-        View view = null;
 
-        ListeBagagesTask()
+        ListeBagagesTask() {}
+
+        @Override
+        protected Boolean doInBackground(Void... params)
         {
-            runnableCheck = new Runnable()
+            boolean Ok = true;
+
+            Reponse = RecupererBagages();
+            if (Reponse != null)
             {
-                @Override
-                public void run()
-                {
-                    CheckedTextView check = (CheckedTextView)view;
-                    if(!check.isChecked())
-                        NbBagages_Checked++;
-                    else
-                        NbBagages_Checked--;
+                if (Reponse.getCode() != ReponseLUGAPM.LUGAGES_LOADED)
+                    Ok = false;
+            }
+            else
+                Ok = false;
 
-                    check.setChecked(!check.isChecked());
-                    adapter.notifyDataSetChanged();
-                    view.setAlpha(1);
-                }
-            };
+            //Ok = false; // Test
 
-            runnableLugages = new Runnable() {
-                @Override
-                public void run() {
-                    CreerListeBagages(Reponse);
-                }
-            };
+            if(!Ok)
+                Client.Deconnexion(new RequeteLUGAPM(RequeteLUGAPM.REQUEST_LOG_OUT_RAMP_AGENT));
+
+            return Ok;
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
-            boolean Ok = true;
-            ReponseLUGAPM Rep;
+        protected void onPostExecute(Boolean success)
+        {
+            if(success)
+            {
+                CreerListeBagages(Reponse);
+            }
+            else
+            {
+                finish();
+                final Intent LoginActivity = new Intent().setClass(CheckingLugagesActivity.this, LoginActivity.class);
+                startActivity(LoginActivity);
 
-            Reponse = RecupererBagages();
-            runOnUiThread(runnableLugages);
-
-            return Ok;
+                Toast.makeText(getApplicationContext(), Reponse.getChargeUtile().get("Message").toString(), Toast.LENGTH_LONG).show();
+            }
         }
 
         private ReponseLUGAPM RecupererBagages()
@@ -133,68 +123,56 @@ public class CheckingLugagesActivity extends AppCompatActivity {
             final ListView listview = (ListView) findViewById(R.id.listViewCLA);
             HashMap<String, Object> Bagages = Rep.getChargeUtile();
 
-            if (Rep != null)
+            NbBagages = Rep.getChargeUtile().size() - 2;
+            String[] values = new String[NbBagages];
+            System.out.println("Bagages = " + Bagages);
+
+            for (int Cpt = 1 ; Cpt <= Bagages.size() - 2 ; Cpt++)
             {
-                if (Rep.getCode() == ReponseLUGAPM.LUGAGES_LOADED)
+                HashMap <String, Object> hm = (HashMap) Bagages.get(Integer.toString(Cpt));
+                IdsBagages.add(hm.get("IdBagage").toString());
+                System.out.println("Bagage = " + hm.get("IdBagage").toString() + " " + hm.get("Poids").toString() + " " + " " + hm.get("TypeBagage").toString());
+                values[Cpt-1] = hm.get("IdBagage").toString() + " " + hm.get("Poids").toString() + " " + " " + hm.get("TypeBagage").toString();
+            }
+
+            final ArrayList<String> list = new ArrayList<>();
+            for (int i = 0; i < values.length; ++i) {
+                list.add(values[i]);
+            }
+            final StableArrayAdapter adapter = new StableArrayAdapter(CheckingLugagesActivity.this,
+                    android.R.layout.simple_list_item_multiple_choice, list);
+            listview.setAdapter(adapter);
+
+            listview.setOnItemClickListener(new AdapterView.OnItemClickListener()
+            {
+                @Override
+                public void onItemClick(AdapterView<?> parent, final View view, int position, long id)
                 {
-                    NbBagages = Rep.getChargeUtile().size() - 2;
-                    String[] values = new String[NbBagages];
-                    System.out.println("Bagages = " + Bagages);
-
-                    for (int Cpt = 1 ; Cpt <= Bagages.size() - 2 ; Cpt++)
-                    {
-                        HashMap <String, Object> hm = (HashMap) Bagages.get(Integer.toString(Cpt));
-                        IdsBagages.add(hm.get("IdBagage").toString());
-                        System.out.println("Bagage = " + hm.get("IdBagage").toString() + " " + hm.get("Poids").toString() + " " + " " + hm.get("TypeBagage").toString());
-                        values[Cpt-1] = hm.get("IdBagage").toString() + " " + hm.get("Poids").toString() + " " + " " + hm.get("TypeBagage").toString();
-                    }
-
-                    final ArrayList<String> list = new ArrayList<>();
-                    for (int i = 0; i < values.length; ++i) {
-                        list.add(values[i]);
-                    }
-                    adapter = new StableArrayAdapter(CheckingLugagesActivity.this,
-                            android.R.layout.simple_list_item_multiple_choice, list);
-                    listview.setAdapter(adapter);
-
-                    listview.setOnItemClickListener(new AdapterView.OnItemClickListener()
-                    {
+                    //view = pView;
+                    view.animate().setDuration(50).alpha(0).withEndAction(new Runnable() {
                         @Override
-                        public void onItemClick(AdapterView<?> parent, final View pView, int position, long id)
-                        {
-                            view = pView;
-                            pView.animate().setDuration(50).alpha(0).withEndAction(runnableCheck);
+                        public void run() {
+                            CheckedTextView check = (CheckedTextView)view;
+                            if(!check.isChecked())
+                                NbBagages_Checked++;
+                            else
+                                NbBagages_Checked--;
+
+                            check.setChecked(!check.isChecked());
+                            adapter.notifyDataSetChanged();
+                            view.setAlpha(1);
                         }
                     });
                 }
-                else if (Rep != null)
-                {
-                    //JOptionPane.showMessageDialog(this, ReponseLUGAP.INTERNAL_SERVER_ERROR_MESSAGE, "Impossible de charger les bagages !", JOptionPane.ERROR_MESSAGE);
-                    //System.exit(1);
-                }
-            }
-            else
-            {
-                //JOptionPane.showMessageDialog(this, "Le serveur s'est déconnecté !", "Erreur", JOptionPane.ERROR_MESSAGE);
-            }
+            });
         }
     }
 
     public class EnvoyerBagagesTask extends AsyncTask<Void, Void, Boolean>
     {
-        Runnable runnableSendLugages;
-        ReponseLUGAPM Reponse = null;
         String ErrorMsg = "";
 
-        EnvoyerBagagesTask()
-        {
-            runnableSendLugages = new Runnable() {
-                @Override
-                public void run() {
-                    EnvoyerBagages();
-                }
-            };
-        }
+        EnvoyerBagagesTask(){}
 
         public boolean EnvoyerBagages()
         {

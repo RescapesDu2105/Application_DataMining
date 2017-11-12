@@ -3,7 +3,9 @@ package com.example.doublon.data_mining.ConnexionServeur;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.AsyncTask;
@@ -19,6 +21,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.doublon.data_mining.LanguageActivity;
 import com.example.doublon.data_mining.R;
@@ -190,27 +193,19 @@ public class LoginActivity extends AppCompatActivity {
             boolean isConnected = false;
             ReponseLUGAPM Reponse;
 
-            try
+            Reponse = contacteServeur(mLogin, mPassword);
+            if (Reponse != null)
             {
-                Reponse = contacteServeur(mLogin, mPassword);
-                if (Reponse != null)
+                if (Reponse.getCode() == ReponseLUGAPM.LOGIN_OK)
                 {
-                    if (Reponse.getCode() == ReponseLUGAPM.LOGIN_OK)
-                    {
-                        System.out.println("Rep = " + Reponse.getChargeUtile().get("Message"));
-                        Client.setNomUtilisateur(Reponse.getChargeUtile().get("Prenom").toString() + " " + (Reponse.getChargeUtile().get("Nom").toString()));
-                        isConnected = true;
-                    }
-                    else
-                    {
-                        Client.Deconnexion(new RequeteLUGAPM(RequeteLUGAPM.REQUEST_LOG_OUT_RAMP_AGENT));
-                    }
+                    System.out.println("Rep = " + Reponse.getChargeUtile().get("Message"));
+                    Client.setNomUtilisateur(Reponse.getChargeUtile().get("Prenom").toString() + " " + (Reponse.getChargeUtile().get("Nom").toString()));
+                    isConnected = true;
                 }
-                // Simulate network access.
-                Thread.sleep(2000);
-
-            } catch (InterruptedException e) {
-                return false;
+                else
+                {
+                    Client.Deconnexion(new RequeteLUGAPM(RequeteLUGAPM.REQUEST_LOG_OUT_RAMP_AGENT));
+                }
             }
 
             return isConnected;
@@ -229,9 +224,17 @@ public class LoginActivity extends AppCompatActivity {
             }
             else
             {
-                mLoginView.setError(getString(R.string.error_incorrect_login_password));
-                mPasswordView.setError(getString(R.string.error_incorrect_login_password));
-                mLoginView.requestFocus();
+                if(Client.isConnectedToServer())
+                {
+                    mLoginView.setError(getString(R.string.error_incorrect_login_password));
+                    mPasswordView.setError(getString(R.string.error_incorrect_login_password));
+                    mLoginView.requestFocus();
+                }
+                else
+                {
+                    String msg = "Problème de connexion : le serveur est injoignable !";
+                    Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+                }
             }
         }
 
@@ -258,18 +261,16 @@ public class LoginActivity extends AppCompatActivity {
             catch (IOException e) {}
         }
 
-        if (!Client.isConnectedToServer())
-            System.exit(1); // Affiche une erreur
-
         ReponseLUGAPM Rep = null;
-        try
+
+        if (Client.isConnectedToServer())
         {
-            Rep = (ReponseLUGAPM) Client.Authenfication(new RequeteLUGAPM(RequeteLUGAPM.REQUEST_LOGIN_RAMP_AGENT), Login, Psw);
-        }
-        catch (IOException | NoSuchAlgorithmException | NoSuchProviderException e)
-        {
-            e.printStackTrace();
-            String Error = "Can't reach the server";
+            try {
+                Rep = (ReponseLUGAPM) Client.Authenfication(new RequeteLUGAPM(RequeteLUGAPM.REQUEST_LOGIN_RAMP_AGENT), Login, Psw);
+            } catch (IOException | NoSuchAlgorithmException | NoSuchProviderException e) {
+                e.printStackTrace();
+                String Error = "Can't reach the server";
+            }
         }
 
         return Rep;
