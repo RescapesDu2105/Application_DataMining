@@ -5,10 +5,12 @@
  */
 package application_datamining;
 
+import java.util.List;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -16,24 +18,24 @@ import org.jfree.data.xy.XYSeriesCollection;
  *
  * @author Doublon
  */
-public class ScatterPlotGUI extends javax.swing.JFrame {
+public class SectorialGUI extends javax.swing.JFrame {
 
     /**
-     * Creates new form ScatterPlotGUI
+     * Creates new form SectorialGUI
      */
-    public ScatterPlotGUI(int [] Poids , int [] Distance) {
+    public SectorialGUI(int[] Moyenne,List Destination) {
         initComponents();
-        ConstruireGraph(Poids,Distance);
+        ConstruireGraph( Moyenne,  Destination);
     }
     
-    public void ConstruireGraph(int[] Poids, int[] Distance)
+    public void ConstruireGraph(int[] Moyenne, List Destination)
     {
-        XYSeries serieObs = new XYSeries("Relations vision-manipulation");
-        for (int i=0; i<Poids.length; i++) 
-                serieObs.add(Poids[i],Distance[i]);
-        XYSeriesCollection ds = new XYSeriesCollection();
-        ds.addSeries(serieObs);
-        JFreeChart jfc = ChartFactory.createScatterPlot("Régréssion/Corrélation Poids/Distance","Poids", "Distance",ds, PlotOrientation.VERTICAL, true, true, false );
+        DefaultPieDataset ds = new DefaultPieDataset();
+        for(int i=0 ; i<Destination.size();i++)
+        {
+            ds.setValue(Destination.get(i).toString(),Moyenne[i]);
+        }
+        JFreeChart jfc = ChartFactory.createPieChart ( "Moyenne des poids des bagages par region", ds, true, true, true);
         ChartPanel cp = new ChartPanel(jfc);
         jInternalFrameGraphique.setContentPane(cp);
         jInternalFrameGraphique.setVisible(true);
@@ -63,7 +65,7 @@ public class ScatterPlotGUI extends javax.swing.JFrame {
         );
         jInternalFrameGraphiqueLayout.setVerticalGroup(
             jInternalFrameGraphiqueLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 472, Short.MAX_VALUE)
+            .addGap(0, 471, Short.MAX_VALUE)
         );
 
         jButtonOk.setText("OK");
@@ -77,26 +79,26 @@ public class ScatterPlotGUI extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jInternalFrameGraphique)
             .addGroup(layout.createSequentialGroup()
-                .addGap(278, 278, 278)
-                .addComponent(jButtonOk, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(276, Short.MAX_VALUE))
+                .addGap(316, 316, 316)
+                .addComponent(jButtonOk, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(297, Short.MAX_VALUE))
+            .addComponent(jInternalFrameGraphique)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jInternalFrameGraphique, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButtonOk)
-                .addContainerGap())
+                .addGap(0, 9, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOkActionPerformed
-        this.dispose();
+        this.dispose();   // TODO add your handling code here:
     }//GEN-LAST:event_jButtonOkActionPerformed
 
     /**
@@ -116,20 +118,20 @@ public class ScatterPlotGUI extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ScatterPlotGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SectorialGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ScatterPlotGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SectorialGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ScatterPlotGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SectorialGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ScatterPlotGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SectorialGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new ScatterPlotGUI(null,null).setVisible(true);
+                new SectorialGUI(null,null).setVisible(true);
             }
         });
     }

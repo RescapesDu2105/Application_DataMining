@@ -28,7 +28,8 @@ public class Application_DataMining extends javax.swing.JFrame {
     private final Client Client;
     private HashMap<String, Object> Annees = null;
     private List DataCorr = new ArrayList(); 
-    private int [] Poids = null , Distance=null;
+    private int [] Poids = null , Distance=null, Moyenne=null;
+    private String[] Destination=null;
     
     /**
      * Creates new form MainFrame_AppDataMining
@@ -203,7 +204,43 @@ public class Application_DataMining extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonAnova1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAnova1ActionPerformed
-        // TODO add your handling code here:
+       ReponseLUGANAP Rep = null;
+        RequeteLUGANAP Req = new RequeteLUGANAP(RequeteLUGANAP.ANOVA_L_LUG);        
+
+        Req.getChargeUtile().put("Annee", jSpinnerAnnees.getValue());
+        Req.getChargeUtile().put("Mois", jSpinnerMois.getValue());
+        Req.getChargeUtile().put("Compagnie", jSpinnerCompagnies.getValue());
+
+        Client.EnvoyerRequete(Req);
+        Rep = Client.RecevoirReponse();
+        if(Rep != null)
+        {
+            List Moy = new ArrayList(); 
+            List Destination = new ArrayList(); 
+            if(Rep.getCode() == ReponseLUGANAP.ANOVA_L_LUG_OK)
+            {
+                DataCorr = (List) Rep.getChargeUtile().get("Data");
+                for(int i=0 ;i<DataCorr.size();i=i+2)
+                {
+                    
+                    Moy.add(DataCorr.get(i));
+                    Destination.add(DataCorr.get(i+1));
+                    //System.out.println("Poids : "+DataCorr.get(i));
+                    //System.out.println("Distance : "+DataCorr.get(i+1));
+                }
+                Moyenne=toIntArrayInt(Moy);
+                
+                java.awt.EventQueue.invokeLater(new Runnable() 
+                {
+                    public void run() 
+                    {
+                        //new HistogrammeGUI(Poids , Distance).setVisible(true);
+                        new SectorialGUI( Moyenne, Destination).setVisible(true);
+                    }
+                });
+            
+            }
+        }
     }//GEN-LAST:event_jButtonAnova1ActionPerformed
 
     private void jSpinnerAnneesStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinnerAnneesStateChanged
@@ -240,16 +277,18 @@ public class Application_DataMining extends javax.swing.JFrame {
                     //System.out.println("Poids : "+DataCorr.get(i));
                     //System.out.println("Distance : "+DataCorr.get(i+1));
                 }
-                Poids=toIntArray(P);
-                Distance=toIntArray(D);
+                Poids=toIntArrayInt(P);
+                Distance=toIntArrayInt(D);
                 
                 
-            java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                //new HistogrammeGUI(Poids , Distance).setVisible(true);
-                new ScatterPlotGUI(Poids , Distance).setVisible(true);
-            }
-        });
+                java.awt.EventQueue.invokeLater(new Runnable() 
+                {
+                    public void run() 
+                    {
+                        //new HistogrammeGUI(Poids , Distance).setVisible(true);
+                        new ScatterPlotGUI(Poids , Distance).setVisible(true);
+                    }
+                });
             }
         }        
     }//GEN-LAST:event_jButtonRegCorrActionPerformed
@@ -384,7 +423,7 @@ public class Application_DataMining extends javax.swing.JFrame {
         
         return mois;
     }
-    int[] toIntArray(List<Integer> list)
+    int[] toIntArrayInt(List<Integer> list)
     {
         int[] ret = new int[list.size()];
         for(int i = 0;i < ret.length;i++)

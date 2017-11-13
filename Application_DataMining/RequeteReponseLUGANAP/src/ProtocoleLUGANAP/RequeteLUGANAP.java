@@ -35,7 +35,8 @@ public class RequeteLUGANAP implements Requete, Serializable
     public final static int REQUEST_LOG_OUT_ANALYST = 0;
     public final static int REQUEST_LOGIN_ANALYST = 1;
     public final static int REQUEST_INIT = 2;
-public final static int REG_CORR_LUG = 3;
+    public final static int REG_CORR_LUG = 3;
+    public final static int ANOVA_L_LUG = 6;
         
     private int Type;
     private HashMap<String, Object> chargeUtile;
@@ -100,6 +101,14 @@ public final static int REG_CORR_LUG = 3;
                     }                        
                 };
             
+            case ANOVA_L_LUG :
+                return new Runnable()
+                {
+                    public void run() 
+                    {
+                        TraiterAnovaLug();
+                    }                        
+                };
             default : return null;
         }
     }    
@@ -381,6 +390,71 @@ public final static int REG_CORR_LUG = 3;
             }
         }
 
+    }
+    
+    public void TraiterAnovaLug()
+    {
+        Bean_DB_Access BD_airport;
+        ResultSet RS;
+        
+        int i = 1;
+        
+        BD_airport = Connexion_DB();
+        String Annee , Compagnie;
+        int Mois;
+        
+        //Annee= getChargeUtile().get("Annee").toString();
+       // Mois= getChargeUtile().get("Mois").toString();
+        //Compagnie= getChargeUtile().get("Compagnie").toString();
+        //if(Mois.equals("Toute l'année"))  
+        //if(Compagnie.equals("Toutes les compagnies"))    
+        
+        Annee="2017";
+        Mois=11;
+        Compagnie="AIR FRANCE CANAILLE";
+
+        if(BD_airport !=null)
+        {
+            if(/*!Mois.equals("Toute l'année") && */(!Compagnie.equals("Toutes les compagnies")))
+            {
+                try 
+                {  
+                    RS = BD_airport.Select("SELECT AVG(poids) as Moy, destination as Dest\n" +
+                            "FROM Bagages NATURAL JOIN Billets NATURAL JOIN vols NATURAL JOIN avions NATURAL JOIN compagnies\n" +
+                            "WHERE extract(YEAR FROM HeureDepart)= "+Annee+"\n" +
+                            "AND extract(MONTH FROM HeureDepart)="+Mois+"\n" +
+                            "GROUP BY Destination");
+
+                    //ajouter la compagnie
+                        
+                if (RS != null) 
+                {
+                    Reponse = new ReponseLUGANAP(ReponseLUGANAP.ANOVA_L_LUG_OK);
+                    //ArrayList<Integer> DataCorr = new ArrayList<>();
+                    //int[] DataCorr =null ;
+                    List DataCorr = new ArrayList(); 
+                    while(RS.next())
+                    {
+                        int Moyenne = RS.getInt("Moy");
+                        String Destination = RS.getString("Dest");
+                        DataCorr.add(Moyenne);
+                        DataCorr.add(Destination);         
+                    }
+                    
+                    Reponse.getChargeUtile().put("Data", DataCorr);
+                }
+                else
+                {
+                   System.out.println("cassé"); 
+                }
+                        
+                } 
+                catch (SQLException ex) 
+                {
+                    Logger.getLogger(RequeteLUGANAP.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
     }
     
     @Override
