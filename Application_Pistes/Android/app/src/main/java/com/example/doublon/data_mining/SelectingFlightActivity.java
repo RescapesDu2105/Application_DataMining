@@ -1,9 +1,13 @@
 package com.example.doublon.data_mining;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -28,11 +32,52 @@ public class SelectingFlightActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle(R.string.title_activity_selectingflights);
         setContentView(R.layout.activity_selecting_flight);
         cTask = new CommunicationServerTask();
         cTask.execute((Void) null);
 
         System.out.println("Langue 2 = " + getResources().getConfiguration().locale);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.navigation, menu);
+
+        // return true so that the menu pop up is opened
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        System.out.println("item.getItemId() = " + item.getItemId());
+
+        Locale locale = null;
+        switch (item.getItemId())
+        {
+            case R.id.item_french:
+                locale = new Locale("fr");
+                break;
+
+            case R.id.item_english:
+                locale = new Locale("en");
+                break;
+
+            case R.id.item_dutch:
+                locale = new Locale("nl");
+                break;
+        }
+
+        Configuration config = getBaseContext().getResources().getConfiguration();
+        config.setLocale(locale);
+        getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
+
+        final Intent Refresh = new Intent().setClass(SelectingFlightActivity.this, SelectingFlightActivity.class);
+        finish();
+        startActivity(Refresh);
+
+        return true;
     }
 
     public class CommunicationServerTask extends AsyncTask<Void, Void, Boolean>
@@ -104,16 +149,15 @@ public class SelectingFlightActivity extends AppCompatActivity
             {
                 HashMap<String, Object> hm = (HashMap<String, Object>) Rep.getChargeUtile().get(Integer.toString(i));
                 listIdVol.add((Integer) hm.get("IdVol"));
-                System.out.println("Ligne = " + hm.get("NumeroVol").toString() + " " + hm.get("NomCompagnie").toString() + " " + hm.get("Destination").toString() + " " + DateFormat.getTimeInstance(DateFormat.SHORT, Locale.FRANCE).format(hm.get("DateHeureDepart")));
-                values[i-1] = "Vol " + hm.get("NumeroVol").toString() + " " + hm.get("NomCompagnie").toString() + " " + hm.get("Destination").toString() + " " + DateFormat.getTimeInstance(DateFormat.SHORT, Locale.FRANCE).format(hm.get("DateHeureDepart"));
+                //System.out.println("getBaseContext().getResources().getConfiguration().locale = " + getBaseContext().getResources().getConfiguration().locale);
+                values[i-1] = getString(R.string.flight_name) + " " + hm.get("NumeroVol").toString() + " " + hm.get("NomCompagnie").toString() + "      -> " + hm.get("Destination").toString() + "\t" + DateFormat.getTimeInstance(DateFormat.SHORT, getBaseContext().getResources().getConfiguration().locale).format(hm.get("DateHeureDepart"));
             }
 
             final ArrayList<String> list = new ArrayList<>();
             for (int i = 0; i < values.length; ++i) {
                 list.add(values[i]);
             }
-            final StableArrayAdapter adapter = new StableArrayAdapter(SelectingFlightActivity.this,
-                    android.R.layout.simple_list_item_1, list);
+            final StableArrayAdapter adapter = new StableArrayAdapter(SelectingFlightActivity.this, android.R.layout.simple_list_item_1, list);
             listview.setAdapter(adapter);
 
             listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {

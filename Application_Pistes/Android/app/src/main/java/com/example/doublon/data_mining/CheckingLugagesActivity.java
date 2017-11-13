@@ -1,9 +1,13 @@
 package com.example.doublon.data_mining;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -16,6 +20,7 @@ import com.example.doublon.data_mining.ConnexionServeur.LoginActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 
 import ProtocoleLUGAPM.ReponseLUGAPM;
 import ProtocoleLUGAPM.RequeteLUGAPM;
@@ -30,8 +35,11 @@ public class CheckingLugagesActivity extends AppCompatActivity {
     private ArrayList<String> IdsBagages = new ArrayList<>();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
+        setTitle(R.string.title_activity_checkinglugages);
+
         IdVol = (int) getIntent().getExtras().get("IdVol");
         setContentView(R.layout.activity_checking_lugages);
         LBTask = new ListeBagagesTask();
@@ -57,6 +65,47 @@ public class CheckingLugagesActivity extends AppCompatActivity {
         LBTask.execute();
 
         System.out.println("Langue 3 = " + getResources().getConfiguration().locale);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.navigation, menu);
+
+        // return true so that the menu pop up is opened
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        System.out.println("item.getItemId() = " + item.getItemId());
+
+        Locale locale = null;
+        switch (item.getItemId())
+        {
+            case R.id.item_french:
+                locale = new Locale("fr");
+                break;
+
+            case R.id.item_english:
+                locale = new Locale("en");
+                break;
+
+            case R.id.item_dutch:
+                locale = new Locale("nl");
+                break;
+        }
+
+        Configuration config = getBaseContext().getResources().getConfiguration();
+        config.setLocale(locale);
+        getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
+
+        final Intent Refresh = new Intent().setClass(CheckingLugagesActivity.this, CheckingLugagesActivity.class);
+        Refresh.putExtra("IdVol", IdVol);
+        finish();
+        startActivity(Refresh);
+
+        return true;
     }
 
     public class ListeBagagesTask extends AsyncTask<Void, Void, Boolean>
@@ -132,7 +181,13 @@ public class CheckingLugagesActivity extends AppCompatActivity {
                 HashMap <String, Object> hm = (HashMap) Bagages.get(Integer.toString(Cpt));
                 IdsBagages.add(hm.get("IdBagage").toString());
                 System.out.println("Bagage = " + hm.get("IdBagage").toString() + " " + hm.get("Poids").toString() + " " + " " + hm.get("TypeBagage").toString());
-                values[Cpt-1] = hm.get("IdBagage").toString() + " " + hm.get("Poids").toString() + " " + " " + hm.get("TypeBagage").toString();
+                String Valise;
+                if (hm.get("TypeBagage").toString().equals("PasValise"))
+                    Valise = getString(R.string.noSuitcase_name);
+                else
+                    Valise = getString(R.string.suitcase_name);
+
+                values[Cpt-1] = hm.get("IdBagage").toString() + " " + hm.get("Poids").toString() + " kg" + " " + Valise;
             }
 
             final ArrayList<String> list = new ArrayList<>();
