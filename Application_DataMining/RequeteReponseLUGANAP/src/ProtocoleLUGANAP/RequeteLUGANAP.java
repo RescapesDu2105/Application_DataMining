@@ -92,7 +92,6 @@ public final static int REG_CORR_LUG = 3;
                 };
             
             case REG_CORR_LUG:
-                System.out.println("cc");
                 return new Runnable()
                 {
                     public void run() 
@@ -279,31 +278,79 @@ public final static int REG_CORR_LUG = 3;
         
         int i = 1;
         
-        System.out.println("cc");
         BD_airport = Connexion_DB();
-        System.out.println("cc1");
-        String Annee , Mois , Compagnie;
+        String Annee , Compagnie;
+        int Mois;
         
-        Annee= getChargeUtile().get("Annee").toString();
-        Mois= getChargeUtile().get("Mois").toString();
-        Compagnie= getChargeUtile().get("Compagnie").toString();
-        System.out.println("cc2");
+        //Annee= getChargeUtile().get("Annee").toString();
+       // Mois= getChargeUtile().get("Mois").toString();
+        //Compagnie= getChargeUtile().get("Compagnie").toString();
         //if(Mois.equals("Toute l'année"))  
         //if(Compagnie.equals("Toutes les compagnies"))
-
+        /*switch(Mois)
+        {
+            case "Janvier":
+                Mois = "1";
+                break;
+            case "Février":
+                Mois = "2";
+                break;
+            case "Mars":
+                Mois = "3";
+                break;
+            case "Avril":
+                Mois = "4";
+                break;
+            case "Mai":
+                Mois = "5";
+                break;
+            case "Juin":
+                Mois = "6";
+                break;
+            case "Juillet":
+                Mois = "7";
+                break;
+            case "Août":
+                Mois = "8";
+                break;
+            case "Septembre":
+                Mois = "9";
+                break;
+            case "Octobre":
+                Mois = "10";
+                break;
+            case "Novembre":
+                Mois = "11";
+                break;
+            case "Décembre":
+                Mois = "12";
+                break;
+            default : Mois = "-1";
+        }*/
+        
+        Annee="2017";
+        Mois=12;
+        Compagnie="AIR FRANCE CANAILLE";
+        System.out.println(Annee);
+        System.out.println(Mois);
+        System.out.println(Compagnie);
 
         if(BD_airport !=null)
         {
-            if(!Mois.equals("Toute l'année") && (!Compagnie.equals("Toutes les compagnies")))
+            if(/*!Mois.equals("Toute l'année") && */(!Compagnie.equals("Toutes les compagnies")))
             {
                 try 
-                {
-                    System.out.println("cc3");    
-                    RS = BD_airport.Select("SELECT poids, distance\n" +
+                {  
+                    /*RS = BD_airport.Select("SELECT poids, distance\n" +
                             "FROM Bagages NATURAL JOIN Billets NATURAL JOIN vols NATURAL JOIN avions NATURAL JOIN compagnies\n" +
                             "WHERE extract(YEAR FROM HeureDepart)="+Annee+"\n" +
                             "AND extract(MONTH FROM HeureDepart)="+Mois+"n" +               
-                            "AND NomCompagnie LIKE '%"+Compagnie+"%'");
+                            "AND NomCompagnie = '"+Compagnie+"'");*/
+                    RS = BD_airport.Select("SELECT poids, distance\n" +
+                            "FROM Bagages NATURAL JOIN Billets NATURAL JOIN vols NATURAL JOIN avions NATURAL JOIN compagnies\n" +
+                            "WHERE extract(YEAR FROM HeureDepart)= "+Annee+"\n" +
+                            "AND extract(MONTH FROM HeureDepart)="+Mois);
+                    //ajouter la compagnie
                         
                 if (RS != null) 
                 {
@@ -311,18 +358,22 @@ public final static int REG_CORR_LUG = 3;
                     //ArrayList<Integer> DataCorr = new ArrayList<>();
                     //int[] DataCorr =null ;
                     List DataCorr = new ArrayList(); 
-                    
                     while(RS.next())
                     {
-                        int Poids = RS.getInt("poids");
-                        int Distance = RS.getInt("distance");
-                        
+                        int Poids = RS.getInt("Poids");
+                        int Distance = RS.getInt("Distance");
+                        System.out.println("Poids : "+Poids);
+                        System.out.println("Distance : "+Distance);
                         DataCorr.add(Poids);
                         DataCorr.add(Distance);         
                     }
                     
                     Reponse.getChargeUtile().put("Data", DataCorr);
-                }                       
+                }
+                else
+                {
+                   System.out.println("cassé"); 
+                }
                         
                 } 
                 catch (SQLException ex) 

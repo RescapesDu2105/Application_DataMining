@@ -219,9 +219,9 @@ public class Application_DataMining extends javax.swing.JFrame {
     RequeteLUGANAP Req = new RequeteLUGANAP(RequeteLUGANAP.REG_CORR_LUG);        
 
     Req.getChargeUtile().put("Annee", jSpinnerAnnees.getValue());
-    Req.getChargeUtile().put("Mois", jSpinnerAnnees.getValue());
+    Req.getChargeUtile().put("Mois", jSpinnerMois.getValue());
     Req.getChargeUtile().put("Compagnie", jSpinnerCompagnies.getValue());
-
+    
     Client.EnvoyerRequete(Req);
     Rep = Client.RecevoirReponse();
     if(Rep != null)
