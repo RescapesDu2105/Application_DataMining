@@ -215,39 +215,18 @@ public class Application_DataMining extends javax.swing.JFrame {
 
 
     private void jButtonRegCorrActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRegCorrActionPerformed
-        
-        RequeteLUGANAP Req = new RequeteLUGANAP(RequeteLUGANAP.REG_CORR_LUG);        
-        ReponseLUGANAP Rep = null;
-        
-        Req.getChargeUtile().put("Annee", jSpinnerAnnees.getValue());
-        Req.getChargeUtile().put("Mois", jSpinnerAnnees.getValue());
-        Req.getChargeUtile().put("Compagnie", jSpinnerCompagnies.getValue());
-        
-        Client.EnvoyerRequete(Req);
-        Rep = Client.RecevoirReponse();
-        if(Rep != null)
-        {
-                    System.out.println("cc");
-            if(Rep.getCode() == ReponseLUGANAP.REG_CORR_LUG_OK)
-            {
-                
-                Annees = (HashMap<String, Object>) Rep.getChargeUtile().get("Data");
-                System.out.println("Test 1 = " + Annees);
-                
-                Set keySet = Annees.keySet();
-                Object[] annees = (Object[]) keySet.toArray();
-                System.out.println("annees = " + Arrays.toString(annees));
-                
-                SpinnerListModel SpinnerListModel = new SpinnerListModel(annees);
-                jSpinnerAnnees.setModel(SpinnerListModel);
-                jSpinnerAnnees.setValue(annees[annees.length-1]);
-                
-                if (annees.length == 1)
-                    MAJ_Mois();
-                
-                ((DefaultEditor) jSpinnerAnnees.getEditor()).getTextField().setEditable(false);
-            }
-        }        
+    ReponseLUGANAP Rep = null;
+    RequeteLUGANAP Req = new RequeteLUGANAP(RequeteLUGANAP.REG_CORR_LUG);        
+
+    Req.getChargeUtile().put("Annee", jSpinnerAnnees.getValue());
+    Req.getChargeUtile().put("Mois", jSpinnerAnnees.getValue());
+    Req.getChargeUtile().put("Compagnie", jSpinnerCompagnies.getValue());
+
+    Client.EnvoyerRequete(Req);
+    Rep = Client.RecevoirReponse();
+    if(Rep != null)
+    {
+    }        
     }//GEN-LAST:event_jButtonRegCorrActionPerformed
 
     public void MAJ_Mois()

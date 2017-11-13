@@ -303,7 +303,7 @@ public final static int REG_CORR_LUG = 3;
                             "FROM Bagages NATURAL JOIN Billets NATURAL JOIN vols NATURAL JOIN avions NATURAL JOIN compagnies\n" +
                             "WHERE extract(YEAR FROM HeureDepart)="+Annee+"\n" +
                             "AND extract(MONTH FROM HeureDepart)="+Mois+"n" +               
-                            "AND NomCompagnie = '"+Compagnie+"'");
+                            "AND NomCompagnie LIKE '%"+Compagnie+"%'");
                         
                 if (RS != null) 
                 {
