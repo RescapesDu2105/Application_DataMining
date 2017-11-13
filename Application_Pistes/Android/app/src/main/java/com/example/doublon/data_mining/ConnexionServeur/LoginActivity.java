@@ -3,9 +3,8 @@ package com.example.doublon.data_mining.ConnexionServeur;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.AlertDialog;
+import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.AsyncTask;
@@ -14,6 +13,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -23,13 +25,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.doublon.data_mining.LanguageActivity;
 import com.example.doublon.data_mining.R;
+import com.example.doublon.data_mining.SelectingFlightActivity;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.util.Locale;
 
 import ProtocoleLUGAPM.ReponseLUGAPM;
 import ProtocoleLUGAPM.RequeteLUGAPM;
@@ -46,8 +49,10 @@ public class LoginActivity extends AppCompatActivity {
     private View mLoginFormView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
+        setTitle(R.string.title_activity_login);
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mLoginView = (AutoCompleteTextView) findViewById(R.id.login);
@@ -77,6 +82,46 @@ public class LoginActivity extends AppCompatActivity {
         mProgressView = findViewById(R.id.login_progress);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.navigation, menu);
+
+        // return true so that the menu pop up is opened
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        System.out.println("item.getItemId() = " + item.getItemId());
+
+        Locale locale = null;
+        switch (item.getItemId())
+        {
+            case R.id.item_french:
+                locale = new Locale("fr");
+                break;
+
+            case R.id.item_english:
+                locale = new Locale("en");
+                break;
+
+            case R.id.item_dutch:
+                locale = new Locale("nl");
+                break;
+        }
+
+        Configuration config = getBaseContext().getResources().getConfiguration();
+        config.setLocale(locale);
+        getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
+
+        final Intent Refresh = new Intent().setClass(LoginActivity.this, LoginActivity.class);
+        finish();
+        startActivity(Refresh);
+
+        return true;
+    }
+
     /**
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
@@ -91,8 +136,8 @@ public class LoginActivity extends AppCompatActivity {
         mLoginView.setError(null);
         mPasswordView.setError(null);
 
-        mLoginView.setText("Zeydax");
-        mPasswordView.setText("123");
+        mLoginView.setText("Zeydax"); // Test
+        mPasswordView.setText("123"); // Test
 
         // Store values at the time of the login attempt.
         String login = mLoginView.getText().toString();
@@ -218,8 +263,8 @@ public class LoginActivity extends AppCompatActivity {
 
             if (success)
             {
-                final Intent LanguagePicker = new Intent().setClass(LoginActivity.this, LanguageActivity.class);
-                startActivity(LanguagePicker);
+                final Intent SelectingFlightActivity = new Intent().setClass(LoginActivity.this, SelectingFlightActivity.class);
+                startActivity(SelectingFlightActivity);
                 finish();
             }
             else

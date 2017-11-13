@@ -20,15 +20,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LanguageActivity"
-            android:label="@string/title_activity_language">
-            <intent-filter>
-                <action android:name="android.intent.action.PICK" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".CheckingLugagesActivity"
             android:label="@string/title_activity_checkinglugages">
             <intent-filter>

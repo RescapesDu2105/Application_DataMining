@@ -1,5 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Application_Pistes</string>
 
     <string name="prompt_login">Nom d\'utilisateur</string>
     <string name="prompt_password">Mot de passe</string>
@@ -10,13 +10,17 @@
     <string name="error_incorrect_login_password">Le nom d\'utilisateur ou le mot de passe est incorrect</string>
     <string name="error_field_required">Le champ est requis</string>
     <string name="title_activity_login">Application_Pistes - Connexion</string>
-    <string name="radio_button_french">Français</string>
+    <string name="item_menu_french">Français</string>
     <string name="confirm_button">Confirmer</string>
-    <string name="radio_button_dutch">Neerlandais</string>
-    <string name="radio_button_english">Anglais</string>
+    <string name="item_menu_dutch">Neerlandais</string>
+    <string name="item_menu_english">Anglais</string>
     <string name="title_activity_language">Choix de la langue</string>
     <string name="title_activity_checkinglugages">Vérifier les bagages</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_activity_selectingflights">Selection du vol</string>
+    <string name="weight_name">Poids</string>
+    <string name="flight_name">Vol</string>
+    <string name="noSuitcase_name">Pas une valise</string>
+    <string name="suitcase_name">Valise</string>
 </resources>

@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item
+        android:id="@+id/app_bar_switch"
+        android:title="@string/title_menu"
+        app:actionLayout="@layout/activity_login" >
+        <item android:id="@+id/item_french" android:title="@string/item_menu_french" />
+        <item android:id="@+id/item_english" android:title="@string/item_menu_english" />
+        <item android:id="@+id/item_dutch" android:title="@string/item_menu_dutch" />
+    </item>
 </menu>
