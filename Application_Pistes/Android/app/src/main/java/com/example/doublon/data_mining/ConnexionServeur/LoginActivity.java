@@ -248,7 +248,7 @@ public class LoginActivity extends AppCompatActivity {
     public ReponseLUGAPM contacteServeur(String Login, String Psw)
     {
         Client = new Client();
-        String[] AddressesIP = {"192.168.0.3", "10.59.22.101", "10.59.14.45"};
+        String[] AddressesIP = {"192.168.0.3", "10.59.22.101", "10.59.14.45" , "10.59.22.9"};
 
         Client.setPort(30042);
         for(int i = 0 ; i < AddressesIP.length && !Client.isConnectedToServer(); i++)

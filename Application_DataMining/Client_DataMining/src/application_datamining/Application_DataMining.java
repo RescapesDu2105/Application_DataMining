@@ -66,6 +66,9 @@ public class Application_DataMining extends javax.swing.JFrame {
                 jSpinnerAnnees.setModel(SpinnerListModel);
                 jSpinnerAnnees.setValue(annees[annees.length-1]);
                 
+                if (annees.length == 1)
+                    MAJ_Mois();
+                
                 ((DefaultEditor) jSpinnerAnnees.getEditor()).getTextField().setEditable(false);
             }
         }
@@ -196,6 +199,16 @@ public class Application_DataMining extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonAnova1ActionPerformed
 
     private void jSpinnerAnneesStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinnerAnneesStateChanged
+        MAJ_Mois();
+    }//GEN-LAST:event_jSpinnerAnneesStateChanged
+
+    private void jSpinnerMoisStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinnerMoisStateChanged
+        MAJ_Compagnies();
+    }//GEN-LAST:event_jSpinnerMoisStateChanged
+
+    public void MAJ_Mois()
+    {
+        System.out.println("Event");
         jSpinnerCompagnies.setModel(new SpinnerListModel());
         
         Set keySet = ((HashMap<String, Object>) Annees.get(jSpinnerAnnees.getValue())).keySet();
@@ -226,12 +239,8 @@ public class Application_DataMining extends javax.swing.JFrame {
         ((DefaultEditor) jSpinnerMois.getEditor()).getTextField().setEditable(false);
         
         MAJ_Compagnies();
-    }//GEN-LAST:event_jSpinnerAnneesStateChanged
-
-    private void jSpinnerMoisStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinnerMoisStateChanged
-        MAJ_Compagnies();
-    }//GEN-LAST:event_jSpinnerMoisStateChanged
-
+    }
+    
     public void MAJ_Compagnies()
     {
         jSpinnerCompagnies.setModel(new SpinnerListModel());
