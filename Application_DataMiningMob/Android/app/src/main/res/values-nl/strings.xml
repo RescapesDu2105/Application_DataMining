@@ -10,17 +10,7 @@
     <string name="error_incorrect_login_password">Gebruikersnaam of wachtwoord is onjuist</string>
     <string name="error_field_required">Veld is verplicht</string>
     <string name="title_activity_login">Application_Pistes - Verbinding</string>
-    <string name="item_menu_french">Frans</string>
     <string name="confirm_button">Bevestigen</string>
-    <string name="item_menu_dutch">Nederlands</string>
-    <string name="item_menu_english">Engels</string>
-    <string name="title_activity_language">Keuze van taal</string>
-    <string name="title_activity_checkinglugages">Controleer bagage</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
-    <string name="title_activity_selectingflights">Vlucht selectie</string>
-    <string name="weight_name">Gewicht</string>
-    <string name="flight_name">Vlucht</string>
-    <string name="noSuitcase_name">Geen koffer</string>
-    <string name="suitcase_name">Koffer</string>
 </resources>

@@ -4,18 +4,12 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.support.v7.app.AppCompatActivity;
-
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -31,7 +25,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.util.Locale;
 
 import ProtocoleLUGANAPM.ReponseLUGANAPM;
 import ProtocoleLUGANAPM.RequeteLUGANAPM;
@@ -51,7 +44,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setTitle(R.string.title_activity_login);
+        setTitle(R.string.app_name);
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mLoginView = (AutoCompleteTextView) findViewById(R.id.login);
@@ -81,46 +74,6 @@ public class LoginActivity extends AppCompatActivity {
         mProgressView = findViewById(R.id.login_progress);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.navigation, menu);
-
-        // return true so that the menu pop up is opened
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        System.out.println("item.getItemId() = " + item.getItemId());
-
-        Locale locale = null;
-        switch (item.getItemId())
-        {
-            case R.id.item_french:
-                locale = new Locale("fr");
-                break;
-
-            case R.id.item_english:
-                locale = new Locale("en");
-                break;
-
-            case R.id.item_dutch:
-                locale = new Locale("nl");
-                break;
-        }
-
-        Configuration config = getBaseContext().getResources().getConfiguration();
-        config.setLocale(locale);
-        getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
-
-        final Intent Refresh = new Intent().setClass(LoginActivity.this, LoginActivity.class);
-        finish();
-        startActivity(Refresh);
-
-        return true;
-    }
-
     /**
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
@@ -135,7 +88,7 @@ public class LoginActivity extends AppCompatActivity {
         mLoginView.setError(null);
         mPasswordView.setError(null);
 
-        mLoginView.setText("Zeydax"); // Test
+        mLoginView.setText("Zey"); // Test
         mPasswordView.setText("123"); // Test
 
         // Store values at the time of the login attempt.
@@ -235,12 +188,12 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(Void... params) {
             boolean isConnected = false;
-            ReponseLUGAPM Reponse;
+            ReponseLUGANAPM Reponse;
 
             Reponse = contacteServeur(mLogin, mPassword);
             if (Reponse != null)
             {
-                if (Reponse.getCode() == ReponseLUGAPM.LOGIN_OK)
+                if (Reponse.getCode() == ReponseLUGANAPM.LOGIN_OK)
                 {
                     System.out.println("Rep = " + Reponse.getChargeUtile().get("Message"));
                     Client.setNomUtilisateur(Reponse.getChargeUtile().get("Prenom").toString() + " " + (Reponse.getChargeUtile().get("Nom").toString()));
@@ -248,7 +201,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    Client.Deconnexion(new RequeteLUGAPM(RequeteLUGAPM.REQUEST_LOG_OUT_RAMP_AGENT));
+                    Client.Deconnexion(new RequeteLUGANAPM(RequeteLUGANAPM.REQUEST_LOG_OUT_ANALYST));
                 }
             }
 
@@ -262,7 +215,7 @@ public class LoginActivity extends AppCompatActivity {
 
             if (success)
             {
-                final Intent SelectingFlightActivity = new Intent().setClass(LoginActivity.this, SelectingFlightActivity.class);
+                final Intent SelectingFlightActivity = new Intent().setClass(LoginActivity.this, LoginActivity.class); // Temp
                 startActivity(SelectingFlightActivity);
                 finish();
             }
@@ -289,12 +242,12 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    public ReponseLUGAPM contacteServeur(String Login, String Psw)
+    public ReponseLUGANAPM contacteServeur(String Login, String Psw)
     {
         Client = new Client();
         String[] AddressesIP = {"192.168.0.3", "10.59.22.101", "10.59.14.45" , "10.59.22.9"};
 
-        Client.setPort(30042);
+        Client.setPort(30043);
         for(int i = 0 ; i < AddressesIP.length && !Client.isConnectedToServer(); i++)
         {
             try
@@ -305,12 +258,12 @@ public class LoginActivity extends AppCompatActivity {
             catch (IOException e) {}
         }
 
-        ReponseLUGAPM Rep = null;
+        ReponseLUGANAPM Rep = null;
 
         if (Client.isConnectedToServer())
         {
             try {
-                Rep = (ReponseLUGAPM) Client.Authenfication(new RequeteLUGAPM(RequeteLUGAPM.REQUEST_LOGIN_RAMP_AGENT), Login, Psw);
+                Rep = (ReponseLUGANAPM) Client.Authenfication(new RequeteLUGANAPM(RequeteLUGANAPM.REQUEST_LOGIN_ANALYST), Login, Psw);
             } catch (IOException | NoSuchAlgorithmException | NoSuchProviderException e) {
                 e.printStackTrace();
                 String Error = "Can't reach the server";
