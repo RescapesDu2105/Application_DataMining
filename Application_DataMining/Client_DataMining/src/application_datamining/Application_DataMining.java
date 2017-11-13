@@ -28,6 +28,7 @@ public class Application_DataMining extends javax.swing.JFrame {
     private final Client Client;
     private HashMap<String, Object> Annees = null;
     private List DataCorr = new ArrayList(); 
+    private int [] Poids = null , Distance=null;
     
     /**
      * Creates new form MainFrame_AppDataMining
@@ -215,18 +216,42 @@ public class Application_DataMining extends javax.swing.JFrame {
 
 
     private void jButtonRegCorrActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRegCorrActionPerformed
-    ReponseLUGANAP Rep = null;
-    RequeteLUGANAP Req = new RequeteLUGANAP(RequeteLUGANAP.REG_CORR_LUG);        
+        ReponseLUGANAP Rep = null;
+        RequeteLUGANAP Req = new RequeteLUGANAP(RequeteLUGANAP.REG_CORR_LUG);        
 
-    Req.getChargeUtile().put("Annee", jSpinnerAnnees.getValue());
-    Req.getChargeUtile().put("Mois", jSpinnerMois.getValue());
-    Req.getChargeUtile().put("Compagnie", jSpinnerCompagnies.getValue());
-    
-    Client.EnvoyerRequete(Req);
-    Rep = Client.RecevoirReponse();
-    if(Rep != null)
-    {
-    }        
+        Req.getChargeUtile().put("Annee", jSpinnerAnnees.getValue());
+        Req.getChargeUtile().put("Mois", jSpinnerMois.getValue());
+        Req.getChargeUtile().put("Compagnie", jSpinnerCompagnies.getValue());
+
+        Client.EnvoyerRequete(Req);
+        Rep = Client.RecevoirReponse();
+        if(Rep != null)
+        {
+            List P = new ArrayList(); 
+            List D = new ArrayList(); 
+            if(Rep.getCode() == ReponseLUGANAP.REG_CORR_LUG_OK)
+            {
+                DataCorr = (List) Rep.getChargeUtile().get("Data");
+                for(int i=0 ;i<DataCorr.size();i=i+2)
+                {
+                    
+                    P.add(DataCorr.get(i));
+                    D.add(DataCorr.get(i+1));
+                    //System.out.println("Poids : "+DataCorr.get(i));
+                    //System.out.println("Distance : "+DataCorr.get(i+1));
+                }
+                Poids=toIntArray(P);
+                Distance=toIntArray(D);
+                
+                
+            java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                //new HistogrammeGUI(Poids , Distance).setVisible(true);
+                new ScatterPlotGUI(Poids , Distance).setVisible(true);
+            }
+        });
+            }
+        }        
     }//GEN-LAST:event_jButtonRegCorrActionPerformed
 
     public void MAJ_Mois()
@@ -358,6 +383,13 @@ public class Application_DataMining extends javax.swing.JFrame {
         }
         
         return mois;
+    }
+    int[] toIntArray(List<Integer> list)
+    {
+        int[] ret = new int[list.size()];
+        for(int i = 0;i < ret.length;i++)
+            ret[i] = list.get(i);
+        return ret;
     }
     
     /**

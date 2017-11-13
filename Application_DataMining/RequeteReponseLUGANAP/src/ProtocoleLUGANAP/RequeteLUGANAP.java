@@ -329,7 +329,7 @@ public final static int REG_CORR_LUG = 3;
         }*/
         
         Annee="2017";
-        Mois=12;
+        Mois=11;
         Compagnie="AIR FRANCE CANAILLE";
         System.out.println(Annee);
         System.out.println(Mois);
@@ -362,8 +362,6 @@ public final static int REG_CORR_LUG = 3;
                     {
                         int Poids = RS.getInt("Poids");
                         int Distance = RS.getInt("Distance");
-                        System.out.println("Poids : "+Poids);
-                        System.out.println("Distance : "+Distance);
                         DataCorr.add(Poids);
                         DataCorr.add(Distance);         
                     }
