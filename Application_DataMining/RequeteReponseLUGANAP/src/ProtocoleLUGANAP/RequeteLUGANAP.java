@@ -19,7 +19,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import requetepoolthreads.Requete;
 
@@ -32,6 +35,7 @@ public class RequeteLUGANAP implements Requete, Serializable
     public final static int REQUEST_LOG_OUT_ANALYST = 0;
     public final static int REQUEST_LOGIN_ANALYST = 1;
     public final static int REQUEST_INIT = 2;
+public final static int REG_CORR_LUG = 3;
         
     private int Type;
     private HashMap<String, Object> chargeUtile;
@@ -87,9 +91,20 @@ public class RequeteLUGANAP implements Requete, Serializable
                     }            
                 };
             
+            case REG_CORR_LUG:
+                System.out.println("cc");
+                return new Runnable()
+                {
+                    public void run() 
+                    {
+                        traiteRequeteCorrLug();
+                    }                        
+                };
+            
             default : return null;
         }
     }    
+    
     
     private void traiteRequeteLogOutAnalyst() 
     {
@@ -255,6 +270,68 @@ public class RequeteLUGANAP implements Requete, Serializable
         }        
         
         return BD_airport;
+    }
+ 
+    private void traiteRequeteCorrLug()
+    {
+        Bean_DB_Access BD_airport;
+        ResultSet RS;
+        
+        int i = 1;
+        
+        System.out.println("cc");
+        BD_airport = Connexion_DB();
+        System.out.println("cc1");
+        String Annee , Mois , Compagnie;
+        
+        Annee= getChargeUtile().get("Annee").toString();
+        Mois= getChargeUtile().get("Mois").toString();
+        Compagnie= getChargeUtile().get("Compagnie").toString();
+        System.out.println("cc2");
+        //if(Mois.equals("Toute l'année"))  
+        //if(Compagnie.equals("Toutes les compagnies"))
+
+
+        if(BD_airport !=null)
+        {
+            if(!Mois.equals("Toute l'année") && (!Compagnie.equals("Toutes les compagnies")))
+            {
+                try 
+                {
+                    System.out.println("cc3");    
+                    RS = BD_airport.Select("SELECT poids, distance\n" +
+                            "FROM Bagages NATURAL JOIN Billets NATURAL JOIN vols NATURAL JOIN avions NATURAL JOIN compagnies\n" +
+                            "WHERE extract(YEAR FROM HeureDepart)="+Annee+"\n" +
+                            "AND extract(MONTH FROM HeureDepart)="+Mois+"n" +               
+                            "AND NomCompagnie = '"+Compagnie+"'");
+                        
+                if (RS != null) 
+                {
+                    Reponse = new ReponseLUGANAP(ReponseLUGANAP.REG_CORR_LUG_OK);
+                    //ArrayList<Integer> DataCorr = new ArrayList<>();
+                    //int[] DataCorr =null ;
+                    List DataCorr = new ArrayList(); 
+                    
+                    while(RS.next())
+                    {
+                        int Poids = RS.getInt("poids");
+                        int Distance = RS.getInt("distance");
+                        
+                        DataCorr.add(Poids);
+                        DataCorr.add(Distance);         
+                    }
+                    
+                    Reponse.getChargeUtile().put("Data", DataCorr);
+                }                       
+                        
+                } 
+                catch (SQLException ex) 
+                {
+                    Logger.getLogger(RequeteLUGANAP.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+
     }
     
     @Override

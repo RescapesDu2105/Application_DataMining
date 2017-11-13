@@ -147,6 +147,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Regression Corr&#xe9;lation"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonRegCorrActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="jButtonRegCorrLugPlus">
       <Properties>

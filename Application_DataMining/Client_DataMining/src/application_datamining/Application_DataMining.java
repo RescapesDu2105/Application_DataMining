@@ -14,6 +14,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import javax.swing.JSpinner.DefaultEditor;
@@ -26,6 +27,7 @@ import javax.swing.SpinnerListModel;
 public class Application_DataMining extends javax.swing.JFrame {
     private final Client Client;
     private HashMap<String, Object> Annees = null;
+    private List DataCorr = new ArrayList(); 
     
     /**
      * Creates new form MainFrame_AppDataMining
@@ -65,6 +67,9 @@ public class Application_DataMining extends javax.swing.JFrame {
                 SpinnerListModel SpinnerListModel = new SpinnerListModel(annees);
                 jSpinnerAnnees.setModel(SpinnerListModel);
                 jSpinnerAnnees.setValue(annees[annees.length-1]);
+                
+                if (annees.length == 1)
+                    MAJ_Mois();
                 
                 ((DefaultEditor) jSpinnerAnnees.getEditor()).getTextField().setEditable(false);
             }
@@ -130,6 +135,11 @@ public class Application_DataMining extends javax.swing.JFrame {
         jButtonAnova2.setText("Anova 2");
 
         jButtonRegCorr.setText("Regression Corrélation");
+        jButtonRegCorr.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonRegCorrActionPerformed(evt);
+            }
+        });
 
         jButtonRegCorrLugPlus.setText("Régression Corrélation Plus");
 
@@ -196,6 +206,52 @@ public class Application_DataMining extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonAnova1ActionPerformed
 
     private void jSpinnerAnneesStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinnerAnneesStateChanged
+        MAJ_Mois();
+    }//GEN-LAST:event_jSpinnerAnneesStateChanged
+
+    private void jSpinnerMoisStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinnerMoisStateChanged
+        MAJ_Compagnies();
+    }//GEN-LAST:event_jSpinnerMoisStateChanged
+
+
+    private void jButtonRegCorrActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRegCorrActionPerformed
+        
+        RequeteLUGANAP Req = new RequeteLUGANAP(RequeteLUGANAP.REG_CORR_LUG);        
+        ReponseLUGANAP Rep = null;
+        
+        Req.getChargeUtile().put("Annee", jSpinnerAnnees.getValue());
+        Req.getChargeUtile().put("Mois", jSpinnerAnnees.getValue());
+        Req.getChargeUtile().put("Compagnie", jSpinnerCompagnies.getValue());
+        
+        Client.EnvoyerRequete(Req);
+        Rep = Client.RecevoirReponse();
+        if(Rep != null)
+        {
+                    System.out.println("cc");
+            if(Rep.getCode() == ReponseLUGANAP.REG_CORR_LUG_OK)
+            {
+                
+                Annees = (HashMap<String, Object>) Rep.getChargeUtile().get("Data");
+                System.out.println("Test 1 = " + Annees);
+                
+                Set keySet = Annees.keySet();
+                Object[] annees = (Object[]) keySet.toArray();
+                System.out.println("annees = " + Arrays.toString(annees));
+                
+                SpinnerListModel SpinnerListModel = new SpinnerListModel(annees);
+                jSpinnerAnnees.setModel(SpinnerListModel);
+                jSpinnerAnnees.setValue(annees[annees.length-1]);
+                
+                if (annees.length == 1)
+                    MAJ_Mois();
+                
+                ((DefaultEditor) jSpinnerAnnees.getEditor()).getTextField().setEditable(false);
+            }
+        }        
+    }//GEN-LAST:event_jButtonRegCorrActionPerformed
+
+    public void MAJ_Mois()
+    {
         jSpinnerCompagnies.setModel(new SpinnerListModel());
         
         Set keySet = ((HashMap<String, Object>) Annees.get(jSpinnerAnnees.getValue())).keySet();
@@ -211,7 +267,6 @@ public class Application_DataMining extends javax.swing.JFrame {
             cal.set(Calendar.MONTH, Integer.parseInt(obj[i].toString()) - 1);
             String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.FRENCH);
             month = month.substring(0, 1).toUpperCase() + month.substring(1);
-            System.out.println("month = " + month);
             mois[i] = month;
         }
         
@@ -226,20 +281,15 @@ public class Application_DataMining extends javax.swing.JFrame {
         ((DefaultEditor) jSpinnerMois.getEditor()).getTextField().setEditable(false);
         
         MAJ_Compagnies();
-    }//GEN-LAST:event_jSpinnerAnneesStateChanged
-
-    private void jSpinnerMoisStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinnerMoisStateChanged
-        MAJ_Compagnies();
-    }//GEN-LAST:event_jSpinnerMoisStateChanged
-
+    }
+    
     public void MAJ_Compagnies()
     {
         jSpinnerCompagnies.setModel(new SpinnerListModel());
                 
         String month = jSpinnerMois.getValue().toString();
         ArrayList<String> Compagnies = null;
-        //System.out.println("month = " + month);
-        //System.out.println("Equals = " + "Toute l'année".equals(month));
+        System.out.println("Equals = " + "Toute l'année".equals(month));
         int mois = -1;
         if(!"Toute l'année".equals(month))
         {
@@ -250,7 +300,6 @@ public class Application_DataMining extends javax.swing.JFrame {
         
         if (mois != -1)
         {            
-            System.out.println("mois = " + mois);
             Compagnies = (ArrayList<String>) Mois.get(Integer.toString(mois));
             Compagnies.add("Toutes les compagnies");
             
@@ -268,15 +317,12 @@ public class Application_DataMining extends javax.swing.JFrame {
             for (int i = 0 ; i < obj.length - 1 ; i++)
             {
                 mois = NumberOfMonth(obj[i].toString());
-                System.out.println("mois = " + mois);
                 ArrayList<String> Temp = (ArrayList<String>) Mois.get(Integer.toString(mois));
-                System.out.println("Temp = " + Temp);
                 Temp.removeAll(Compagnies);
                 Compagnies.addAll(Temp);
             }
             
             Compagnies.add("Toutes les compagnies");
-            System.out.println("Compagnies = " + Compagnies);
 
             SpinnerListModel SpinnerListModel = new SpinnerListModel(Compagnies.toArray());
             jSpinnerCompagnies.setModel(SpinnerListModel);

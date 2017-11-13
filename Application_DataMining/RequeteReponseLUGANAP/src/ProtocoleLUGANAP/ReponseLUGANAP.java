@@ -19,6 +19,7 @@ public class ReponseLUGANAP implements Reponse, Serializable
     
     public final static int INITIATED = 203;    
     public final static String INITIATED_MESSAGE = "Informations d'initialisation envoyés";
+    public final static int REG_CORR_LUG_OK = 204;
     
     private int Code;
     private HashMap<String, Object> ChargeUtile;

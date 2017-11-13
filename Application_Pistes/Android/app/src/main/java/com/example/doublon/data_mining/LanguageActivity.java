@@ -53,21 +53,24 @@ public class LanguageActivity extends AppCompatActivity
                     case 0:
                         break;
                     case 1:
-                        locale = new Locale("fr_BE");
+                        locale = new Locale("be");
                         break;
                     case 2:
-                        locale = new Locale("en_US");
+                        locale = new Locale("en");
                         break;
                     case 3:
-                        locale = new Locale("nl_NL");
+                        locale = new Locale("nl");
                         break;
                     default: break;
                 }
 
+                Locale.setDefault(locale);
                 System.out.println("Langue 0 = " + getResources().getConfiguration().locale);
-                getBaseContext().getResources().getConfiguration().setLocale(locale);
+                //getBaseContext().getResources().getConfiguration().setLocale(locale);
+                Configuration config = new Configuration();
+                config.locale = locale;
+                getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
                 System.out.println("Langue 1 = " + getResources().getConfiguration().locale);
-                getBaseContext().getResources().updateConfiguration(getResources().getConfiguration(), getBaseContext().getResources().getDisplayMetrics());
 
                 if (Choix == 0)
                 {
