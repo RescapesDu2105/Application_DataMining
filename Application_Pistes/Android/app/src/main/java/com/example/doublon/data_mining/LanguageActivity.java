@@ -67,6 +67,7 @@ public class LanguageActivity extends AppCompatActivity
                 System.out.println("Langue 0 = " + getResources().getConfiguration().locale);
                 getBaseContext().getResources().getConfiguration().setLocale(locale);
                 System.out.println("Langue 1 = " + getResources().getConfiguration().locale);
+                getBaseContext().getResources().updateConfiguration(getResources().getConfiguration(), getBaseContext().getResources().getDisplayMetrics());
 
                 if (Choix == 0)
                 {

@@ -17,6 +17,7 @@ import java.security.NoSuchProviderException;
 import java.security.Security;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -75,7 +76,16 @@ public class RequeteLUGANAP implements Requete, Serializable
                     {
                         traiteRequeteLoginAnalyst();
                     }            
-                };               
+                };        
+                
+            case REQUEST_INIT:
+                return new Runnable() 
+                {
+                    public void run() 
+                    {
+                        traiteRequeteInit();
+                    }            
+                };
             
             default : return null;
         }
@@ -178,6 +188,54 @@ public class RequeteLUGANAP implements Requete, Serializable
                 
         return Champs;
     }
+    
+    public void traiteRequeteInit()
+    {
+        Bean_DB_Access BD_airport;
+        ResultSet RS;
+        
+        int i = 1;
+        
+        BD_airport = Connexion_DB();
+        
+        if (BD_airport != null)
+        {
+            try
+            {                        
+                RS = BD_airport.Select("SELECT DISTINCT DATE_FORMAT(HeureDepart, '%m') AS Mois, DATE_FORMAT(HeureDepart, '%Y') AS Annee, NomCompagnie "
+                        + "FROM bd_airport.vols natural join bd_airport.Avions Natural Join bd_airport.compagnies "
+                        + "ORDER BY Annee, Mois");
+                if (RS != null) 
+                {
+                    Reponse = new ReponseLUGANAP(ReponseLUGANAP.INITIATED);
+                    HashMap<String, Object> Annees = new HashMap<>();
+                    
+                    while(RS.next())
+                    {
+                        int mois = RS.getInt("Mois");
+                        int Annee = RS.getInt("Annee");
+                        String NomCompagnie = RS.getString("NomCompagnie");
+                        
+                        Annees.putIfAbsent(Integer.toString(Annee), new HashMap<>());
+                        HashMap<String, Object> Mois = (HashMap<String, Object>) Annees.get(Integer.toString(Annee));
+                        Mois.putIfAbsent(Integer.toString(mois), new ArrayList<>());         
+                        //System.out.println("Mois = " + Mois);               
+                        ArrayList<String> Compagnies = (ArrayList<String>) Mois.get(Integer.toString(mois));
+                        Compagnies.add(NomCompagnie);
+                        //System.out.println("Compagnies = " + Compagnies);
+                        
+                        System.out.println("Annees = " + Annees);
+                    }
+                    
+                    Reponse.getChargeUtile().put("Data", Annees);
+                }
+            }
+            catch (SQLException Ex)
+            {
+                Ex.printStackTrace();
+            }
+        }
+    }
             
     public Bean_DB_Access Connexion_DB()
     {
@@ -185,7 +243,6 @@ public class RequeteLUGANAP implements Requete, Serializable
         String Error;
         
         BD_airport = new Bean_DB_Access(Bean_DB_Access.DRIVER_MYSQL, getProp().getProperty("HOST_BD"), getProp().getProperty("PORT_BD"), "Zeydax", "1234", getProp().getProperty("SCHEMA_BD"));
-        //BD_airport = new Bean_DB_Access(Bean_DB_Access.DRIVER_MYSQL, "localhost", "3306", "Zeydax", "1234", "bd_airport");
         if (BD_airport != null)
         {
             Error = BD_airport.Connexion();
