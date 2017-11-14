@@ -136,8 +136,8 @@ public class LoginActivity extends AppCompatActivity {
         mLoginView.setError(null);
         mPasswordView.setError(null);
 
-        mLoginView.setText("Zeydax"); // Test
-        mPasswordView.setText("123"); // Test
+        //mLoginView.setText("Zeydax"); // Test
+        //mPasswordView.setText("123"); // Test
 
         // Store values at the time of the login attempt.
         String login = mLoginView.getText().toString();
@@ -293,7 +293,7 @@ public class LoginActivity extends AppCompatActivity {
     public ReponseLUGAPM contacteServeur(String Login, String Psw)
     {
         Client = new Client();
-        String[] AddressesIP = {"192.168.0.3", "10.59.22.101", "10.59.14.45" , "10.59.22.9"};
+        String[] AddressesIP = {"192.168.0.3", "10.59.22.101", "10.59.14.45" , "10.59.22.9", "10.59.14.96"};
 
         Client.setPort(30042);
         for(int i = 0 ; i < AddressesIP.length && !Client.isConnectedToServer(); i++)

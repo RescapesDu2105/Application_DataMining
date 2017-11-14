@@ -149,7 +149,7 @@ public class SelectingFlightActivity extends AppCompatActivity
                 HashMap<String, Object> hm = (HashMap<String, Object>) Rep.getChargeUtile().get(Integer.toString(i));
                 listIdVol.add((Integer) hm.get("IdVol"));
                 //System.out.println("getBaseContext().getResources().getConfiguration().locale = " + getBaseContext().getResources().getConfiguration().locale);
-                values[i-1] = getString(R.string.flight_name) + " " + hm.get("NumeroVol").toString() + " " + hm.get("NomCompagnie").toString() + "      -> " + hm.get("Destination").toString() + "\t" + DateFormat.getTimeInstance(DateFormat.SHORT, getBaseContext().getResources().getConfiguration().locale).format(hm.get("DateHeureDepart"));
+                values[i-1] = getString(R.string.flight_name) + " " + hm.get("NumeroVol").toString() + " " + hm.get("NomCompagnie").toString() + " -> " + hm.get("Destination").toString() + " " + DateFormat.getTimeInstance(DateFormat.SHORT, getBaseContext().getResources().getConfiguration().locale).format(hm.get("DateHeureDepart"));
             }
 
             final ArrayList<String> list = new ArrayList<>();
