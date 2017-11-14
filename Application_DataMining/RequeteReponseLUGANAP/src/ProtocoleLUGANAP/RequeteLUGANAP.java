@@ -5,6 +5,8 @@
  */
 package ProtocoleLUGANAP;
 
+import Evaluation1.ConnexionRServe;
+import Evaluation1.MainFrame;
 import database.utilities.Bean_DB_Access;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -24,6 +26,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.rosuda.REngine.REXPMismatchException;
+import org.rosuda.REngine.Rserve.RserveException;
 import requetepoolthreads.Requete;
 
 /**
@@ -36,9 +40,10 @@ public class RequeteLUGANAP implements Requete, Serializable
     public final static int REQUEST_LOGIN_ANALYST = 1;
     public final static int REQUEST_INIT = 2;
     public final static int REG_CORR_LUG = 3;
+    public final static int REG_CORR_LUG_PLUS=4;
     public final static int ANOVA_L_LUG = 6;
     public final static int ANOVA_L_LUG2 = 7;
-        
+    
     private int Type;
     private HashMap<String, Object> chargeUtile;
     private Socket SocketClient;
@@ -118,7 +123,16 @@ public class RequeteLUGANAP implements Requete, Serializable
                     {
                         TraiterAnovaLug2();
                     }                        
-                };                
+                };      
+                
+            case REG_CORR_LUG_PLUS :
+                return new Runnable()
+                {
+                    public void run() 
+                    {
+                        TraiterAnovaLug2();
+                    }                        
+                };                  
             default : return null;
         }
     }    
@@ -386,6 +400,155 @@ public class RequeteLUGANAP implements Requete, Serializable
                     }
                     
                     Reponse.getChargeUtile().put("Data", DataCorr);
+                }
+                else
+                {
+                   System.out.println("cassé"); 
+                }
+                        
+                } 
+                catch (SQLException ex) 
+                {
+                    Logger.getLogger(RequeteLUGANAP.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+
+    }
+    
+    private void traiteRequeteCorrLugPlus()
+    {
+        Bean_DB_Access BD_airport;
+        ResultSet RS;
+        
+        int i = 1;
+        
+        BD_airport = Connexion_DB();
+        String Annee , Compagnie;
+        int Mois;
+        
+        //Annee= getChargeUtile().get("Annee").toString();
+       // Mois= getChargeUtile().get("Mois").toString();
+        //Compagnie= getChargeUtile().get("Compagnie").toString();
+        //if(Mois.equals("Toute l'année"))  
+        //if(Compagnie.equals("Toutes les compagnies"))
+        /*switch(Mois)
+        {
+            case "Janvier":
+                Mois = "1";
+                break;
+            case "Février":
+                Mois = "2";
+                break;
+            case "Mars":
+                Mois = "3";
+                break;
+            case "Avril":
+                Mois = "4";
+                break;
+            case "Mai":
+                Mois = "5";
+                break;
+            case "Juin":
+                Mois = "6";
+                break;
+            case "Juillet":
+                Mois = "7";
+                break;
+            case "Août":
+                Mois = "8";
+                break;
+            case "Septembre":
+                Mois = "9";
+                break;
+            case "Octobre":
+                Mois = "10";
+                break;
+            case "Novembre":
+                Mois = "11";
+                break;
+            case "Décembre":
+                Mois = "12";
+                break;
+            default : Mois = "-1";
+        }*/
+        
+        Annee="2017";
+        Mois=11;
+        Compagnie="AIR FRANCE CANAILLE";
+        System.out.println(Annee);
+        System.out.println(Mois);
+        System.out.println(Compagnie);
+
+        if(BD_airport !=null)
+        {
+            if(/*!Mois.equals("Toute l'année") && */(!Compagnie.equals("Toutes les compagnies")))
+            {
+                try 
+                {  
+                    RS = BD_airport.Select("SELECT poids, distance,NbAccompagnants\n" +
+                            "FROM Bagages NATURAL JOIN Billets NATURAL JOIN vols NATURAL JOIN avions NATURAL JOIN compagnies\n" +
+                            "WHERE extract(YEAR FROM HeureDepart)= "+Annee+"\n" +
+                            "AND extract(MONTH FROM HeureDepart)="+Mois);
+                    //ajouter la compagnie
+                        
+                if (RS != null) 
+                {
+                    Reponse = new ReponseLUGANAP(ReponseLUGANAP.REG_CORR_LUG_PLUS_OK);
+                    //ArrayList<Integer> DataCorr = new ArrayList<>();
+                    Double[] LPoids =null , LDistance=null , LAccompagant=null;
+                    //List DataCorr = new ArrayList(); 
+                    while(RS.next())
+                    {
+                        Double Poids = RS.getDouble("Poids");
+                        Double Distance = RS.getDouble("Distance");
+                        Double Accompagant=RS.getDouble("NbAccompagnants");
+                        LPoids[i]=Poids;
+                        LDistance[i]=Distance;
+                        LAccompagant[i]=Accompagant;
+                        i++;
+                        //DataCorr.add(Distance);         
+                    }
+                    ConnexionRServe CRS = null;
+                    Double Coef = null,p_value1 = null,p_value2 = null;
+                    double []H0 = null,t = null;
+                    
+                    CRS.Connexion();
+                    try 
+                    {
+                        CRS.getRConnexion().voidEval("poids <- c()");
+                        CRS.getRConnexion().voidEval("distance <- c()");
+                        CRS.getRConnexion().voidEval("accompagant <- c()");
+                        //Reponse.getChargeUtile().put("Data", DataCorr); 
+                        for (int j =0 ; j<LPoids.length;j++)
+                        {
+                            CRS.getRConnexion().voidEval("poids <- c(poids,"+LPoids[i]+")");
+                            CRS.getRConnexion().voidEval("distance <- c(distance,"+LDistance[i]+")");
+                            CRS.getRConnexion().voidEval("accompagant <- c(accompagant,"+LAccompagant[i]+")");
+                        }
+                        CRS.getRConnexion().voidEval("df = data.frame(poids,distance,accompagant)");
+                        CRS.getRConnexion().voidEval("test<-lm(data$poids~data$distance+data$accompagant)");
+                        H0=CRS.getRConnexion().eval("summary(test)$coefficients[,\"Pr(>|t|)\"]").asDoubles();
+                        Coef=CRS.getRConnexion().eval("summary(test)$r.squared").asDouble();
+                        CRS.getRConnexion().voidEval("fstat<-summary(test)$fstatistic");
+                        p_value1=CRS.getRConnexion().eval("pf(fstat[1],fstat[2],fstat[3],lower.tail=FALSE)").asDouble();
+                        CRS.getRConnexion().voidEval("test<-lm(data$temps~data$volume+data$nombre.de.grandes.pieces-1)");
+                        t=CRS.getRConnexion().eval("summary(test)$coefficients[,\"Pr(>|t|)\"]").asDoubles();
+                        Coef=CRS.getRConnexion().eval("summary(test)$r.squared").asDouble();
+                        CRS.getRConnexion().voidEval("fstat<-summary(test)$fstatistic");
+                        p_value2=CRS.getRConnexion().eval("pf(fstat[1],fstat[2],fstat[3],lower.tail=FALSE)").asDouble();
+                    } 
+                    catch (RserveException | REXPMismatchException ex) 
+                    {
+                        Logger.getLogger(RequeteLUGANAP.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    
+                    Reponse.getChargeUtile().put("Coef", Coef);
+                    Reponse.getChargeUtile().put("p_value1", p_value1);
+                    Reponse.getChargeUtile().put("p_value2", p_value2);
+                    Reponse.getChargeUtile().put("H0", H0);
+                    Reponse.getChargeUtile().put("t", t);
+                    
                 }
                 else
                 {

@@ -102,6 +102,8 @@ public class Application_DataMining extends javax.swing.JFrame {
         jButtonRegCorr = new javax.swing.JButton();
         jButtonRegCorrLugPlus = new javax.swing.JButton();
         jButtonEffacer = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextAreaConclusion = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -135,6 +137,11 @@ public class Application_DataMining extends javax.swing.JFrame {
         });
 
         jButtonAnova2.setText("Anova 2");
+        jButtonAnova2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAnova2ActionPerformed(evt);
+            }
+        });
 
         jButtonRegCorr.setText("Regression Corrélation");
         jButtonRegCorr.addActionListener(new java.awt.event.ActionListener() {
@@ -144,8 +151,22 @@ public class Application_DataMining extends javax.swing.JFrame {
         });
 
         jButtonRegCorrLugPlus.setText("Régression Corrélation Plus");
+        jButtonRegCorrLugPlus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonRegCorrLugPlusActionPerformed(evt);
+            }
+        });
 
         jButtonEffacer.setText("Effacer");
+        jButtonEffacer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonEffacerActionPerformed(evt);
+            }
+        });
+
+        jTextAreaConclusion.setColumns(20);
+        jTextAreaConclusion.setRows(5);
+        jScrollPane1.setViewportView(jTextAreaConclusion);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -176,7 +197,10 @@ public class Application_DataMining extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jSpinnerCompagnies)))
+                        .addComponent(jSpinnerCompagnies))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane1)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -197,13 +221,16 @@ public class Application_DataMining extends javax.swing.JFrame {
                     .addComponent(jButtonRegCorrLugPlus)
                     .addComponent(jButtonAnova2)
                     .addComponent(jButtonEffacer))
-                .addContainerGap(246, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonAnova1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAnova1ActionPerformed
+        jTextAreaConclusion.setText(null);
         ReponseLUGANAP Rep = null;
         RequeteLUGANAP Req = new RequeteLUGANAP(RequeteLUGANAP.ANOVA_L_LUG);        
 
@@ -291,6 +318,7 @@ public class Application_DataMining extends javax.swing.JFrame {
 
 
     private void jButtonRegCorrActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRegCorrActionPerformed
+        jTextAreaConclusion.setText(null);
         ReponseLUGANAP Rep = null;
         RequeteLUGANAP Req = new RequeteLUGANAP(RequeteLUGANAP.REG_CORR_LUG);        
 
@@ -330,6 +358,37 @@ public class Application_DataMining extends javax.swing.JFrame {
             }
         }        
     }//GEN-LAST:event_jButtonRegCorrActionPerformed
+
+    private void jButtonRegCorrLugPlusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRegCorrLugPlusActionPerformed
+        jTextAreaConclusion.setText(null);
+        ReponseLUGANAP Rep = null;
+        RequeteLUGANAP Req = new RequeteLUGANAP(RequeteLUGANAP.REG_CORR_LUG_PLUS);        
+
+        Req.getChargeUtile().put("Annee", jSpinnerAnnees.getValue());
+        Req.getChargeUtile().put("Mois", jSpinnerMois.getValue());
+        Req.getChargeUtile().put("Compagnie", jSpinnerCompagnies.getValue());
+        
+        if(Rep.getCode() == ReponseLUGANAP.REG_CORR_LUG_PLUS_OK)
+        {
+            Double Coef = null,p_value1 = null,p_value2 = null;
+            double []H0 = null,t = null;
+
+            Coef =(Double) Rep.getChargeUtile().get("Coef");
+            p_value1 =(Double) Rep.getChargeUtile().get("p_value1");
+            p_value2 =(Double) Rep.getChargeUtile().get("p_value2");
+            H0 =(double[]) Rep.getChargeUtile().get("H0");
+            t = (double[]) Rep.getChargeUtile().get("p_value2");          
+            jTextAreaConclusion.setText(jTextAreaConclusion.getText()+"Coef");
+        }
+    }//GEN-LAST:event_jButtonRegCorrLugPlusActionPerformed
+
+    private void jButtonEffacerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonEffacerActionPerformed
+        jTextAreaConclusion.setText(null);
+    }//GEN-LAST:event_jButtonEffacerActionPerformed
+
+    private void jButtonAnova2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAnova2ActionPerformed
+        jTextAreaConclusion.setText(null);
+    }//GEN-LAST:event_jButtonAnova2ActionPerformed
 
     public void MAJ_Mois()
     {
@@ -507,8 +566,10 @@ public class Application_DataMining extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabelMois;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSpinner jSpinnerAnnees;
     private javax.swing.JSpinner jSpinnerCompagnies;
     private javax.swing.JSpinner jSpinnerMois;
+    private javax.swing.JTextArea jTextAreaConclusion;
     // End of variables declaration//GEN-END:variables
 }
