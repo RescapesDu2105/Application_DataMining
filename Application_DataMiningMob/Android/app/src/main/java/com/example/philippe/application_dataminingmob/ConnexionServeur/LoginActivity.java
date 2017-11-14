@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.philippe.application_dataminingmob.MainActivity;
 import com.example.philippe.application_dataminingmob.R;
 
 import java.io.IOException;
@@ -215,8 +216,8 @@ public class LoginActivity extends AppCompatActivity {
 
             if (success)
             {
-                final Intent SelectingFlightActivity = new Intent().setClass(LoginActivity.this, LoginActivity.class); // Temp
-                startActivity(SelectingFlightActivity);
+                final Intent MainActivity = new Intent().setClass(LoginActivity.this, MainActivity.class); // Temp
+                startActivity(MainActivity);
                 finish();
             }
             else

@@ -9,10 +9,14 @@
     <string name="error_invalid_password">Le mot de passe est trop court</string>
     <string name="error_incorrect_login_password">Le nom d\'utilisateur ou le mot de passe est incorrect</string>
     <string name="error_field_required">Le champ est requis</string>
-    <string name="title_activity_login">Application_Pistes - Connexion</string>
+    <string name="title_activity_login">Connexion</string>
     <string name="confirm_button">Confirmer</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_dashboard">Dashboard</string>
+    <string name="title_activity_main">Recherche</string>
+    <string name="textViewMois_name">Mois</string>
+    <string name="textViewCompagnies_name">Compagnies</string>
+    <string name="textViewAnnees_name">Année</string>
 
     <!-- Strings related to login -->
 </resources>

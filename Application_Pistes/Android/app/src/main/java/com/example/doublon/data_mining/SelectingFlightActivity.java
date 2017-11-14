@@ -92,7 +92,6 @@ public class SelectingFlightActivity extends AppCompatActivity
         protected Boolean doInBackground(Void... params)
         {
             boolean Ok = true;
-            ReponseLUGAPM Rep;
 
             Reponse = RecupererVols();
 
