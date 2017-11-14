@@ -220,10 +220,12 @@ public class MainFrame extends javax.swing.JFrame{
             
             // Récupération des données
             CurrentLevel = CRS.getRConnexion().eval("data$" + Headers[0] + "[1]").asString();            
-            for (int i = 1, j = 1 ; j <= NbValues ; j++) {
+            for (int i = 1, j = 1 ; j <= NbValues ; j++) 
+            {
                 Temp = CRS.getRConnexion().eval("data$" + Headers[0] + "[" + j + "]").asString();
                 //System.out.println("Temp : " +Temp);
-                if (j != 1 && !Temp.equals(CurrentLevel)) {
+                if (j != 1 && !Temp.equals(CurrentLevel)) 
+                {
                     //System.out.println("Check : " + i);
                     ds.add(list, "Serie 1", CurrentLevel);
                     CurrentLevel = Temp;

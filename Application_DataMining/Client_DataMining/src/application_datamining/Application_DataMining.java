@@ -204,7 +204,7 @@ public class Application_DataMining extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonAnova1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAnova1ActionPerformed
-       ReponseLUGANAP Rep = null;
+        ReponseLUGANAP Rep = null;
         RequeteLUGANAP Req = new RequeteLUGANAP(RequeteLUGANAP.ANOVA_L_LUG);        
 
         Req.getChargeUtile().put("Annee", jSpinnerAnnees.getValue());
@@ -216,7 +216,7 @@ public class Application_DataMining extends javax.swing.JFrame {
         if(Rep != null)
         {
             List Moy = new ArrayList(); 
-            List Destination = new ArrayList(); 
+            List<String> Destination = new ArrayList<>(); 
             if(Rep.getCode() == ReponseLUGANAP.ANOVA_L_LUG_OK)
             {
                 DataCorr = (List) Rep.getChargeUtile().get("Data");
@@ -224,7 +224,7 @@ public class Application_DataMining extends javax.swing.JFrame {
                 {
                     
                     Moy.add(DataCorr.get(i));
-                    Destination.add(DataCorr.get(i+1));
+                    Destination.add((String) DataCorr.get(i+1));
                     //System.out.println("Poids : "+DataCorr.get(i));
                     //System.out.println("Distance : "+DataCorr.get(i+1));
                 }
@@ -238,11 +238,51 @@ public class Application_DataMining extends javax.swing.JFrame {
                         new SectorialGUI( Moyenne, Destination).setVisible(true);
                     }
                 });
+                RequeteAnovaLug2();
             
             }
         }
     }//GEN-LAST:event_jButtonAnova1ActionPerformed
 
+    public void RequeteAnovaLug2()
+    {
+        ReponseLUGANAP Rep = null;
+        RequeteLUGANAP Req = new RequeteLUGANAP(RequeteLUGANAP.ANOVA_L_LUG2);        
+
+        Req.getChargeUtile().put("Annee", jSpinnerAnnees.getValue());
+        Req.getChargeUtile().put("Mois", jSpinnerMois.getValue());
+        Req.getChargeUtile().put("Compagnie", jSpinnerCompagnies.getValue());
+
+        Client.EnvoyerRequete(Req);
+        Rep = Client.RecevoirReponse();
+        if(Rep != null)
+        {
+            List <Integer>P = new ArrayList(); 
+            List Destination = new ArrayList(); 
+            if(Rep.getCode() == ReponseLUGANAP.ANOVA_L_LUG_OK)
+            {
+                DataCorr = (List) Rep.getChargeUtile().get("Data");
+                for(int i=0 ;i<DataCorr.size();i=i+2)
+                {
+                    
+                    P.add((Integer) DataCorr.get(i));
+                    Destination.add(DataCorr.get(i+1));
+                    //System.out.println("Poids : "+DataCorr.get(i));
+                    //System.out.println("Distance : "+DataCorr.get(i+1));
+                }
+                
+                java.awt.EventQueue.invokeLater(new Runnable() 
+                {
+                    public void run() 
+                    {
+                        new BoxPlotGUI(P,Destination).setVisible(true);
+                    }
+                });
+            
+            }
+        }        
+    }
+    
     private void jSpinnerAnneesStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinnerAnneesStateChanged
         MAJ_Mois();
     }//GEN-LAST:event_jSpinnerAnneesStateChanged
