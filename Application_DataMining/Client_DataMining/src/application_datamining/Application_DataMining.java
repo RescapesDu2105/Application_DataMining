@@ -267,8 +267,6 @@ public class Application_DataMining extends javax.swing.JFrame {
                     
                     P.add((Integer) DataCorr.get(i));
                     Destination.add(DataCorr.get(i+1));
-                    //System.out.println("Poids : "+DataCorr.get(i));
-                    //System.out.println("Distance : "+DataCorr.get(i+1));
                 }
                 
                 java.awt.EventQueue.invokeLater(new Runnable() 

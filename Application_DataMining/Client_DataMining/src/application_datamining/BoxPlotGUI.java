@@ -90,23 +90,20 @@ public class BoxPlotGUI extends javax.swing.JFrame {
 
     public void ConstruireGraph(List<Integer> Moyenne, List<String> Destination)
     {
-       DefaultBoxAndWhiskerCategoryDataset ds = new DefaultBoxAndWhiskerCategoryDataset();
-       List<Integer>temp = new ArrayList<>();
-       String tmp = null;
-       for(int i=0 ; i<Moyenne.size();i++)
-       {
-           if(i!=0 && !Destination.get(i).equals(Destination.get(i-1)))
-           {
-               ds.add(temp,"serie1", Destination.get(i));
-               temp.clear();
-           }
-           else
-           {
-               temp.add(Moyenne.get(i));
-           }
-           tmp=Destination.get(i);
-       }
-       ds.add(temp,"serie1", tmp);
+        DefaultBoxAndWhiskerCategoryDataset ds = new DefaultBoxAndWhiskerCategoryDataset();
+        List<Integer>temp = new ArrayList<>();
+        String tmp = null;
+        for(int i=0 ; i<Moyenne.size();i++)
+        {
+            if(i!=0 && !Destination.get(i-1).equals(Destination.get(i)))
+            {
+                ds.add(temp,"serie"+i, Destination.get(i-1));
+                temp.clear();
+            }
+            temp.add(Moyenne.get(i));
+            tmp=Destination.get(i);
+        }
+        ds.add(temp,"serie3", tmp);
         JFreeChart jfc = ChartFactory.createBoxAndWhiskerChart("Boxplot", "Destination" ,"Poids", ds, false);
         CategoryPlot plot = (CategoryPlot) jfc.getCategoryPlot();
         ChartPanel cp = new ChartPanel(jfc);

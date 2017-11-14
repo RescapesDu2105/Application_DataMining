@@ -494,7 +494,7 @@ public class RequeteLUGANAP implements Requete, Serializable
             {
                 try 
                 {  
-                    RS = BD_airport.Select("SELECT poids as Poids, destination as Dest\n" +
+                    RS = BD_airport.Select("SELECT poids, destination\n" +
                             "FROM Bagages NATURAL JOIN Billets NATURAL JOIN vols NATURAL JOIN avions NATURAL JOIN compagnies\n" +
                             "WHERE extract(YEAR FROM HeureDepart)= "+Annee+"\n" +
                             "AND extract(MONTH FROM HeureDepart)="+Mois+"\n" +
@@ -510,12 +510,11 @@ public class RequeteLUGANAP implements Requete, Serializable
                     List DataCorr = new ArrayList(); 
                     while(RS.next())
                     {
-                        int Moyenne = RS.getInt("Poids");
-                        String Destination = RS.getString("Dest");
+                        int Moyenne = RS.getInt("poids");
+                        String Destination = RS.getString("destination");
                         DataCorr.add(Moyenne);
                         DataCorr.add(Destination);         
                     }
-                    
                     Reponse.getChargeUtile().put("Data", DataCorr);
                 }
                 else
