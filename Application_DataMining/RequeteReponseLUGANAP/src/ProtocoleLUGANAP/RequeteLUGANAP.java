@@ -130,7 +130,7 @@ public class RequeteLUGANAP implements Requete, Serializable
                 {
                     public void run() 
                     {
-                        TraiterAnovaLug2();
+                        traiteRequeteCorrLugPlus();
                     }                        
                 };                  
             default : return null;
@@ -494,18 +494,20 @@ public class RequeteLUGANAP implements Requete, Serializable
                         
                 if (RS != null) 
                 {
-                    Reponse = new ReponseLUGANAP(ReponseLUGANAP.REG_CORR_LUG_PLUS_OK);
                     //ArrayList<Integer> DataCorr = new ArrayList<>();
+                    Reponse = new ReponseLUGANAP(ReponseLUGANAP.REG_CORR_LUG_PLUS_OK);
                     Double[] LPoids =null , LDistance=null , LAccompagant=null;
+                    Double P,D,A;
                     //List DataCorr = new ArrayList(); 
                     while(RS.next())
                     {
-                        Double Poids = RS.getDouble("Poids");
-                        Double Distance = RS.getDouble("Distance");
-                        Double Accompagant=RS.getDouble("NbAccompagnants");
-                        LPoids[i]=Poids;
-                        LDistance[i]=Distance;
-                        LAccompagant[i]=Accompagant;
+                        int Poids = RS.getInt("poids");
+                        int Distance = RS.getInt("distance");
+                        int Accompagant=RS.getInt("NbAccompagnants");
+                        
+                        LPoids[i]=(double)Poids;
+                        LDistance[i]=(double)Distance;
+                        LAccompagant[i]=(double)Accompagant;
                         i++;
                         //DataCorr.add(Distance);         
                     }
@@ -544,10 +546,10 @@ public class RequeteLUGANAP implements Requete, Serializable
                     }
                     
                     Reponse.getChargeUtile().put("Coef", Coef);
-                    Reponse.getChargeUtile().put("p_value1", p_value1);
+                    /*Reponse.getChargeUtile().put("p_value1", p_value1);
                     Reponse.getChargeUtile().put("p_value2", p_value2);
                     Reponse.getChargeUtile().put("H0", H0);
-                    Reponse.getChargeUtile().put("t", t);
+                    Reponse.getChargeUtile().put("t", t);*/
                     
                 }
                 else

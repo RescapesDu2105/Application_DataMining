@@ -368,6 +368,8 @@ public class Application_DataMining extends javax.swing.JFrame {
         Req.getChargeUtile().put("Mois", jSpinnerMois.getValue());
         Req.getChargeUtile().put("Compagnie", jSpinnerCompagnies.getValue());
         
+        Client.EnvoyerRequete(Req);
+        Rep = Client.RecevoirReponse();
         if(Rep.getCode() == ReponseLUGANAP.REG_CORR_LUG_PLUS_OK)
         {
             Double Coef = null,p_value1 = null,p_value2 = null;
@@ -457,7 +459,7 @@ public class Application_DataMining extends javax.swing.JFrame {
             for (int i = 0 ; i < obj.length - 1 ; i++)
             {
                 mois = NumberOfMonth(obj[i].toString());
-                ArrayList<String> Temp = (ArrayList<String>) Mois.get(Integer.toString(mois));
+                ArrayList<String> Temp = new ArrayList((ArrayList<String>) Mois.get(Integer.toString(mois)));
                 Temp.removeAll(Compagnies);
                 Compagnies.addAll(Temp);
             }
