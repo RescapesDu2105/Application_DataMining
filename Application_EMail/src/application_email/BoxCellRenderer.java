@@ -5,17 +5,14 @@
  */
 package application_email;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
-import javax.swing.JLabel;
 import javax.swing.JList;
 
 /**
@@ -28,7 +25,6 @@ public class BoxCellRenderer extends DefaultListCellRenderer
     public BoxCellRenderer()
     {                   
         //setOpaque(true);
-        //setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLUE), BorderFactory.createEmptyBorder(1, 1, 1, 1)));
 
         /*Font styleSimple = (new JLabel("font")).getFont();
         Font styleGras = new Font(styleSimple.getName(), Font.BOLD, styleSimple.getSize());*/

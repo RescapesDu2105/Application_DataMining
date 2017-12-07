@@ -50,6 +50,7 @@ public class LoginFrame extends javax.swing.JFrame
         jTF_Login = new javax.swing.JTextField();
         jPasswordField = new javax.swing.JPasswordField();
         jLabel1 = new javax.swing.JLabel();
+        jButton_Bypass = new javax.swing.JButton();
 
         jTextField1.setText("jTextField1");
 
@@ -86,6 +87,15 @@ public class LoginFrame extends javax.swing.JFrame
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel1.setText("Connexion");
 
+        jButton_Bypass.setText("ByPass");
+        jButton_Bypass.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButton_BypassActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -103,16 +113,15 @@ public class LoginFrame extends javax.swing.JFrame
                             .addComponent(jPasswordField))
                         .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 67, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addGap(100, 100, 100))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jButton_Connexion)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jButton_Effacer)
-                                .addGap(72, 72, 72))))))
+                        .addComponent(jLabel1)
+                        .addGap(100, 100, 100))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jButton_Bypass)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton_Connexion)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton_Effacer)
+                        .addGap(72, 72, 72))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -130,7 +139,8 @@ public class LoginFrame extends javax.swing.JFrame
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton_Connexion)
-                    .addComponent(jButton_Effacer))
+                    .addComponent(jButton_Effacer)
+                    .addComponent(jButton_Bypass))
                 .addContainerGap())
         );
 
@@ -183,7 +193,15 @@ public class LoginFrame extends javax.swing.JFrame
         jPasswordField.setText(null);
     }//GEN-LAST:event_jButton_EffacerActionPerformed
 
+    private void jButton_BypassActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton_BypassActionPerformed
+    {//GEN-HEADEREND:event_jButton_BypassActionPerformed
+        mainFrame.ChargementEmailsListe();
+        this.dispose();
+        mainFrame.setVisible(true);
+    }//GEN-LAST:event_jButton_BypassActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton_Bypass;
     private javax.swing.JButton jButton_Connexion;
     private javax.swing.JButton jButton_Effacer;
     private javax.swing.JLabel jLabel1;
