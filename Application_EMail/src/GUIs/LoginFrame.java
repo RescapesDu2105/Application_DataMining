@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package application_email;
+package GUIs;
 
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
@@ -79,9 +79,9 @@ public class LoginFrame extends javax.swing.JFrame
             }
         });
 
-        jTF_Login.setText("zeydax19@gmail.com");
+        jTF_Login.setText("dimartino");
 
-        jPasswordField.setText("74xGhKnziLt3");
+        jPasswordField.setText("123Soleil");
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel1.setText("Connexion");
@@ -127,10 +127,11 @@ public class LoginFrame extends javax.swing.JFrame
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelPWD)
                     .addComponent(jPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton_Connexion)
-                    .addComponent(jButton_Effacer)))
+                    .addComponent(jButton_Effacer))
+                .addContainerGap())
         );
 
         pack();
@@ -147,7 +148,10 @@ public class LoginFrame extends javax.swing.JFrame
         {
             try
             {
-                mainFrame.Connect(jTF_Login.getText(), Arrays.toString(jPasswordField.getPassword()));
+                mainFrame.Connect(jTF_Login.getText(), String.valueOf(jPasswordField.getPassword()));
+                mainFrame.ChargementEmailsListe();
+                this.dispose();
+                mainFrame.setVisible(true);
             }
             catch(NoSuchProviderException ex) 
             {
