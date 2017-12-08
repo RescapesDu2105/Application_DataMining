@@ -5,12 +5,26 @@
  */
 package GUIs;
 
+import application_email.BoxAttachmentsCellRenderer;
+import application_email.ThreadNotification;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.text.DateFormat;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.Address;
 import javax.mail.Flags;
+import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -18,7 +32,9 @@ import javax.mail.Part;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -52,6 +68,54 @@ public class DisplayEmailPanel extends javax.swing.JPanel
         
         initComponents();
         
+        jList_Attachments.setCellRenderer(new BoxAttachmentsCellRenderer());
+        DefaultListModel<Part> dlm = new DefaultListModel();
+        jList_Attachments.setModel(dlm);
+        jList_Attachments.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent evt)
+            {
+                JList list = (JList)evt.getSource();
+                if (evt.getClickCount() == 2) 
+                {
+                    int index = list.locationToIndex(evt.getPoint());
+                    Part part = (Part) list.getModel().getElementAt(index);
+                    
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    try                    
+                    {
+                        fileChooser.setSelectedFile(new File(part.getFileName()));
+                        
+                        int returnVal = fileChooser.showSaveDialog(DisplayEmailPanel.this);
+                        if (returnVal == JFileChooser.APPROVE_OPTION) 
+                        {
+                            InputStream is = part.getInputStream();
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            int c;
+                            while ((c = is.read()) != -1) baos.write(c);
+                            baos.flush();
+                            FileOutputStream fos = new FileOutputStream(fileChooser.getSelectedFile() + System.getProperty("file.separator") + part.getFileName());
+                            baos.writeTo(fos);   
+                            
+                            ThreadNotification thread = new ThreadNotification(mainFrame.getjLabel_Notification(), "La pièce jointe a bien été enregistrée !");
+                            thread.start();
+                        } 
+                        else 
+                        {
+                            System.out.println("Save command cancelled by user");
+                        }
+                    }
+                    catch (MessagingException | IOException ex)
+                    {
+                        Logger.getLogger(DisplayEmailPanel.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    
+                } 
+            }
+        });
+        
         DisplayMessage();
         
     }
@@ -65,71 +129,64 @@ public class DisplayEmailPanel extends javax.swing.JPanel
         try
         {
             Objet = message.getSubject() == null ? "Aucun" : message.getSubject();
-            Expediteur = message.getHeader("Return-Path")[0];
-            Expediteur = Expediteur.substring(1, Expediteur.length() - 1);
+            if(message.getFrom() != null)
+                Expediteur = message.getFrom()[0].toString();
+            else
+                Expediteur = message.getHeader("Return-Path")[0];
+            
+            //Expediteur = Expediteur.substring(1, Expediteur.length() - 1);
             Destinataire = mainFrame.getUser().getAdresseMail();            
-            Date = message.getReceivedDate() == null ? "Date inconnue" : message.getReceivedDate().toString();
+            Date = message.getReceivedDate() == null ? message.getSentDate() == null ? "Date inconnue" : DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.FRANCE).format(message.getSentDate()) : DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.FRANCE).format(message.getReceivedDate());
+                        
+            jLabel_Subject.setText(Objet);
+            jLabel_From.setText(Expediteur);
+            jLabel_To.setText(Destinataire);
+            jLabel_Date.setText(Date);
+            String Texte = null;
             
-            /*Enumeration headers = message.getAllHeaders();
-            
-            while (headers.hasMoreElements()) 
-            {
-                Header h = (Header) headers.nextElement();
-                if(h.getName().equals("Return-Path"))
+            Enumeration e = message.getAllHeaders();
+            while (e.hasMoreElements())
+            {                
+                Header h = (Header)e.nextElement();
+                if(h.getName().equals(h.getValue()))
                 {
-                    Expediteur = h.getValue().substring(1, h.getValue().length() - 1);
+                    //System.out.println("name = " + h.getName());
+                    Texte = h.getValue();
+                    break;
                 }
-                else if (h.getName().equals("Delivered-To"))
-                {
-                    Destinataire = h.getValue();
-                } 
-                //System.out.println("name = " + h.getName());
-                //System.out.println("value = " + h.getValue());
-            }*/
+            }
             
-            
-            //System.out.println("test = " + message);
+            //System.out.println("ContentType = " + message.getContentType());
             if(message.isMimeType("text/plain")) //|| message.isMimeType("text/html")) 
             { //Le mail est juste du texte
-                jTA_Message.setText(message.getContent().toString());
+                if(Texte == null)
+                    jTA_Message.setText(message.getContent().toString());
+                else
+                    jTA_Message.setText(Texte);
             }
             else    
             { 
                 Multipart contenu = (Multipart)message.getContent();
-                int nbrDeMorceaux = contenu.getCount();
-
-                for(int cpt = 0; cpt < nbrDeMorceaux; cpt++)
+                
+                for(int i = 0 ; i < contenu.getCount() ; i++)
                 {
-                    Part morceau = contenu.getBodyPart(cpt);
-
-                    //Récupération de l'emplacement de la pièce jointe (dans le mail ou sur un serveur distant)
-                    String disposition  = morceau.getDisposition();
-                    if(morceau.isMimeType("text/plain")  && disposition == null) //Si c'est du texte
+                    Part part = contenu.getBodyPart(i);
+                    //System.out.println("part = " + part.getDisposition());
+                    String disposition = part.getDisposition();
+                    
+                    if(disposition != null && disposition.equalsIgnoreCase(Part.ATTACHMENT))
                     {
-
-                        jTA_Message.setText(jTA_Message.getText() + morceau.getContent().toString());
-
+                        InputStream is = part.getInputStream();
+                        DefaultListModel lm = (DefaultListModel) jList_Attachments.getModel();
+                        lm.addElement(part);
+                        
                     }
-
-                    /*if(disposition != null && disposition.equalsIgnoreCase(Part.ATTACHMENT))
-                    {   
-                        Path documentRecus = Paths.get(morceau.getFileName());
-                        jLabel5.setVisible(true);
-
-                        pieceJointeLabel.setVisible(true);
-                        pieceJointeLabel.setText(documentRecus.getFileName().toString());
-                        pieceJointeButton.setVisible(true);
-                    }*/
-
+                    else
+                    {
+                        jTA_Message.setText((String) part.getContent());
+                    }
                 }
-            }
-            
-            jLabel_Subject.setText(Objet);
-            jLabel_From.setText(Expediteur);
-            jLabel_To.setText(Destinataire);
-            //System.out.println("Date = " + Date);
-            jLabel_Date.setText(Date);
-            jTA_Message.setText((String)message.getContent());
+            }            
         }
         catch (MessagingException | IOException ex)
         {
@@ -157,9 +214,11 @@ public class DisplayEmailPanel extends javax.swing.JPanel
         jButton_Close = new javax.swing.JButton();
         jLabelSubject = new javax.swing.JLabel();
         jLabel_Subject = new javax.swing.JLabel();
-        jLabel_From = new javax.swing.JLabel();
         jLabel_To = new javax.swing.JLabel();
         jLabel_Date = new javax.swing.JLabel();
+        jLabel_From = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jList_Attachments = new javax.swing.JList<>();
 
         setPreferredSize(new java.awt.Dimension(571, 476));
 
@@ -209,6 +268,9 @@ public class DisplayEmailPanel extends javax.swing.JPanel
 
         jLabel_Subject.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
 
+        jList_Attachments.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jScrollPane2.setViewportView(jList_Attachments);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -219,13 +281,13 @@ public class DisplayEmailPanel extends javax.swing.JPanel
                         .addContainerGap()
                         .addComponent(jScrollPane1))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(162, 162, 162)
+                        .addGap(131, 131, 131)
                         .addComponent(jButton_Answer)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButton_Delete)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButton_Close)
-                        .addGap(0, 152, Short.MAX_VALUE))
+                        .addGap(0, 183, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(12, 12, 12)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -234,39 +296,44 @@ public class DisplayEmailPanel extends javax.swing.JPanel
                             .addComponent(jLabelFrom)
                             .addComponent(jLabelSubject))
                         .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel_To, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel_Subject, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel_Subject, javax.swing.GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE)
+                            .addComponent(jLabel_From, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jLabel_Date, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel_From, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(jLabel_To, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(16, 16, 16)
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton_Delete)
                     .addComponent(jButton_Answer)
                     .addComponent(jButton_Close))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabelSubject, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel_Subject, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabelFrom)
-                    .addComponent(jLabel_Date))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabelTo)
-                    .addComponent(jLabel_From))
-                .addGap(4, 4, 4)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel_To)
-                    .addComponent(jLabelDate))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabelSubject, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel_Subject, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabelFrom)
+                            .addComponent(jLabel_From))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabelTo)
+                            .addComponent(jLabel_To))
+                        .addGap(4, 4, 4)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel_Date)
+                            .addComponent(jLabelDate)))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -283,8 +350,7 @@ public class DisplayEmailPanel extends javax.swing.JPanel
             try 
             {
                 message.setFlag(Flags.Flag.DELETED, true);
-            
-                /* Refresh */
+                mainFrame.ChargementEmailsListe();
                 
             } 
             catch (MessagingException ex) 
@@ -300,9 +366,8 @@ public class DisplayEmailPanel extends javax.swing.JPanel
         try
         {
             answerMessage.setFrom(new InternetAddress(mainFrame.getUser().getAdresseMail()));
-            Address[] adressesMail = new InternetAddress[1];
-            adressesMail[0] = new InternetAddress(message.getHeader("Return-Path")[0]);
-            answerMessage.setReplyTo(adressesMail);
+            answerMessage.setRecipient (Message.RecipientType.TO, InternetAddress.getLocalAddress(mainFrame.getUser().getMailSession()));
+            answerMessage.setSubject("Re: " + message.getSubject());
         }
         catch (AddressException ex)
         {
@@ -315,7 +380,7 @@ public class DisplayEmailPanel extends javax.swing.JPanel
         
         buttonSend.setEnabled(false);
         parent.removeAll();
-        parent.add(new SendMailPanel(parent, buttonSend, answerMessage));
+        parent.add(new SendMailPanel(mainFrame, answerMessage));
     }//GEN-LAST:event_jButton_AnswerActionPerformed
 
     private void jButton_CloseActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton_CloseActionPerformed
@@ -365,7 +430,9 @@ public class DisplayEmailPanel extends javax.swing.JPanel
     private javax.swing.JLabel jLabel_From;
     private javax.swing.JLabel jLabel_Subject;
     private javax.swing.JLabel jLabel_To;
+    private javax.swing.JList<Part> jList_Attachments;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTA_Message;
     // End of variables declaration//GEN-END:variables
 }

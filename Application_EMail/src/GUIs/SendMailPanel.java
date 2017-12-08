@@ -5,12 +5,35 @@
  */
 package GUIs;
 
+import application_email.ThreadNotification;
+import application_email.Utilisateur;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.stage.FileChooser;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Transport;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -18,28 +41,55 @@ import javax.swing.JPanel;
  */
 public class SendMailPanel extends javax.swing.JPanel
 {
+    private final Application_EMail mainFrame;
     private final JPanel parent;
     private final JButton buttonSend;
-    private final Message answerMessage;
+    private final Utilisateur user;
+    private Message answerMessage;
+    private final Multipart MP;
     /**
      * Creates new form NewJPanel
-     * @param parent
-     * @param buttonSend
+     * @param mainFrame
      * @param answerMessage
      */
-    public SendMailPanel(JPanel parent, JButton buttonSend, Message answerMessage)
+    public SendMailPanel(Application_EMail mainFrame, Message answerMessage)
     {
-        this.buttonSend = buttonSend;
-        this.parent = parent;
+        this.mainFrame = mainFrame;
+        this.user = mainFrame.getUser();
+        this.buttonSend = mainFrame.getjButton_SendMail();
+        this.parent = mainFrame.getjPanel_Central();
         this.answerMessage = answerMessage;
+        MP = new MimeMultipart();
         
         initComponents();
+        
+        ActionListener itemListener = (ActionEvent e) -> 
+        {
+            //System.out.println("action = " + e.getActionCommand());
+            //System.out.println("modifiers = " + e.getModifiers());
+            if(e.getActionCommand().equals("comboBoxChanged") && e.getModifiers() == SwingUtilities.RIGHT)
+            {
+                File file = (File)jCB_Attachments.getSelectedItem();
+                //System.out.println("file = " + file);
+
+                String[] options = new String[] {"Oui", "Non"};
+                int Choix = JOptionPane.showOptionDialog(null, "Voulez vous vraiment retirer cette pièce jointe ?", "Retirer la pièce jointe", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+
+                if(Choix == JOptionPane.YES_OPTION)
+                {
+                    jCB_Attachments.removeItem(file);
+                }
+            }                
+        };
+        
+        jCB_Attachments.addActionListener(itemListener);
+        
         if(answerMessage != null)
         {
             try
             {
-
                 jTF_SendTo.setText(answerMessage.getReplyTo()[0].toString());
+                jTF_Subject.setText(answerMessage.getSubject());
             }
             catch (MessagingException ex)
             {
@@ -70,6 +120,13 @@ public class SendMailPanel extends javax.swing.JPanel
         jButton_Cancel = new javax.swing.JButton();
 
         jButton_Add_Attachments.setText("Ajouter une pièce jointe");
+        jButton_Add_Attachments.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButton_Add_AttachmentsActionPerformed(evt);
+            }
+        });
 
         jTA_Message.setColumns(20);
         jTA_Message.setRows(5);
@@ -80,6 +137,13 @@ public class SendMailPanel extends javax.swing.JPanel
         jLabel_Subject.setText("Objet :");
 
         jButton_Send.setText("Envoyer");
+        jButton_Send.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButton_SendActionPerformed(evt);
+            }
+        });
 
         jButton_Cancel.setText("Annuler");
         jButton_Cancel.addActionListener(new java.awt.event.ActionListener()
@@ -145,17 +209,119 @@ public class SendMailPanel extends javax.swing.JPanel
 
     private void jButton_CancelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton_CancelActionPerformed
     {//GEN-HEADEREND:event_jButton_CancelActionPerformed
-       parent.removeAll();
-       parent.repaint();
-       buttonSend.setEnabled(true);
+        parent.removeAll();
+        parent.repaint();
+        buttonSend.setEnabled(true);
     }//GEN-LAST:event_jButton_CancelActionPerformed
+
+    private void jButton_SendActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton_SendActionPerformed
+    {//GEN-HEADEREND:event_jButton_SendActionPerformed
+        boolean Ok = true;
+                
+        try 
+        {
+            if(answerMessage == null)
+            {
+                answerMessage = new MimeMessage(mainFrame.getUser().getMailSession());
+                // From
+                answerMessage.setFrom(new InternetAddress(user.getAdresseMail()));
+            }
+            
+            // dimartino@u2.tech.hepl.local
+                            
+            // To
+            InternetAddress adresse = InternetAddress.getLocalAddress(user.getMailSession()); 
+            /*System.out.println("LocalAddress = " + adresse);           
+            System.out.println("Address = " + adresse.getAddress());
+            System.out.println("Personal = " + adresse.getPersonal());  */
+            if(!adresse.toString().split("@")[1].matches("u2.tech.hepl.local"))
+                adresse.setAddress("dimartino@u2.tech.hepl.local");                
+            
+            if (!"".equals(jTF_SendTo.getText()))
+                answerMessage.setRecipient(Message.RecipientType.TO, adresse);
+            else
+            {
+                JOptionPane.showMessageDialog(this, "Le champ de l'adresse mail du destinataire ne peut être vide !", "Erreur", JOptionPane.ERROR_MESSAGE);
+                Ok = false;
+            }                
+
+            if(Ok)
+            {
+                // Subject
+                String Objet = jTF_Subject.getText();
+                //System.out.println("Objet = " + Objet);
+                if(!"".equals(Objet))
+                    answerMessage.setSubject(Objet);
+                else
+                {                    
+                    JOptionPane.showMessageDialog(this, "Le champ de l'objet est obligatoire !", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    Ok = false;
+                }
+            }
+
+            if(Ok)
+            {
+                MimeBodyPart BP = new MimeBodyPart();
+                BP.setText(jTA_Message.getText());
+                MP.addBodyPart(BP);
+
+                for(int i = 0 ; i < jCB_Attachments.getItemCount() ; i++)
+                {
+                    File file = jCB_Attachments.getItemAt(i);
+                    BP = new MimeBodyPart();
+                    DataSource so = new FileDataSource (file);
+                    BP.setDataHandler (new DataHandler(so));
+                    BP.setFileName(file.getName());
+                    MP.addBodyPart(BP);
+                }
+
+                answerMessage.setContent(MP);
+                
+                Transport.send(answerMessage);
+                
+                ThreadNotification thread = new ThreadNotification(mainFrame.getjLabel_Notification(), "L'email a bien été envoyé");
+                thread.start();
+                
+                parent.removeAll();
+                parent.repaint();
+                buttonSend.setEnabled(true); 
+            }
+        }
+        catch (AddressException ex) 
+        {
+            Logger.getLogger(SendMailPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (MessagingException ex)
+        {
+            Logger.getLogger(SendMailPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }        
+    }//GEN-LAST:event_jButton_SendActionPerformed
+
+    private void jButton_Add_AttachmentsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton_Add_AttachmentsActionPerformed
+    {//GEN-HEADEREND:event_jButton_Add_AttachmentsActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Ajouter une pièce jointe");
+        
+        int returnVal = fileChooser.showOpenDialog(SendMailPanel.this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) 
+        {
+            File file = fileChooser.getSelectedFile();
+            //This is where a real application would save the file.
+            //System.out.println("File: " + file.getName());
+            jCB_Attachments.addItem(file);
+        } 
+        else 
+        {
+            System.out.println("Save command cancelled by user");
+        }
+    }//GEN-LAST:event_jButton_Add_AttachmentsActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton_Add_Attachments;
     private javax.swing.JButton jButton_Cancel;
     private javax.swing.JButton jButton_Send;
-    private javax.swing.JComboBox<String> jCB_Attachments;
+    private javax.swing.JComboBox<File> jCB_Attachments;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel_Subject;
     private javax.swing.JScrollPane jScrollPane1;

@@ -17,6 +17,8 @@ import javax.mail.Folder;
 import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.Store;
 
@@ -37,6 +39,7 @@ public class Utilisateur
     public Utilisateur()
     {
         this.mailProperties = new Properties();
+        this.folder = null;
         LoadProperties();        
     }
     
@@ -106,30 +109,61 @@ public class Utilisateur
         }
     }
     
-    public void ChargerEmails() throws MessagingException, IOException
+    public synchronized void ChargerEmails() throws MessagingException, IOException
     {
-        folder = mailStore.getFolder("INBOX");
-        folder.open(Folder.READ_WRITE);        
+        if(folder == null)
+        {
+            folder = mailStore.getFolder("INBOX");  
+            folder.open(Folder.READ_WRITE);        
+        }
+        else
+        {
+            folder.close(true);            
+            folder = mailStore.getFolder("INBOX");  
+            folder.open(Folder.READ_WRITE);   
+        }
+        
         messages = Arrays.asList(folder.getMessages());
-        //folder.close(true);
         
         System.out.println("Nombre de messages : " + folder.getMessageCount());
-        System.out.println("Nombre de nouveaux messages : " + folder.getNewMessageCount());
+        System.out.println("Nombre de nouveaux messages : " + folder.getNewMessageCount()); 
         
-        Enumeration headers = messages.get(1).getAllHeaders();
-        while (headers.hasMoreElements()) 
+        //System.out.println("Liste des messages : ");
+        for (int i = 0; i < messages.size(); i++)
         {
-            Header h = (Header) headers.nextElement();
-            if(h.getName().equals("Return-Path"))
+            System.out.println("Flags = " + messages.get(i).getFlags().toString());
+            //System.out.println("Message n° " + (i+1));
+            /*if(messages.get(i).getFrom() != null)
+                System.out.println("Expéditeur : " + messages.get(i).getFrom()[0]);
+            System.out.println("Sujet = " + messages.get(i).getSubject());
+            System.out.println("SentDate : " + messages.get(i).getSentDate());
+            System.out.println("ReceivedDate : " + messages.get(i).getReceivedDate());*/
+            
+            /*Enumeration e = messages.get(i).getAllHeaders();
+            Header h = (Header)e.nextElement();
+            while (e.hasMoreElements())
             {
-                //System.out.println("Expéditeur = " + h.getValue());   
+                System.out.println(h.getName() + " --> " + h.getValue());
+                h = (Header)e.nextElement();
             }
-        }
-        System.out.println("Sujet = " + messages.get(0).getSubject());
-        System.out.println("Texte : " + (String)messages.get(0).getContent());
+            try
+            {
+                System.out.println("Texte : " + (String)messages.get(i).getContent());
+            }
+            catch(Exception ex) {}*/
+            
+            /*Multipart msgMP = (Multipart)messages.get(i).getContent();
+            int np = msgMP.getCount();
+            System.out.println("-- Nombre de composantes = " + np);
+            // Scan des BodyPart
+            
+            Part p = msgMP.getBodyPart(0);
+            String d = p.getDisposition();
+            if (p.isMimeType("text/plain"))
+            System.out.println("Texte : " + (String)p.getContent());*/
+        }    
     }
     
-
     public Folder getFolder()
     {
         return folder;

@@ -5,10 +5,8 @@
  */
 package GUIs;
 
+import application_email.ThreadReception;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
 import javax.swing.JOptionPane;
@@ -159,7 +157,10 @@ public class LoginFrame extends javax.swing.JFrame
             try
             {
                 mainFrame.Connect(jTF_Login.getText(), String.valueOf(jPasswordField.getPassword()));
-                mainFrame.ChargementEmailsListe();
+                mainFrame.setThread(new ThreadReception(mainFrame));
+                mainFrame.getThread().start();
+                
+                //mainFrame.ChargementEmailsListe();
                 this.dispose();
                 mainFrame.setVisible(true);
             }
@@ -169,7 +170,6 @@ public class LoginFrame extends javax.swing.JFrame
             }
             catch (MessagingException ex) 
             {
-                ex.printStackTrace();
                 if(ex.getMessage().equals("[AUTH] Username and password not accepted."))
                     JOptionPane.showMessageDialog(this, "L'adresse mail et/ou le mot de passe est incorrect !", "Erreur", JOptionPane.ERROR_MESSAGE);
                 else
@@ -177,12 +177,7 @@ public class LoginFrame extends javax.swing.JFrame
             }
             catch (GeneralSecurityException ex)
             {
-                ex.printStackTrace();
-                Logger.getLogger(LoginFrame.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            catch(Exception ex)
-            {
-                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_jButton_ConnexionActionPerformed

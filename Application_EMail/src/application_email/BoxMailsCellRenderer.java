@@ -19,10 +19,10 @@ import javax.swing.JList;
  *
  * @author Philippe
  */
-public class BoxCellRenderer extends DefaultListCellRenderer
+public class BoxMailsCellRenderer extends DefaultListCellRenderer
 {
 
-    public BoxCellRenderer()
+    public BoxMailsCellRenderer()
     {                   
         //setOpaque(true);
 
@@ -53,14 +53,14 @@ public class BoxCellRenderer extends DefaultListCellRenderer
                     //System.out.println("Expéditeur = " + h.getValue());   
                 }
             }
-            
-            labelText = "<html><strong>" + Expediteur.substring(1, Expediteur.length() - 1) + "</strong><br/>" + Objet;
+            Expediteur = Expediteur.charAt(0) == '<' ? Expediteur.substring(1, Expediteur.length() - 1) : Expediteur;
+            labelText = "<html><strong>" + Expediteur  + "</strong><br/>" + Objet;
             //System.out.println("labelText = " + labelText);
             setText(labelText);
         }
         catch (MessagingException ex)
         {
-            Logger.getLogger(BoxCellRenderer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BoxMailsCellRenderer.class.getName()).log(Level.SEVERE, null, ex);
             System.exit(1);
         }
 

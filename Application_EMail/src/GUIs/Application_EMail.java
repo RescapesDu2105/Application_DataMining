@@ -5,7 +5,8 @@
  */
 package GUIs;
 
-import application_email.BoxCellRenderer;
+import application_email.BoxMailsCellRenderer;
+import application_email.ThreadReception;
 import application_email.Utilisateur;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -18,6 +19,7 @@ import javax.mail.Store;
 import javax.mail.internet.MimeMessage;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 
@@ -29,6 +31,8 @@ public class Application_EMail extends javax.swing.JFrame
 {
     private LoginFrame loginFrame;
     private final Utilisateur user;
+    private ThreadReception thread;
+    
     /**
      * Creates new form Application_EMail
      */
@@ -36,17 +40,10 @@ public class Application_EMail extends javax.swing.JFrame
     {
         initComponents();        
         jPanel_Central.setLayout(new CardLayout());
-        //jPanel_Central.add(new SendMailPanel(jPanel_Central, jButton_SendMail));
-        
-        jList_Emails.setCellRenderer(new BoxCellRenderer());
+        jList_Emails.setCellRenderer(new BoxMailsCellRenderer());
         
         user = new Utilisateur();
         
-        /*java.net.URL url = ClassLoader.getSystemResource("icon.png");
-        Toolkit kit = Toolkit.getDefaultToolkit();
-        Image img = kit.createImage(url);
-        setIconImage(img);
-        */
         loginFrame = new LoginFrame(this);
         loginFrame.setVisible(true);
     }
@@ -63,7 +60,7 @@ public class Application_EMail extends javax.swing.JFrame
             //System.out.println("User = " + User);
             //System.out.println("Pwd = " + Pwd);
             st = user.getMailSession().getStore("pop3");
-            st.connect(user.getMailProperties().getProperty("mail.pop3.host"), User, Pwd);
+            st.connect(user.getMailProperties().getProperty("mail.pop3.host"), User  + "@u2.tech.hepl.local", Pwd);
 
             user.setAdresseMail(User + "@u2.tech.hepl.local");
             user.setMailStore(st);
@@ -82,15 +79,32 @@ public class Application_EMail extends javax.swing.JFrame
             try
             {
                 user.ChargerEmails();
-                DefaultListModel Liste_Emails = new DefaultListModel();
-                jList_Emails.setSelectionBackground(new Color(0, 120, 215));
-
-                user.getMessages().forEach((message) ->
+                if (user.getMessages().isEmpty())
                 {
-                    Liste_Emails.addElement(message);
-                });
+                    jLabel_Error.setText("Aucun email dans la boite");                    
+                    DefaultListModel Liste_Emails = new DefaultListModel();                    
+                    jList_Emails.setModel(Liste_Emails);
+                    
+                    jPanel_Central.removeAll();
+                    jPanel_Central.repaint();
+                    jButton_SendMail.setEnabled(true);
+                }
+                else
+                {
+                    jLabel_Error.setText(null);
+                    int index = jList_Emails.getSelectedIndex();
+                    DefaultListModel Liste_Emails = new DefaultListModel();
+                    jList_Emails.setSelectionBackground(new Color(0, 120, 215));
 
-                jList_Emails.setModel(Liste_Emails);
+                    user.getMessages().forEach((message) ->
+                    {
+                        Liste_Emails.addElement(message);
+                    });
+
+                    jList_Emails.setModel(Liste_Emails);
+                    jList_Emails.repaint();
+                    jList_Emails.setSelectedIndex(index);
+                }
             }
             catch(Exception ex)
             {
@@ -137,8 +151,18 @@ public class Application_EMail extends javax.swing.JFrame
         jButton_Refresh = new javax.swing.JButton();
         jPanel_Central = new javax.swing.JPanel();
         jButton_SendMail = new javax.swing.JButton();
+        jLabel_Mailbox = new javax.swing.JLabel();
+        jLabel_Error = new javax.swing.JLabel();
+        jLabel_Notification = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter()
+        {
+            public void windowClosed(java.awt.event.WindowEvent evt)
+            {
+                formWindowClosed(evt);
+            }
+        });
 
         jList_Emails.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jList_Emails.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -175,11 +199,11 @@ public class Application_EMail extends javax.swing.JFrame
         jPanel_Central.setLayout(jPanel_CentralLayout);
         jPanel_CentralLayout.setHorizontalGroup(
             jPanel_CentralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 546, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
         jPanel_CentralLayout.setVerticalGroup(
             jPanel_CentralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 596, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
 
         jButton_SendMail.setText("Envoyer un mail");
@@ -191,20 +215,46 @@ public class Application_EMail extends javax.swing.JFrame
             }
         });
 
+        jLabel_Mailbox.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel_Mailbox.setText("<html><u>Boite de réception</u></html>");
+
+        jLabel_Error.setForeground(new java.awt.Color(204, 0, 0));
+        jLabel_Error.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel_Error.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+
+        jLabel_Notification.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
+        jLabel_Notification.setForeground(new java.awt.Color(51, 153, 0));
+        jLabel_Notification.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel_Notification.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton_Refresh)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton_SendMail))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel_Central, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jButton_Refresh)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton_SendMail))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(40, 40, 40)
+                        .addComponent(jLabel_Mailbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel_Error, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel_Notification, javax.swing.GroupLayout.DEFAULT_SIZE, 524, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jPanel_Central, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -212,11 +262,18 @@ public class Application_EMail extends javax.swing.JFrame
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton_Refresh)
-                    .addComponent(jButton_SendMail))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1)
-                .addContainerGap())
-            .addComponent(jPanel_Central, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton_SendMail)
+                    .addComponent(jLabel_Notification, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel_Mailbox, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                        .addComponent(jLabel_Error, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 487, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                    .addComponent(jPanel_Central, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
 
         pack();
@@ -224,23 +281,22 @@ public class Application_EMail extends javax.swing.JFrame
 
     private void jButton_RefreshActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton_RefreshActionPerformed
     {//GEN-HEADEREND:event_jButton_RefreshActionPerformed
-        
+        ChargementEmailsListe();
     }//GEN-LAST:event_jButton_RefreshActionPerformed
 
     private void jList_EmailsMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_jList_EmailsMouseClicked
     {//GEN-HEADEREND:event_jList_EmailsMouseClicked
-        System.out.println("Click = " + jList_Emails.getSelectedIndex());
+        //System.out.println("Click = " + jList_Emails.getSelectedIndex());
         
         int index = jList_Emails.getSelectedIndex();
         //System.out.println("jList_Emails.getModel().getElementAt(index)) = " + user.getMessages().get(index).getContent().toString());
         
         if(index >= 0)
         {
-            
-            System.out.println("Email selectionne");
+            //System.out.println("Email selectionne");
             jPanel_Central.removeAll();
             jPanel_Central.add(new DisplayEmailPanel(this, index));
-            jPanel_Central.add(new SendMailPanel(jPanel_Central, jButton_SendMail, null));
+            jPanel_Central.add(new SendMailPanel(this, null));
             //jPanel_Central.add(new NewJPanel());
         }
     }//GEN-LAST:event_jList_EmailsMouseClicked
@@ -249,14 +305,14 @@ public class Application_EMail extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jButton_SendMailActionPerformed
         jButton_SendMail.setEnabled(false);
         jPanel_Central.removeAll();
-        jPanel_Central.add(new SendMailPanel(jPanel_Central, jButton_SendMail, null));
+        jPanel_Central.add(new SendMailPanel(this, null));
     }//GEN-LAST:event_jButton_SendMailActionPerformed
 
     private void jList_EmailsMousePressed(java.awt.event.MouseEvent evt)//GEN-FIRST:event_jList_EmailsMousePressed
     {//GEN-HEADEREND:event_jList_EmailsMousePressed
-        System.out.println("Pressed = " + jList_Emails.getSelectedIndex());
+        //System.out.println("Pressed = " + jList_Emails.getSelectedIndex());
         int index = jList_Emails.locationToIndex(evt.getPoint());
-        System.out.println("InBounds = " + jList_Emails.getCellBounds(index, index).contains(evt.getPoint()));
+        //System.out.println("InBounds = " + jList_Emails.getCellBounds(index, index).contains(evt.getPoint()));
         if (!jList_Emails.getCellBounds(index, index).contains(evt.getPoint())) 
         {
             jList_Emails.clearSelection();
@@ -265,14 +321,19 @@ public class Application_EMail extends javax.swing.JFrame
 
     private void jList_EmailsMouseDragged(java.awt.event.MouseEvent evt)//GEN-FIRST:event_jList_EmailsMouseDragged
     {//GEN-HEADEREND:event_jList_EmailsMouseDragged
-        System.out.println("Dragged = " + jList_Emails.getSelectedIndex());
+        //System.out.println("Dragged = " + jList_Emails.getSelectedIndex());
         int index = jList_Emails.locationToIndex(evt.getPoint());
-        System.out.println("InBounds = " + jList_Emails.getCellBounds(index, index).contains(evt.getPoint()));
+        //System.out.println("InBounds = " + jList_Emails.getCellBounds(index, index).contains(evt.getPoint()));
         if (!jList_Emails.getCellBounds(index, index).contains(evt.getPoint())) 
         {
             jList_Emails.clearSelection();
         }
     }//GEN-LAST:event_jList_EmailsMouseDragged
+
+    private void formWindowClosed(java.awt.event.WindowEvent evt)//GEN-FIRST:event_formWindowClosed
+    {//GEN-HEADEREND:event_formWindowClosed
+        getThread().interrupt();
+    }//GEN-LAST:event_formWindowClosed
 
     public LoginFrame getLoginFrame()
     {
@@ -308,6 +369,26 @@ public class Application_EMail extends javax.swing.JFrame
     {
         return user;
     }
+
+    public JLabel getjLabel_Error()
+    {
+        return jLabel_Error;
+    }
+
+    public JLabel getjLabel_Notification()
+    {
+        return jLabel_Notification;
+    }
+
+    public ThreadReception getThread()
+    {
+        return thread;
+    }
+
+    public void setThread(ThreadReception thread)
+    {
+        this.thread = thread;
+    }    
     
     /**
      * @param args the command line arguments
@@ -368,6 +449,9 @@ public class Application_EMail extends javax.swing.JFrame
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton_Refresh;
     private javax.swing.JButton jButton_SendMail;
+    private javax.swing.JLabel jLabel_Error;
+    private javax.swing.JLabel jLabel_Mailbox;
+    private javax.swing.JLabel jLabel_Notification;
     private javax.swing.JList<String> jList_Emails;
     private javax.swing.JPanel jPanel_Central;
     private javax.swing.JScrollPane jScrollPane1;

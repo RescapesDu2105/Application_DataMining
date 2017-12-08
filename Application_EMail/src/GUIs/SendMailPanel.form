@@ -87,6 +87,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Ajouter une pi&#xe8;ce jointe"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton_Add_AttachmentsActionPerformed"/>
+      </Events>
     </Component>
     <Container class="javax.swing.JScrollPane" name="jScrollPane1">
       <AuxValues>
@@ -115,13 +118,16 @@
     </Component>
     <Component class="javax.swing.JComboBox" name="jCB_Attachments">
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+        <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;File&gt;"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JButton" name="jButton_Send">
       <Properties>
         <Property name="text" type="java.lang.String" value="Envoyer"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton_SendActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="jButton_Cancel">
       <Properties>
