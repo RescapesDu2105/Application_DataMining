@@ -46,12 +46,12 @@
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="jLabel_Subject" pref="261" max="32767" attributes="0"/>
-                          <Component id="jLabel_From" alignment="0" max="32767" attributes="0"/>
-                          <Component id="jLabel_Date" max="32767" attributes="0"/>
+                          <Component id="jLabel_Subject" alignment="0" pref="213" max="32767" attributes="0"/>
+                          <Component id="jLabel_Date" alignment="0" max="32767" attributes="0"/>
+                          <Component id="jLabel_From" max="32767" attributes="0"/>
                           <Component id="jLabel_To" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
                       <Component id="jScrollPane2" pref="0" max="32767" attributes="0"/>
                   </Group>
               </Group>
@@ -76,25 +76,25 @@
                           <Component id="jLabel_Subject" alignment="3" min="-2" pref="44" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabelFrom" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel_From" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="jLabelFrom" max="32767" attributes="0"/>
+                          <Component id="jLabel_From" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabelTo" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel_To" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="jLabelTo" max="32767" attributes="0"/>
+                          <Component id="jLabel_To" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel_Date" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel_Date" alignment="3" min="-2" pref="15" max="-2" attributes="0"/>
                           <Component id="jLabelDate" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <Component id="jScrollPane2" min="-2" pref="114" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="jScrollPane1" pref="288" max="32767" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Component id="jScrollPane1" pref="295" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
