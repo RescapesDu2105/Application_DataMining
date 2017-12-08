@@ -5,13 +5,13 @@
  */
 package application_email;
 
-import java.awt.Color;
 import java.awt.Component;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 
@@ -40,13 +40,22 @@ public class BoxCellRenderer extends DefaultListCellRenderer
         
         try
         {
-            String Expediteur;
-            if(message.getFrom() != null)
-                Expediteur = message.getFrom()[0].toString();
-            else
-                Expediteur = "Inconnu";
+            String Expediteur = "Inconnu";
+            String Objet = message.getSubject() == null ? "Aucun" : message.getSubject();
             
-            labelText = "<html><strong>" + Expediteur + "</strong><br/>" + message.getSubject();
+            Enumeration headers = message.getAllHeaders();
+            while (headers.hasMoreElements()) 
+            {
+                Header h = (Header) headers.nextElement();
+                if(h.getName().equals("Return-Path"))
+                {
+                    Expediteur = h.getValue();
+                    //System.out.println("Expéditeur = " + h.getValue());   
+                }
+            }
+            
+            labelText = "<html><strong>" + Expediteur.substring(1, Expediteur.length() - 1) + "</strong><br/>" + Objet;
+            //System.out.println("labelText = " + labelText);
             setText(labelText);
         }
         catch (MessagingException ex)

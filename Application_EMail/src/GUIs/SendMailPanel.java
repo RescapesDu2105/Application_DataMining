@@ -5,6 +5,10 @@
  */
 package GUIs;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.mail.Message;
+import javax.mail.MessagingException;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
@@ -16,16 +20,32 @@ public class SendMailPanel extends javax.swing.JPanel
 {
     private final JPanel parent;
     private final JButton buttonSend;
+    private final Message answerMessage;
     /**
      * Creates new form NewJPanel
      * @param parent
      * @param buttonSend
+     * @param answerMessage
      */
-    public SendMailPanel(JPanel parent, JButton buttonSend)
+    public SendMailPanel(JPanel parent, JButton buttonSend, Message answerMessage)
     {
         this.buttonSend = buttonSend;
         this.parent = parent;
+        this.answerMessage = answerMessage;
+        
         initComponents();
+        if(answerMessage != null)
+        {
+            try
+            {
+
+                jTF_SendTo.setText(answerMessage.getReplyTo()[0].toString());
+            }
+            catch (MessagingException ex)
+            {
+                Logger.getLogger(SendMailPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     /**
@@ -92,11 +112,11 @@ public class SendMailPanel extends javax.swing.JPanel
                             .addComponent(jTF_Subject))))
                 .addContainerGap())
             .addGroup(layout.createSequentialGroup()
-                .addGap(210, 210, 210)
+                .addGap(214, 214, 214)
                 .addComponent(jButton_Send)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButton_Cancel)
-                .addContainerGap(209, Short.MAX_VALUE))
+                .addContainerGap(205, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

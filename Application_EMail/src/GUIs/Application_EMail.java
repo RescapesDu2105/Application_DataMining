@@ -17,7 +17,9 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.MimeMessage;
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JList;
+import javax.swing.JPanel;
 
 /**
  *
@@ -58,8 +60,8 @@ public class Application_EMail extends javax.swing.JFrame
         try
         {
             user.setMailSession(Session.getDefaultInstance(user.getMailProperties()));
-            System.out.println("User = " + User);
-            System.out.println("Pwd = " + Pwd);
+            //System.out.println("User = " + User);
+            //System.out.println("Pwd = " + Pwd);
             st = user.getMailSession().getStore("pop3");
             st.connect(user.getMailProperties().getProperty("mail.pop3.host"), User, Pwd);
 
@@ -85,8 +87,6 @@ public class Application_EMail extends javax.swing.JFrame
 
                 user.getMessages().forEach((message) ->
                 {
-                    Liste_Emails.addElement(message);
-                    Liste_Emails.addElement(message);
                     Liste_Emails.addElement(message);
                 });
 
@@ -230,14 +230,17 @@ public class Application_EMail extends javax.swing.JFrame
     private void jList_EmailsMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_jList_EmailsMouseClicked
     {//GEN-HEADEREND:event_jList_EmailsMouseClicked
         System.out.println("Click = " + jList_Emails.getSelectedIndex());
-//jButton_SendMail.setEnabled(false);
-        if(jList_Emails.getSelectedIndex() >= 0)
+        
+        int index = jList_Emails.getSelectedIndex();
+        //System.out.println("jList_Emails.getModel().getElementAt(index)) = " + user.getMessages().get(index).getContent().toString());
+        
+        if(index >= 0)
         {
             
             System.out.println("Email selectionne");
             jPanel_Central.removeAll();
-            jPanel_Central.add(new DisplayEmailPanel(jPanel_Central, jButton_SendMail, user));
-            jPanel_Central.add(new SendMailPanel(jPanel_Central, jButton_SendMail));
+            jPanel_Central.add(new DisplayEmailPanel(this, index));
+            jPanel_Central.add(new SendMailPanel(jPanel_Central, jButton_SendMail, null));
             //jPanel_Central.add(new NewJPanel());
         }
     }//GEN-LAST:event_jList_EmailsMouseClicked
@@ -246,7 +249,7 @@ public class Application_EMail extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jButton_SendMailActionPerformed
         jButton_SendMail.setEnabled(false);
         jPanel_Central.removeAll();
-        jPanel_Central.add(new SendMailPanel(jPanel_Central, jButton_SendMail));
+        jPanel_Central.add(new SendMailPanel(jPanel_Central, jButton_SendMail, null));
     }//GEN-LAST:event_jButton_SendMailActionPerformed
 
     private void jList_EmailsMousePressed(java.awt.event.MouseEvent evt)//GEN-FIRST:event_jList_EmailsMousePressed
@@ -262,7 +265,13 @@ public class Application_EMail extends javax.swing.JFrame
 
     private void jList_EmailsMouseDragged(java.awt.event.MouseEvent evt)//GEN-FIRST:event_jList_EmailsMouseDragged
     {//GEN-HEADEREND:event_jList_EmailsMouseDragged
-        jList_Emails.clearSelection();
+        System.out.println("Dragged = " + jList_Emails.getSelectedIndex());
+        int index = jList_Emails.locationToIndex(evt.getPoint());
+        System.out.println("InBounds = " + jList_Emails.getCellBounds(index, index).contains(evt.getPoint()));
+        if (!jList_Emails.getCellBounds(index, index).contains(evt.getPoint())) 
+        {
+            jList_Emails.clearSelection();
+        }
     }//GEN-LAST:event_jList_EmailsMouseDragged
 
     public LoginFrame getLoginFrame()
@@ -274,6 +283,31 @@ public class Application_EMail extends javax.swing.JFrame
     {
         this.loginFrame = loginFrame;
     }   
+
+    public JButton getjButton_Refresh()
+    {
+        return jButton_Refresh;
+    }
+
+    public JButton getjButton_SendMail()
+    {
+        return jButton_SendMail;
+    }
+
+    public JList<String> getjList_Emails()
+    {
+        return jList_Emails;
+    }
+
+    public JPanel getjPanel_Central()
+    {
+        return jPanel_Central;
+    }
+
+    public Utilisateur getUser()
+    {
+        return user;
+    }
     
     /**
      * @param args the command line arguments

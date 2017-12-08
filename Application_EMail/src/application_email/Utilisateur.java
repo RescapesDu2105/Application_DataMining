@@ -9,11 +9,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import javax.mail.Folder;
+import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -114,7 +115,16 @@ public class Utilisateur
         
         System.out.println("Nombre de messages : " + folder.getMessageCount());
         System.out.println("Nombre de nouveaux messages : " + folder.getNewMessageCount());
-        System.out.println("Expéditeur : " + messages.get(0).getFrom());
+        
+        Enumeration headers = messages.get(1).getAllHeaders();
+        while (headers.hasMoreElements()) 
+        {
+            Header h = (Header) headers.nextElement();
+            if(h.getName().equals("Return-Path"))
+            {
+                //System.out.println("Expéditeur = " + h.getValue());   
+            }
+        }
         System.out.println("Sujet = " + messages.get(0).getSubject());
         System.out.println("Texte : " + (String)messages.get(0).getContent());
     }

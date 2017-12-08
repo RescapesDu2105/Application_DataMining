@@ -5,8 +5,22 @@
  */
 package GUIs;
 
-import application_email.Utilisateur;
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.mail.Address;
+import javax.mail.Flags;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Part;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.swing.JButton;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 /**
@@ -15,24 +29,114 @@ import javax.swing.JPanel;
  */
 public class DisplayEmailPanel extends javax.swing.JPanel
 {
+    private final Application_EMail mainFrame;
     private final JPanel parent;
     private final JButton buttonSend;
-    private final Utilisateur user;
+    private final List<Message> messages;
+    private final Message message;
+    private final JList<String> liste_emails;
     
     /**
      * Creates new form NewJPanel
-     * @param parent
-     * @param buttonSend
-     * @param user
+     * @param mainFrame
+     * @param indexMessage
      */
-    public DisplayEmailPanel(JPanel parent, JButton buttonSend, Utilisateur user)
+    public DisplayEmailPanel(Application_EMail mainFrame, int indexMessage)
     {
-        this.buttonSend = buttonSend;
-        this.parent = parent;
-        this.user = user;
+        this.mainFrame = mainFrame;
+        this.buttonSend = mainFrame.getjButton_SendMail();
+        this.parent = mainFrame.getjPanel_Central();
+        this.liste_emails = mainFrame.getjList_Emails();
+        this.messages = mainFrame.getUser().getMessages();
+        this.message = messages.get(indexMessage);
+        
         initComponents();
+        
+        DisplayMessage();
+        
     }
 
+    public void DisplayMessage()
+    {
+        String Expediteur;
+        String Destinataire;
+        String Objet;
+        String Date;
+        try
+        {
+            Objet = message.getSubject() == null ? "Aucun" : message.getSubject();
+            Expediteur = message.getHeader("Return-Path")[0];
+            Expediteur = Expediteur.substring(1, Expediteur.length() - 1);
+            Destinataire = mainFrame.getUser().getAdresseMail();            
+            Date = message.getReceivedDate() == null ? "Date inconnue" : message.getReceivedDate().toString();
+            
+            /*Enumeration headers = message.getAllHeaders();
+            
+            while (headers.hasMoreElements()) 
+            {
+                Header h = (Header) headers.nextElement();
+                if(h.getName().equals("Return-Path"))
+                {
+                    Expediteur = h.getValue().substring(1, h.getValue().length() - 1);
+                }
+                else if (h.getName().equals("Delivered-To"))
+                {
+                    Destinataire = h.getValue();
+                } 
+                //System.out.println("name = " + h.getName());
+                //System.out.println("value = " + h.getValue());
+            }*/
+            
+            
+            //System.out.println("test = " + message);
+            if(message.isMimeType("text/plain")) //|| message.isMimeType("text/html")) 
+            { //Le mail est juste du texte
+                jTA_Message.setText(message.getContent().toString());
+            }
+            else    
+            { 
+                Multipart contenu = (Multipart)message.getContent();
+                int nbrDeMorceaux = contenu.getCount();
+
+                for(int cpt = 0; cpt < nbrDeMorceaux; cpt++)
+                {
+                    Part morceau = contenu.getBodyPart(cpt);
+
+                    //Récupération de l'emplacement de la pièce jointe (dans le mail ou sur un serveur distant)
+                    String disposition  = morceau.getDisposition();
+                    if(morceau.isMimeType("text/plain")  && disposition == null) //Si c'est du texte
+                    {
+
+                        jTA_Message.setText(jTA_Message.getText() + morceau.getContent().toString());
+
+                    }
+
+                    /*if(disposition != null && disposition.equalsIgnoreCase(Part.ATTACHMENT))
+                    {   
+                        Path documentRecus = Paths.get(morceau.getFileName());
+                        jLabel5.setVisible(true);
+
+                        pieceJointeLabel.setVisible(true);
+                        pieceJointeLabel.setText(documentRecus.getFileName().toString());
+                        pieceJointeButton.setVisible(true);
+                    }*/
+
+                }
+            }
+            
+            jLabel_Subject.setText(Objet);
+            jLabel_From.setText(Expediteur);
+            jLabel_To.setText(Destinataire);
+            //System.out.println("Date = " + Date);
+            jLabel_Date.setText(Date);
+            jTA_Message.setText((String)message.getContent());
+        }
+        catch (MessagingException | IOException ex)
+        {
+            Logger.getLogger(DisplayEmailPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -43,55 +147,67 @@ public class DisplayEmailPanel extends javax.swing.JPanel
     private void initComponents()
     {
 
+        jButton_Answer = new javax.swing.JButton();
+        jButton_Delete = new javax.swing.JButton();
+        jLabelTo = new javax.swing.JLabel();
+        jLabelDate = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTA_Message = new javax.swing.JTextArea();
+        jLabelFrom = new javax.swing.JLabel();
+        jButton_Close = new javax.swing.JButton();
+        jLabelSubject = new javax.swing.JLabel();
         jLabel_Subject = new javax.swing.JLabel();
         jLabel_From = new javax.swing.JLabel();
+        jLabel_To = new javax.swing.JLabel();
         jLabel_Date = new javax.swing.JLabel();
-        jButton_Send = new javax.swing.JButton();
-        jButton_Cancel = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
 
         setPreferredSize(new java.awt.Dimension(571, 476));
 
-        jLabel_Subject.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel_Subject.setText("<html>J'ai quelques questions<br>sdfsdf</html>");
-
-        jLabel_From.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel_From.setText("dimartino@u2.tech.hepl.local");
-
-        jLabel_Date.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel_Date.setText("07/12/2017 15:27");
-
-        jButton_Send.setText("Envoyer");
-        jButton_Send.addActionListener(new java.awt.event.ActionListener()
+        jButton_Answer.setText("Répondre");
+        jButton_Answer.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
-                jButton_SendActionPerformed(evt);
+                jButton_AnswerActionPerformed(evt);
             }
         });
 
-        jButton_Cancel.setText("Annuler");
-        jButton_Cancel.addActionListener(new java.awt.event.ActionListener()
+        jButton_Delete.setText("Supprimer");
+        jButton_Delete.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
-                jButton_CancelActionPerformed(evt);
+                jButton_DeleteActionPerformed(evt);
             }
         });
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel1.setText("À :");
+        jLabelTo.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabelTo.setText("À :");
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel2.setText("Envoyé à :");
+        jLabelDate.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabelDate.setText("Envoyé à :");
 
-        jTextArea1.setEditable(false);
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        jTA_Message.setEditable(false);
+        jTA_Message.setColumns(20);
+        jTA_Message.setRows(5);
+        jScrollPane1.setViewportView(jTA_Message);
+
+        jLabelFrom.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabelFrom.setText("De :");
+
+        jButton_Close.setText("Fermer");
+        jButton_Close.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButton_CloseActionPerformed(evt);
+            }
+        });
+
+        jLabelSubject.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabelSubject.setText("Objet :");
+
+        jLabel_Subject.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -100,27 +216,29 @@ public class DisplayEmailPanel extends javax.swing.JPanel
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(221, 221, 221)
-                                .addComponent(jButton_Send)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jButton_Cancel))
-                            .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel2)
-                                    .addComponent(jLabel1))
-                                .addGap(20, 20, 20)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel_Date)
-                                    .addComponent(jLabel_From))))
-                        .addGap(0, 188, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
+                        .addComponent(jScrollPane1))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(162, 162, 162)
+                        .addComponent(jButton_Answer)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton_Delete)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton_Close)
+                        .addGap(0, 152, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(12, 12, 12)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabelDate)
+                            .addComponent(jLabelTo)
+                            .addComponent(jLabelFrom)
+                            .addComponent(jLabelSubject))
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel_Subject)
-                            .addComponent(jScrollPane1))))
+                            .addComponent(jLabel_To, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel_Subject, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel_Date, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel_From, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -128,46 +246,126 @@ public class DisplayEmailPanel extends javax.swing.JPanel
             .addGroup(layout.createSequentialGroup()
                 .addGap(16, 16, 16)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton_Cancel)
-                    .addComponent(jButton_Send))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel_Subject, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton_Delete)
+                    .addComponent(jButton_Answer)
+                    .addComponent(jButton_Close))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel_From)
-                    .addComponent(jLabel1))
+                    .addComponent(jLabelSubject, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel_Subject, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel_Date)
-                    .addComponent(jLabel2))
+                    .addComponent(jLabelFrom)
+                    .addComponent(jLabel_Date))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabelTo)
+                    .addComponent(jLabel_From))
+                .addGap(4, 4, 4)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel_To)
+                    .addComponent(jLabelDate))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton_CancelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton_CancelActionPerformed
-    {//GEN-HEADEREND:event_jButton_CancelActionPerformed
+    private void jButton_DeleteActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton_DeleteActionPerformed
+    {//GEN-HEADEREND:event_jButton_DeleteActionPerformed
+               
+        //On affiche une boite de dialog pour confirmer la suppression
+        String[] options = new String[] {"Oui", "Non"};
+        int Choix = JOptionPane.showOptionDialog(null, "Voulez vous vraiment supprimer ce mail ?", "Supprimer l'email", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+                
+        if(Choix == JOptionPane.YES_OPTION)
+        {
+            try 
+            {
+                message.setFlag(Flags.Flag.DELETED, true);
+            
+                /* Refresh */
+                
+            } 
+            catch (MessagingException ex) 
+            {
+                Logger.getLogger(DisplayEmailPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_jButton_DeleteActionPerformed
+
+    private void jButton_AnswerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton_AnswerActionPerformed
+    {//GEN-HEADEREND:event_jButton_AnswerActionPerformed
+        Message answerMessage = new MimeMessage(mainFrame.getUser().getMailSession());
+        try
+        {
+            answerMessage.setFrom(new InternetAddress(mainFrame.getUser().getAdresseMail()));
+            Address[] adressesMail = new InternetAddress[1];
+            adressesMail[0] = new InternetAddress(message.getHeader("Return-Path")[0]);
+            answerMessage.setReplyTo(adressesMail);
+        }
+        catch (AddressException ex)
+        {
+            Logger.getLogger(DisplayEmailPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (MessagingException ex)
+        {
+            Logger.getLogger(DisplayEmailPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        buttonSend.setEnabled(false);
+        parent.removeAll();
+        parent.add(new SendMailPanel(parent, buttonSend, answerMessage));
+    }//GEN-LAST:event_jButton_AnswerActionPerformed
+
+    private void jButton_CloseActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton_CloseActionPerformed
+    {//GEN-HEADEREND:event_jButton_CloseActionPerformed
+        //liste_emails.clearSelection();
         parent.removeAll();
         parent.repaint();
         buttonSend.setEnabled(true);
-    }//GEN-LAST:event_jButton_CancelActionPerformed
+    }//GEN-LAST:event_jButton_CloseActionPerformed
 
-    private void jButton_SendActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton_SendActionPerformed
-    {//GEN-HEADEREND:event_jButton_SendActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton_SendActionPerformed
+    public JPanel getParent()
+    {
+        return parent;
+    }
+
+    public JButton getButtonSend()
+    {
+        return buttonSend;
+    }
+
+    public List<Message> getMessages()
+    {
+        return messages;
+    }
+
+    public Message getMessage()
+    {
+        return message;
+    }
+
+    public JList<String> getListe_emails()
+    {
+        return liste_emails;
+    }
 
 
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton_Cancel;
-    private javax.swing.JButton jButton_Send;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JButton jButton_Answer;
+    private javax.swing.JButton jButton_Close;
+    private javax.swing.JButton jButton_Delete;
+    private javax.swing.JLabel jLabelDate;
+    private javax.swing.JLabel jLabelFrom;
+    private javax.swing.JLabel jLabelSubject;
+    private javax.swing.JLabel jLabelTo;
     private javax.swing.JLabel jLabel_Date;
     private javax.swing.JLabel jLabel_From;
     private javax.swing.JLabel jLabel_Subject;
+    private javax.swing.JLabel jLabel_To;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea jTA_Message;
     // End of variables declaration//GEN-END:variables
 }
