@@ -30,18 +30,18 @@ public class ThreadReception extends Thread
         {
             try
             {
-                System.out.println("Thread -> Avant");
+                //System.out.println("Thread -> Avant");
                 mainFrame.ChargementEmailsListe();
                 int NbNewMessages = mainFrame.getUser().getFolder().getNewMessageCount();
-                if(NbNewMessages == 0)
+                /*if(NbNewMessages == 0)
                     mainFrame.setTitle("InPReS Mail - Pas de nouveau message");
                 else if (NbNewMessages == 1)
                     mainFrame.setTitle("InPReS Mail - 1 nouveau message");
                 else if (NbNewMessages > 1)
-                    mainFrame.setTitle("InPReS Mail - " + NbNewMessages + " nouveaux messages");
+                    mainFrame.setTitle("InPReS Mail - " + NbNewMessages + " nouveaux messages");*/
                     
                 Thread.sleep(30000);    
-                System.out.println("Thread -> Après");
+                //System.out.println("Thread -> Après");
             }
             catch (InterruptedException ex)
             {

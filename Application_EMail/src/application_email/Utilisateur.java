@@ -10,15 +10,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import javax.mail.Folder;
-import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.Store;
 
@@ -127,6 +123,8 @@ public class Utilisateur
         
         System.out.println("Nombre de messages : " + folder.getMessageCount());
         System.out.println("Nombre de nouveaux messages : " + folder.getNewMessageCount()); 
+        System.out.println("Nombre de messages non lus : " + folder.getUnreadMessageCount()); 
+        System.out.println("Nombre de messages supprimés : " + folder.getDeletedMessageCount()); 
         
         //System.out.println("Liste des messages : ");
         for (int i = 0; i < messages.size(); i++)

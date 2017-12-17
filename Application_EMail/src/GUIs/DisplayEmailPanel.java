@@ -6,6 +6,7 @@
 package GUIs;
 
 import application_email.BoxAttachmentsCellRenderer;
+import application_email.PieceAttachee;
 import application_email.ThreadNotification;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -16,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.MessageDigest;
 import java.text.DateFormat;
 import java.util.Enumeration;
 import java.util.List;
@@ -68,8 +70,9 @@ public class DisplayEmailPanel extends javax.swing.JPanel
         
         initComponents();
         
-        jList_Attachments.setCellRenderer(new BoxAttachmentsCellRenderer());
-        DefaultListModel<Part> dlm = new DefaultListModel();
+        //jList_Attachments.setCellRenderer(new BoxAttachmentsCellRenderer());
+        DefaultListModel<PieceAttachee> dlm = new DefaultListModel();
+        //DefaultListModel<Part> dlm = new DefaultListModel();
         jList_Attachments.setModel(dlm);
         jList_Attachments.addMouseListener(new MouseAdapter() 
         {
@@ -80,23 +83,26 @@ public class DisplayEmailPanel extends javax.swing.JPanel
                 if (evt.getClickCount() == 2) 
                 {
                     int index = list.locationToIndex(evt.getPoint());
-                    Part part = (Part) list.getModel().getElementAt(index);
+                    //Part part = (Part) list.getModel().getElementAt(index);
+                    PieceAttachee pa = (PieceAttachee) list.getModel().getElementAt(index);
+                    Part part = pa.getPieceAttachee();
                     
                     JFileChooser fileChooser = new JFileChooser();
                     fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                     try                    
-                    {
-                        fileChooser.setSelectedFile(new File(part.getFileName()));
+                    {                        
+                        fileChooser.setSelectedFile(new File(pa.getPieceAttachee().getFileName()));
                         
                         int returnVal = fileChooser.showSaveDialog(DisplayEmailPanel.this);
                         if (returnVal == JFileChooser.APPROVE_OPTION) 
                         {
-                            InputStream is = part.getInputStream();
+                            //InputStream is = part.getInputStream();
+                            InputStream is = pa.getPieceAttachee().getInputStream();
                             ByteArrayOutputStream baos = new ByteArrayOutputStream();
                             int c;
                             while ((c = is.read()) != -1) baos.write(c);
-                            baos.flush();
-                            FileOutputStream fos = new FileOutputStream(fileChooser.getSelectedFile() + System.getProperty("file.separator") + part.getFileName());
+                            baos.flush();                           
+                            FileOutputStream fos = new FileOutputStream(fileChooser.getSelectedFile() + System.getProperty("file.separator") + pa.getPieceAttachee().getFileName());
                             baos.writeTo(fos);   
                             
                             ThreadNotification thread = new ThreadNotification(mainFrame.getjLabel_Notification(), "La pièce jointe a bien été enregistrée !");
@@ -150,7 +156,7 @@ public class DisplayEmailPanel extends javax.swing.JPanel
                 Header h = (Header)e.nextElement();
                 if(h.getName().equals(h.getValue()))
                 {
-                    //System.out.println("name = " + h.getName());
+                    System.out.println("name = " + h.getName());
                     Texte = h.getValue();
                     break;
                 }
@@ -176,17 +182,23 @@ public class DisplayEmailPanel extends javax.swing.JPanel
                     
                     if(disposition != null && disposition.equalsIgnoreCase(Part.ATTACHMENT))
                     {
-                        InputStream is = part.getInputStream();
-                        DefaultListModel lm = (DefaultListModel) jList_Attachments.getModel();
-                        lm.addElement(part);
+                        System.out.println("part = " + part.getFileName());
                         
+                        DefaultListModel lm = (DefaultListModel) jList_Attachments.getModel();
+                        PieceAttachee pa = new PieceAttachee();
+                        pa.setPieceAttachee(part);
+                        //if(MessageDigest.isEqual(message., digestb))                        
+                            lm.addElement(pa);           
+                            //lm.addElement(part);
                     }
                     else
                     {
                         jTA_Message.setText((String) part.getContent());
                     }
                 }
-            }            
+            }        
+            //message.setFlag(Flags.Flag.SEEN, true);
+            //message.setFlag(Flags.Flag.RECENT, false);
         }
         catch (MessagingException | IOException ex)
         {
@@ -340,7 +352,7 @@ public class DisplayEmailPanel extends javax.swing.JPanel
 
     private void jButton_DeleteActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton_DeleteActionPerformed
     {//GEN-HEADEREND:event_jButton_DeleteActionPerformed
-               
+              
         //On affiche une boite de dialog pour confirmer la suppression
         String[] options = new String[] {"Oui", "Non"};
         int Choix = JOptionPane.showOptionDialog(null, "Voulez vous vraiment supprimer ce mail ?", "Supprimer l'email", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
@@ -350,14 +362,17 @@ public class DisplayEmailPanel extends javax.swing.JPanel
             try 
             {
                 message.setFlag(Flags.Flag.DELETED, true);
-                mainFrame.ChargementEmailsListe();
+                mainFrame.ChargementEmailsListe(); 
                 
+                parent.removeAll();
+                parent.repaint();
             } 
             catch (MessagingException ex) 
             {
                 Logger.getLogger(DisplayEmailPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        
     }//GEN-LAST:event_jButton_DeleteActionPerformed
 
     private void jButton_AnswerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton_AnswerActionPerformed
@@ -386,6 +401,7 @@ public class DisplayEmailPanel extends javax.swing.JPanel
     private void jButton_CloseActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton_CloseActionPerformed
     {//GEN-HEADEREND:event_jButton_CloseActionPerformed
         //liste_emails.clearSelection();
+        
         parent.removeAll();
         parent.repaint();
         buttonSend.setEnabled(true);
@@ -430,7 +446,7 @@ public class DisplayEmailPanel extends javax.swing.JPanel
     private javax.swing.JLabel jLabel_From;
     private javax.swing.JLabel jLabel_Subject;
     private javax.swing.JLabel jLabel_To;
-    private javax.swing.JList<Part> jList_Attachments;
+    private javax.swing.JList<PieceAttachee> jList_Attachments;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTA_Message;

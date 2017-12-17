@@ -11,6 +11,8 @@ import application_email.Utilisateur;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.security.GeneralSecurityException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
@@ -32,6 +34,8 @@ public class Application_EMail extends javax.swing.JFrame
     private LoginFrame loginFrame;
     private final Utilisateur user;
     private ThreadReception thread;
+    
+    
     
     /**
      * Creates new form Application_EMail
@@ -57,13 +61,17 @@ public class Application_EMail extends javax.swing.JFrame
         try
         {
             user.setMailSession(Session.getDefaultInstance(user.getMailProperties()));
-            //System.out.println("User = " + User);
-            //System.out.println("Pwd = " + Pwd);
+            System.out.println("User = " + User);
+            System.out.println("Pwd = " + Pwd);
             st = user.getMailSession().getStore("pop3");
+            
+            //st.connect(user.getMailProperties().getProperty("mail.pop3.host"), User, Pwd);
             st.connect(user.getMailProperties().getProperty("mail.pop3.host"), User  + "@u2.tech.hepl.local", Pwd);
 
             user.setAdresseMail(User + "@u2.tech.hepl.local");
             user.setMailStore(st);
+            
+            this.setTitle(user.getAdresseMail());
         }
         catch(MessagingException ex) 
         {
@@ -85,13 +93,12 @@ public class Application_EMail extends javax.swing.JFrame
                     DefaultListModel Liste_Emails = new DefaultListModel();                    
                     jList_Emails.setModel(Liste_Emails);
                     
-                    jPanel_Central.removeAll();
+                    /*jPanel_Central.removeAll();
                     jPanel_Central.repaint();
-                    jButton_SendMail.setEnabled(true);
+                    jButton_SendMail.setEnabled(true);*/
                 }
                 else
                 {
-                    jLabel_Error.setText(null);
                     int index = jList_Emails.getSelectedIndex();
                     DefaultListModel Liste_Emails = new DefaultListModel();
                     jList_Emails.setSelectionBackground(new Color(0, 120, 215));
@@ -104,6 +111,8 @@ public class Application_EMail extends javax.swing.JFrame
                     jList_Emails.setModel(Liste_Emails);
                     jList_Emails.repaint();
                     jList_Emails.setSelectedIndex(index);
+                    
+                    jLabel_Error.setText(user.getMessages().size() + " email(s) dont " + " non lus");
                 }
             }
             catch(Exception ex)
@@ -260,10 +269,11 @@ public class Application_EMail extends javax.swing.JFrame
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton_Refresh)
-                    .addComponent(jButton_SendMail)
-                    .addComponent(jLabel_Notification, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel_Notification, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jButton_Refresh)
+                        .addComponent(jButton_SendMail)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -313,7 +323,7 @@ public class Application_EMail extends javax.swing.JFrame
         //System.out.println("Pressed = " + jList_Emails.getSelectedIndex());
         int index = jList_Emails.locationToIndex(evt.getPoint());
         //System.out.println("InBounds = " + jList_Emails.getCellBounds(index, index).contains(evt.getPoint()));
-        if (!jList_Emails.getCellBounds(index, index).contains(evt.getPoint())) 
+        if (jList_Emails.getModel().getSize() > 0 && !jList_Emails.getCellBounds(index, index).contains(evt.getPoint())) 
         {
             jList_Emails.clearSelection();
         }
@@ -333,6 +343,14 @@ public class Application_EMail extends javax.swing.JFrame
     private void formWindowClosed(java.awt.event.WindowEvent evt)//GEN-FIRST:event_formWindowClosed
     {//GEN-HEADEREND:event_formWindowClosed
         getThread().interrupt();
+        try
+        {
+            user.getFolder().close(true);
+        }
+        catch (MessagingException ex)
+        {
+            Logger.getLogger(Application_EMail.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_formWindowClosed
 
     public LoginFrame getLoginFrame()

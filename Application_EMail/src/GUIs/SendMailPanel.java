@@ -5,21 +5,16 @@
  */
 package GUIs;
 
+import application_email.PieceAttachee;
 import application_email.ThreadNotification;
 import application_email.Utilisateur;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.stage.FileChooser;
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
-import javax.mail.Address;
+import javax.mail.Flags;
+import javax.mail.Flags.Flag;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -65,12 +60,9 @@ public class SendMailPanel extends javax.swing.JPanel
         
         ActionListener itemListener = (ActionEvent e) -> 
         {
-            //System.out.println("action = " + e.getActionCommand());
-            //System.out.println("modifiers = " + e.getModifiers());
             if(e.getActionCommand().equals("comboBoxChanged") && e.getModifiers() == SwingUtilities.RIGHT)
             {
                 File file = (File)jCB_Attachments.getSelectedItem();
-                //System.out.println("file = " + file);
 
                 String[] options = new String[] {"Oui", "Non"};
                 int Choix = JOptionPane.showOptionDialog(null, "Voulez vous vraiment retirer cette pièce jointe ?", "Retirer la pièce jointe", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
@@ -226,17 +218,18 @@ public class SendMailPanel extends javax.swing.JPanel
                 // From
                 answerMessage.setFrom(new InternetAddress(user.getAdresseMail()));
             }
+            else 
+                answerMessage.getFlags().add(Flag.ANSWERED);
             
             // dimartino@u2.tech.hepl.local
                             
             // To
-            InternetAddress adresse = InternetAddress.getLocalAddress(user.getMailSession()); 
-            /*System.out.println("LocalAddress = " + adresse);           
-            System.out.println("Address = " + adresse.getAddress());
-            System.out.println("Personal = " + adresse.getPersonal());  */
-            if(!adresse.toString().split("@")[1].matches("u2.tech.hepl.local"))
-                adresse.setAddress("dimartino@u2.tech.hepl.local");                
             
+            InternetAddress adresse = new InternetAddress();
+            adresse.setAddress(jTF_SendTo.getText());
+            /*if(!adresse.toString().split("@")[1].matches("u2.tech.hepl.local"))
+                adresse.setAddress("dimartino@u2.tech.hepl.local"); */            
+                        
             if (!"".equals(jTF_SendTo.getText()))
                 answerMessage.setRecipient(Message.RecipientType.TO, adresse);
             else
@@ -267,15 +260,15 @@ public class SendMailPanel extends javax.swing.JPanel
 
                 for(int i = 0 ; i < jCB_Attachments.getItemCount() ; i++)
                 {
-                    File file = jCB_Attachments.getItemAt(i);
-                    BP = new MimeBodyPart();
-                    DataSource so = new FileDataSource (file);
-                    BP.setDataHandler (new DataHandler(so));
-                    BP.setFileName(file.getName());
-                    MP.addBodyPart(BP);
+                    PieceAttachee pa = jCB_Attachments.getItemAt(i);
+                    System.out.println("pa = " + pa.getFile().getName());
+                    MP.addBodyPart(pa.getPieceAttachee());
+                    //answerMessage.addHeader("X-Digest-" + (i+1), Arrays.toString(pa.getDigest()));
                 }
 
                 answerMessage.setContent(MP);
+                answerMessage.getFlags().add(Flag.RECENT);
+                answerMessage.saveChanges();
                 
                 Transport.send(answerMessage);
                 
@@ -306,9 +299,18 @@ public class SendMailPanel extends javax.swing.JPanel
         if (returnVal == JFileChooser.APPROVE_OPTION) 
         {
             File file = fileChooser.getSelectedFile();
-            //This is where a real application would save the file.
-            //System.out.println("File: " + file.getName());
-            jCB_Attachments.addItem(file);
+            try
+            {
+                //This is where a real application would save the file.
+                //System.out.println("File: " + file.getName());
+                PieceAttachee pa = new PieceAttachee(file);
+                //jCB_Attachments.addItem(file);
+                jCB_Attachments.addItem(pa);
+            }
+            catch (MessagingException ex)
+            {
+                Logger.getLogger(SendMailPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
         } 
         else 
         {
@@ -321,7 +323,7 @@ public class SendMailPanel extends javax.swing.JPanel
     private javax.swing.JButton jButton_Add_Attachments;
     private javax.swing.JButton jButton_Cancel;
     private javax.swing.JButton jButton_Send;
-    private javax.swing.JComboBox<File> jCB_Attachments;
+    private javax.swing.JComboBox<PieceAttachee> jCB_Attachments;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel_Subject;
     private javax.swing.JScrollPane jScrollPane1;
