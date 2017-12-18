@@ -65,8 +65,8 @@ public class Application_EMail extends javax.swing.JFrame
             System.out.println("Pwd = " + Pwd);
             st = user.getMailSession().getStore("pop3");
             
-            //st.connect(user.getMailProperties().getProperty("mail.pop3.host"), User, Pwd);
-            st.connect(user.getMailProperties().getProperty("mail.pop3.host"), User  + "@u2.tech.hepl.local", Pwd);
+            st.connect(user.getMailProperties().getProperty("mail.pop3.host"), User, Pwd);
+            //st.connect(user.getMailProperties().getProperty("mail.pop3.host"), User  + "@u2.tech.hepl.local", Pwd);
 
             user.setAdresseMail(User + "@u2.tech.hepl.local");
             user.setMailStore(st);

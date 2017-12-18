@@ -10,10 +10,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import javax.mail.Flags;
 import javax.mail.Folder;
+import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -128,24 +130,24 @@ public class Utilisateur
             
             
             //System.out.println("Message n° " + (i+1));
-            /*if(messages.get(i).getFrom() != null)
+            if(messages.get(i).getFrom() != null)
                 System.out.println("Expéditeur : " + messages.get(i).getFrom()[0]);
             System.out.println("Sujet = " + messages.get(i).getSubject());
             System.out.println("SentDate : " + messages.get(i).getSentDate());
-            System.out.println("ReceivedDate : " + messages.get(i).getReceivedDate());*/
+            System.out.println("ReceivedDate : " + messages.get(i).getReceivedDate());
+            try
+            {
+                System.out.println("Texte : " + (String)messages.get(i).getContent());
+            }
+            catch(Exception ex) {}
             
-            /*Enumeration e = messages.get(i).getAllHeaders();
+            Enumeration e = messages.get(i).getAllHeaders();
             Header h = (Header)e.nextElement();
             while (e.hasMoreElements())
             {
                 System.out.println(h.getName() + " --> " + h.getValue());
                 h = (Header)e.nextElement();
             }
-            try
-            {
-                System.out.println("Texte : " + (String)messages.get(i).getContent());
-            }
-            catch(Exception ex) {}*/
             
         }   
     }
