@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -107,17 +108,11 @@ public class Utilisateur
     
     public synchronized void ChargerEmails() throws MessagingException, IOException
     {
-        if(folder == null)
-        {
-            folder = mailStore.getFolder("INBOX");  
-            folder.open(Folder.READ_WRITE);        
-        }
-        else
-        {
-            folder.close(true);            
-            folder = mailStore.getFolder("INBOX");  
-            folder.open(Folder.READ_WRITE);   
-        }
+        if(folder != null)      
+            folder.close();    
+        
+        folder = mailStore.getFolder("INBOX");  
+        folder.open(Folder.READ_WRITE); 
         
         messages = Arrays.asList(folder.getMessages());
         
@@ -129,7 +124,9 @@ public class Utilisateur
         //System.out.println("Liste des messages : ");
         for (int i = 0; i < messages.size(); i++)
         {
-            System.out.println("Flags = " + messages.get(i).getFlags().toString());
+            System.out.println("Flags 1 = " + messages.get(i).getFlags().toString());
+            
+            
             //System.out.println("Message n° " + (i+1));
             /*if(messages.get(i).getFrom() != null)
                 System.out.println("Expéditeur : " + messages.get(i).getFrom()[0]);
@@ -150,16 +147,7 @@ public class Utilisateur
             }
             catch(Exception ex) {}*/
             
-            /*Multipart msgMP = (Multipart)messages.get(i).getContent();
-            int np = msgMP.getCount();
-            System.out.println("-- Nombre de composantes = " + np);
-            // Scan des BodyPart
-            
-            Part p = msgMP.getBodyPart(0);
-            String d = p.getDisposition();
-            if (p.isMimeType("text/plain"))
-            System.out.println("Texte : " + (String)p.getContent());*/
-        }    
+        }   
     }
     
     public Folder getFolder()

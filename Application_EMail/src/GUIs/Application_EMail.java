@@ -105,7 +105,7 @@ public class Application_EMail extends javax.swing.JFrame
 
                     user.getMessages().forEach((message) ->
                     {
-                        Liste_Emails.addElement(message);
+                        Liste_Emails.add(0, message);
                     });
 
                     jList_Emails.setModel(Liste_Emails);
@@ -121,7 +121,7 @@ public class Application_EMail extends javax.swing.JFrame
                 System.exit(1);
             }
         }
-        else
+        else // TEST
         {
             try
             {
@@ -165,6 +165,7 @@ public class Application_EMail extends javax.swing.JFrame
         jLabel_Notification = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter()
         {
             public void windowClosed(java.awt.event.WindowEvent evt)
