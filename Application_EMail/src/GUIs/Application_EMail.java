@@ -94,8 +94,8 @@ public class Application_EMail extends javax.swing.JFrame
                     jList_Emails.setModel(Liste_Emails);
                     
                     /*jPanel_Central.removeAll();
-                    jPanel_Central.repaint();
-                    jButton_SendMail.setEnabled(true);*/
+                    jPanel_Central.repaint();*/
+                    jButton_SendMail.setEnabled(true);
                 }
                 else
                 {
@@ -324,9 +324,16 @@ public class Application_EMail extends javax.swing.JFrame
         //System.out.println("Pressed = " + jList_Emails.getSelectedIndex());
         int index = jList_Emails.locationToIndex(evt.getPoint());
         //System.out.println("InBounds = " + jList_Emails.getCellBounds(index, index).contains(evt.getPoint()));
-        if (jList_Emails.getModel().getSize() > 0 && !jList_Emails.getCellBounds(index, index).contains(evt.getPoint())) 
+        if (jList_Emails.getModel().getSize() > 0) 
         {
-            jList_Emails.clearSelection();
+            if (!jList_Emails.getCellBounds(index, index).contains(evt.getPoint()))
+                jList_Emails.clearSelection();
+            /*else
+            {
+                jPanel_Central.removeAll();
+                jPanel_Central.add(new DisplayEmailPanel(this, index));
+                jPanel_Central.add(new SendMailPanel(this, null));
+            }*/
         }
     }//GEN-LAST:event_jList_EmailsMousePressed
 
