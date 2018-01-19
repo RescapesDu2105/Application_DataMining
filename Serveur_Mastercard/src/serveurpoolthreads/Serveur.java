@@ -5,10 +5,25 @@
  */
 package serveurpoolthreads;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.TrustManagerFactory;
 import requetepoolthreads.ConsoleServeur;
 
 /**
@@ -17,14 +32,15 @@ import requetepoolthreads.ConsoleServeur;
  */
 public class Serveur extends Thread{
     private ConsoleServeur GUIApplication;
-    private int Port_Bagages;
-    private int Port_CheckIN;
-    private int MaxClients;
-    private ServerSocket SSocket_Bagages = null;
-    private ServerSocket SSocket_CheckIN = null;
-    private Properties Prop = null;
+    private int Port;
+    private int MaxThreads;        
+    private Properties Prop = null;    
+    private PrivateKey privateKeySSL;
+    private SSLContext SSLContext;
+    private SSLServerSocketFactory SSLSSFactory;
+    private SSLServerSocket SSLSSocket;
     
-    private ArrayList<ThreadClient> threads = new ArrayList<>();
+    private ArrayList<ThreadServeur> threads = new ArrayList<>();
 
     
     public Serveur(ConsoleServeur GUIApplication) 
@@ -33,8 +49,8 @@ public class Serveur extends Thread{
         try 
         {
             this.Prop = (new ServerProperties()).getProp();
-            this.Port_Bagages = Integer.parseInt(this.Prop.getProperty("PORT_BAGAGES"));
-            this.MaxClients = Integer.parseInt(this.Prop.getProperty("MAX_CLIENTS"));
+            this.Port = Integer.parseInt(this.Prop.getProperty("PORT"));
+            this.MaxThreads = Integer.parseInt(this.Prop.getProperty("MAX_THREADS"));
         } 
         catch (IOException ex) 
         {
@@ -46,19 +62,60 @@ public class Serveur extends Thread{
     
     public void Init() throws IOException
     {  
-        setSSocket_Bagages(new ServerSocket(getPort_Bagages()));
-        //setSSocket_CheckIN(new ServerSocket(getPort_CheckIN()));
-        
-        for (int i = 0 ; i < getMaxClients() ; i++) 
+        KeyStore ServerKs;        
+        try
         {
-            getThreads().add(new ThreadClient("Thread du pool n°" + String.valueOf(i + 1), getSSocket_Bagages(), getGUIApplication(), getProp()));
+            /*ServerKs = KeyStore.getInstance("JKS");
+            String FICHIER_KEYSTORE = "c:\\makecert\\serveur_keystore";
+            char[] PASSWD_KEYSTORE = "beaugosseser".toCharArray();
+            FileInputStream ServerFK = new FileInputStream (FICHIER_KEYSTORE);
+            ServerKs.load(ServerFK, PASSWD_KEYSTORE);
+            // 2. Contexte
+            SSLContext SslC = SSLContext.getInstance("SSLv3");
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+            char[] PASSWD_KEY = "sexyser".toCharArray();
+            kmf.init(ServerKs, PASSWD_KEY);
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+            tmf.init(ServerKs);
+            SslC.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+            // 3. Factory
+            SSLServerSocketFactory SslSFac= SslC.getServerSocketFactory();
+            // 4. Socket
+            setSslSSocket((SSLServerSocket) SslSFac.createServerSocket(Port));*/
+            
+            SSLContext = SSLContext.getInstance("SSLv3");
+            KeyStore ks = KeyStore.getInstance("JKS");
+            ks.load(new FileInputStream(".." + System.getProperty("file.separator") + "ServeurMastercard.jks"), "123Soleil".toCharArray());
+            privateKeySSL = (PrivateKey) ks.getKey("TussetDimartino", "123Soleil".toCharArray());
+        
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+            kmf.init(ks, "123Soleil".toCharArray());
+
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+            tmf.init(ks);
+
+            SSLContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+
+            SSLSSFactory = SSLContext.getServerSocketFactory();
+            SSLSSocket = (SSLServerSocket) SSLSSFactory.createServerSocket(Port);
+            
+        }
+        catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException | KeyManagementException ex)
+        {
+            Logger.getLogger(Serveur.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
+        for (int i = 0 ; i < getMaxThreads() ; i++) 
+        {
+            getThreads().add(new ThreadServeur("Thread du pool n°" + String.valueOf(i + 1), getSSLSSocket(), getGUIApplication(), getProp()));
             getThreads().get(i).start();
         }
     }        
     
     public void Stop() 
     {
-        for (int i = 0 ; i < getMaxClients() ; i++) 
+        for (int i = 0 ; i < getMaxThreads() ; i++) 
         {
             getThreads().get(i).interrupt();
             try 
@@ -66,7 +123,7 @@ public class Serveur extends Thread{
                 if (getThreads().get(i).getCSocket() != null)
                     getThreads().get(i).getCSocket().close();
                 
-                getSSocket_Bagages().close();
+                getSSLSSocket().close();
                 System.out.println("Demande d'arrêt du " + getThreads().get(i).getNom());
             } 
             catch (IOException ex) 
@@ -75,46 +132,25 @@ public class Serveur extends Thread{
             }
         }
     }    
-        
-    
-    public ServerSocket getSSocket_Bagages() {
-        return SSocket_Bagages;
+
+    public int getMaxThreads()
+    {
+        return MaxThreads;
     }
 
-    public void setSSocket_Bagages(ServerSocket SSocket_Bagages) {
-        this.SSocket_Bagages = SSocket_Bagages;
-    }
-
-    public ServerSocket getSSocket_CheckIN() {
-        return SSocket_CheckIN;
-    }
-
-    public void setSSocket_CheckIN(ServerSocket SSocket_CheckIN) {
-        this.SSocket_CheckIN = SSocket_CheckIN;
+    public void setMaxThreads(int MaxThreads)
+    {
+        this.MaxThreads = MaxThreads;
     }
     
-    public int getPort_Bagages() {
-        return Port_Bagages;
+    public int getPort()
+    {
+        return Port;
     }
 
-    public void setPort_Bagages(int Port_Bagages) {
-        this.Port_Bagages = Port_Bagages;
-    }
-
-    public int getPort_CheckIN() {
-        return Port_CheckIN;
-    }
-
-    public void setPort_CheckIN(int Port_CheckIN) {
-        this.Port_CheckIN = Port_CheckIN;
-    }
-    
-    public int getMaxClients() {
-        return MaxClients;
-    }
-
-    public void setMaxClients(int MaxClients) {
-        this.MaxClients = MaxClients;
+    public void setPort(int Port)
+    {
+        this.Port = Port;
     }
 
     public ConsoleServeur getGUIApplication() {
@@ -133,12 +169,54 @@ public class Serveur extends Thread{
         this.Prop = Prop;
     }
 
-    public ArrayList<ThreadClient> getThreads() {
+    public ArrayList<ThreadServeur> getThreads()
+    {
         return threads;
     }
 
-    public void setThreads(ArrayList<ThreadClient> threads) {
+    public void setThreads(ArrayList<ThreadServeur> threads)
+    {
         this.threads = threads;
     }
-  
+
+    public SSLContext getSSLContext()
+    {
+        return SSLContext;
+    }
+
+    public void setSSLContext(SSLContext SSLContext)
+    {
+        this.SSLContext = SSLContext;
+    }
+
+    public PrivateKey getPrivateKeySSL()
+    {
+        return privateKeySSL;
+    }
+
+    public void setPrivateKeySSL(PrivateKey privateKeySSL)
+    {
+        this.privateKeySSL = privateKeySSL;
+    }
+
+    public SSLServerSocketFactory getSSLSSFactory()
+    {
+        return SSLSSFactory;
+    }
+
+    public void setSSLSSFactory(SSLServerSocketFactory SSLSSFactory)
+    {
+        this.SSLSSFactory = SSLSSFactory;
+    }
+
+    public SSLServerSocket getSSLSSocket()
+    {
+        return SSLSSocket;
+    }
+
+    public void setSSLSSocket(SSLServerSocket SSLSSocket)
+    {
+        this.SSLSSocket = SSLSSocket;
+    }
+    
 }

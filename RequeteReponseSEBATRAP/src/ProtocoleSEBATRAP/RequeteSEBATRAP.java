@@ -8,18 +8,26 @@ package ProtocoleSEBATRAP;
 import database.utilities.Bean_DB_Access;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.Socket;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Security;
+import java.security.cert.CertificateException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.net.ssl.SSLContext;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import requetepoolthreads.Requete;
 
@@ -76,7 +84,20 @@ public class RequeteSEBATRAP implements Requete, Serializable{
         
     public void Handshake()
     {
-        
+        SSLContext SslC = null;
+        try
+        {
+            SslC = SSLContext.getInstance("SSLv3");
+            KeyStore ServerKs = KeyStore.getInstance("JKS");
+            String FICHIER_KEYSTORE = "c:\\makecert\\serveur_keystore";
+            char[] PASSWD_KEYSTORE = "beaugosseser".toCharArray();
+            FileInputStream ServerFK = new FileInputStream (FICHIER_KEYSTORE);
+            ServerKs.load(ServerFK, PASSWD_KEYSTORE);
+        }
+        catch (NoSuchAlgorithmException | KeyStoreException | IOException | CertificateException ex)
+        {
+            Logger.getLogger(RequeteSEBATRAP.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     public Bean_DB_Access Connexion_DB()

@@ -37,9 +37,8 @@ public final class ServerProperties {
             {
                 fos = new FileOutputStream(getNomFichier());
                 
-                getProp().setProperty("PORT_CHECKIN", Integer.toString(30041));
-                getProp().setProperty("PORT_BAGAGES", Integer.toString(30042));
-                getProp().setProperty("MAX_CLIENTS", Integer.toString(5));
+                getProp().setProperty("PORT", Integer.toString(30081));
+                getProp().setProperty("MAX_THREADS", Integer.toString(5));
                 getProp().setProperty("ADRESSEIP", "127.0.0.1"); 
                 getProp().setProperty("HOST_BD", "localhost");
                 getProp().setProperty("PORT_BD", "3306");   

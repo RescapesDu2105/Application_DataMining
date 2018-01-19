@@ -11,6 +11,8 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocket;
 import requetepoolthreads.ConsoleServeur;
 import requetepoolthreads.Reponse;
 import requetepoolthreads.Requete;
@@ -19,11 +21,11 @@ import requetepoolthreads.Requete;
  *
  * @author Philippe
  */
-public class ThreadClient extends Thread {
+public class ThreadServeur extends Thread {
     private final String Nom;
     private final ConsoleServeur GUIApplication;
-    private final ServerSocket SSocket;
-    private Socket CSocket = null;
+    private final SSLServerSocket SSocket;
+    private SSLSocket CSocket = null;
 
     private ObjectInputStream ois = null;
     private ObjectOutputStream oos = null;
@@ -32,7 +34,7 @@ public class ThreadClient extends Thread {
 
     private final Properties Prop;
 
-    public ThreadClient(String Nom, ServerSocket SSocket, ConsoleServeur GUIApplication, Properties Prop)
+    public ThreadServeur(String Nom, SSLServerSocket SSocket, ConsoleServeur GUIApplication, Properties Prop)
     {
         this.Nom = Nom;
         this.SSocket = SSocket;
@@ -49,7 +51,7 @@ public class ThreadClient extends Thread {
             try
             {                
                 GUIApplication.TraceEvenements("Serveur#En attente#" + getNom());
-                CSocket = SSocket.accept();
+                CSocket = (SSLSocket) SSocket.accept();
                 System.out.println("CSocket = " + CSocket.isClosed() + " " + CSocket.isConnected());
                 setOos(new ObjectOutputStream(this.CSocket.getOutputStream()));
                 GUIApplication.TraceEvenements(CSocket.getRemoteSocketAddress().toString() + "#Accept#" + getNom());
