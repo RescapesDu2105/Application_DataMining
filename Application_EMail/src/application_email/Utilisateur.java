@@ -45,13 +45,12 @@ public class Utilisateur
     
     public void LoadProperties()
     {
-        //String pathProperties = server + "_prop.txt";
         String pathProperties = System.getProperty("user.dir").split("\\\\dist")[0] + System.getProperty("file.separator")+ "src" + System.getProperty("file.separator") + this.getClass().getPackage().getName()+ System.getProperty("file.separator") + "config.properties";
 
         try
         {
-            FileInputStream Oread = new FileInputStream(pathProperties);
-            getMailProperties().load(Oread);
+            FileInputStream fis = new FileInputStream(pathProperties);
+            getMailProperties().load(fis);
         }
         catch(FileNotFoundException ex)
         {
@@ -59,35 +58,13 @@ public class Utilisateur
             {
                 FileOutputStream fos = new FileOutputStream(pathProperties);
                 
-        
-                /*switch(server)
-                {
-                    case "U2" :*/
-                        getMailProperties().put("mail.pop3.host", "10.59.26.134");
-                        getMailProperties().put("mail.pop3.port", "110");
-                        getMailProperties().put("mail.smtp.host", "10.59.26.134");
-                        getMailProperties().put("mail.smtp.port", "25");
-                        getMailProperties().put("mail.disable.top", "true");
-                        getMailProperties().put("store", "pop3");
+                getMailProperties().put("mail.pop3.host", "10.59.26.134");
+                getMailProperties().put("mail.pop3.port", "110");
+                getMailProperties().put("mail.smtp.host", "10.59.26.134");
+                getMailProperties().put("mail.smtp.port", "25");
+                getMailProperties().put("mail.disable.top", "true");
+                getMailProperties().put("store", "pop3");
                         
-                    //break;
-                    //case "Gmail":
-                        /*properties.put("mail.pop3.host", "pop.gmail.com");
-                        properties.put("mail.pop3.port", "995");
-                        properties.put("mail.pop3.socketFactory.port", "995");
-                        properties.put("mail.pop3.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-                        properties.put("mail.pop3s.ssl.trust", "pop.gmail.com");
-                        
-                        properties.put("mail.smtp.host", "smtp.gmail.com");
-                        properties.put("mail.smtp.auth", "true");
-                        properties.put("mail.smtp.port", "587");
-                        properties.put("mail.smtp.socketFactory.port", "465");
-                        properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-                        
-                        properties.put("store", "pop3s");*/
-                        /*break;
-                }*/
-                //paramCo.setProperty("MAIL_HOST", "10.59.26.134");
                 try 
                 {
                     getMailProperties().store(fos, null);

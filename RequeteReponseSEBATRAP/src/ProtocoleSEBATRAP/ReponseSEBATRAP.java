@@ -15,13 +15,14 @@ import requetepoolthreads.Reponse;
  */
 public class ReponseSEBATRAP implements Reponse, Serializable {
     
-    public final static int FLIGHTS_LOADED = 203;
-    public final static int LUGAGES_LOADED = 204;
-    public final static int LUGAGES_SAVED = 205;
+    public final static int NOT_ENOUGH_MONEY_TO_PAY = 401;
+    public final static int UNKNOWN_IBAN = 402;
     
-    public final static String FLIGHTS_LOADED_MESSAGE = "Informations sur les vols envoyés";
-    public final static String LUGAGES_LOADED_MESSAGE = "Informations sur les bagages envoyés";
-    public final static String LUGAGES_SAVED_MESSAGE = "Informations sur les bagages sauvés";
+    public final static int PAYED = 200;
+    
+    public final static String NOT_ENOUGH_MONEY_TO_PAY_MESSAGE = "Pas assez d'argent pour payer";
+    public final static String UNKNOWN_IBAN_MESSAGE = "Numéro de compte inconnu";
+    public final static String PAYED_MESSAGE = "Paiement effectué";
     
     private int Code;
     private HashMap<String, Object> ChargeUtile;

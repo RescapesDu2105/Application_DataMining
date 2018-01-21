@@ -5,30 +5,10 @@
  */
 package ProtocoleSEBATRAP;
 
-import database.utilities.Bean_DB_Access;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.Socket;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.Security;
-import java.security.cert.CertificateException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.net.ssl.SSLContext;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import requetepoolthreads.Requete;
 
 /**
@@ -37,11 +17,7 @@ import requetepoolthreads.Requete;
  */
 public class RequeteSEBATRAP implements Requete, Serializable{
     
-    public final static int REQUEST_LOG_OUT_PORTER = 0;
-    public final static int REQUEST_LOGIN_PORTER = 1;
-    public final static int REQUEST_LOAD_FLIGHTS = 2;
-    public final static int REQUEST_LOAD_LUGAGES = 3;
-    public final static int REQUEST_SAVE_LUGAGES = 4;
+    public final static int REQUEST_PAYER = 1;
         
     private int Type;
     private HashMap<String, Object> chargeUtile;
@@ -69,12 +45,12 @@ public class RequeteSEBATRAP implements Requete, Serializable{
         
         switch(getType())
         {
-            case REQUEST_LOG_OUT_PORTER:
+            case REQUEST_PAYER:
                 return new Runnable() 
                 {
                     public void run() 
                     {
-                        Handshake();
+                        Payer();
                     }            
                 };                
             
@@ -82,45 +58,33 @@ public class RequeteSEBATRAP implements Requete, Serializable{
         }
     }    
         
-    public void Handshake()
+    public void Payer()
     {
-        SSLContext SslC = null;
-        try
+        if(getChargeUtile().get("IBAN").equals("BE12 3456 7890"))
         {
-            SslC = SSLContext.getInstance("SSLv3");
-            KeyStore ServerKs = KeyStore.getInstance("JKS");
-            String FICHIER_KEYSTORE = "c:\\makecert\\serveur_keystore";
-            char[] PASSWD_KEYSTORE = "beaugosseser".toCharArray();
-            FileInputStream ServerFK = new FileInputStream (FICHIER_KEYSTORE);
-            ServerKs.load(ServerFK, PASSWD_KEYSTORE);
+            int Argent = 140;
+            
+            if(Integer.parseInt(getChargeUtile().get("Montant").toString()) > Argent)
+            {
+                //Pas assez d'argent
+                Reponse = new ReponseSEBATRAP(ReponseSEBATRAP.NOT_ENOUGH_MONEY_TO_PAY);
+                Reponse.getChargeUtile().put("Message", ReponseSEBATRAP.NOT_ENOUGH_MONEY_TO_PAY_MESSAGE);
+            }
+            else
+            {
+                //Payer
+                Reponse = new ReponseSEBATRAP(ReponseSEBATRAP.PAYED);
+                Reponse.getChargeUtile().put("Message", ReponseSEBATRAP.PAYED_MESSAGE);
+            }
         }
-        catch (NoSuchAlgorithmException | KeyStoreException | IOException | CertificateException ex)
+        else
         {
-            Logger.getLogger(RequeteSEBATRAP.class.getName()).log(Level.SEVERE, null, ex);
+            //Inconnu            
+            Reponse = new ReponseSEBATRAP(ReponseSEBATRAP.UNKNOWN_IBAN);
+            Reponse.getChargeUtile().put("Message", ReponseSEBATRAP.UNKNOWN_IBAN_MESSAGE);
         }
     }
     
-    public Bean_DB_Access Connexion_DB()
-    {
-        Bean_DB_Access BD_airport;
-        String Error;
-        
-        BD_airport = new Bean_DB_Access(Bean_DB_Access.DRIVER_MYSQL, getProp().getProperty("HOST_BD"), getProp().getProperty("PORT_BD"), "Zeydax", "1234", getProp().getProperty("SCHEMA_BD"));
-        //BD_airport = new Bean_DB_Access(Bean_DB_Access.DRIVER_MYSQL, "localhost", "3306", "Zeydax", "1234", "bd_airport");
-        
-        if (BD_airport != null)
-        {
-            Error = BD_airport.Connexion();
-            if (Error != null)
-            {
-                Reponse = new ReponseSEBATRAP(ReponseSEBATRAP.INTERNAL_SERVER_ERROR);
-                Reponse.getChargeUtile().put("Message", ReponseSEBATRAP.INTERNAL_SERVER_ERROR_MESSAGE);
-                System.out.println(ReponseSEBATRAP.INTERNAL_SERVER_ERROR_MESSAGE + " : " + Error);
-            }                
-        }        
-        
-        return BD_airport;
-    }
     
     @Override
     public ReponseSEBATRAP getReponse() {
@@ -169,11 +133,7 @@ public class RequeteSEBATRAP implements Requete, Serializable{
     {
         switch(getType()) 
         {
-            case REQUEST_LOG_OUT_PORTER: return "REQUEST_LOG_OUT_PORTER";
-            case REQUEST_LOGIN_PORTER: return "REQUEST_LOGIN_PORTER";                
-            case REQUEST_LOAD_FLIGHTS: return "REQUEST_LOAD_FLIGHTS";
-            case REQUEST_LOAD_LUGAGES: return "REQUEST_LOAD_LUGAGES";
-            case REQUEST_SAVE_LUGAGES: return "REQUEST_SAVE_LUGAGES";
+            case REQUEST_PAYER: return "REQUEST_PAYER";
             default : return null;
         }
     }
