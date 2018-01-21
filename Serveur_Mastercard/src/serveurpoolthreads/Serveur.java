@@ -61,32 +61,13 @@ public class Serveur extends Thread{
        
     
     public void Init() throws IOException
-    {  
-        KeyStore ServerKs;        
+    {         
         try
-        {
-            /*ServerKs = KeyStore.getInstance("JKS");
-            String FICHIER_KEYSTORE = "c:\\makecert\\serveur_keystore";
-            char[] PASSWD_KEYSTORE = "beaugosseser".toCharArray();
-            FileInputStream ServerFK = new FileInputStream (FICHIER_KEYSTORE);
-            ServerKs.load(ServerFK, PASSWD_KEYSTORE);
-            // 2. Contexte
-            SSLContext SslC = SSLContext.getInstance("SSLv3");
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-            char[] PASSWD_KEY = "sexyser".toCharArray();
-            kmf.init(ServerKs, PASSWD_KEY);
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-            tmf.init(ServerKs);
-            SslC.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-            // 3. Factory
-            SSLServerSocketFactory SslSFac= SslC.getServerSocketFactory();
-            // 4. Socket
-            setSslSSocket((SSLServerSocket) SslSFac.createServerSocket(Port));*/
-            
+        {            
             SSLContext = SSLContext.getInstance("SSLv3");
             KeyStore ks = KeyStore.getInstance("JKS");
-            ks.load(new FileInputStream(".." + System.getProperty("file.separator") + "ServeurMastercard.jks"), "123Soleil".toCharArray());
-            privateKeySSL = (PrivateKey) ks.getKey("TussetDimartino", "123Soleil".toCharArray());
+            ks.load(new FileInputStream(System.getProperty("user.dir")+ System.getProperty("file.separator")+"keystore"+System.getProperty("file.separator")+"ServeurMastercardKeyStore.jks"), "123Soleil".toCharArray());
+            privateKeySSL = (PrivateKey) ks.getKey("serverpaymentprivatekey", "123Soleil".toCharArray());
         
             KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
             kmf.init(ks, "123Soleil".toCharArray());

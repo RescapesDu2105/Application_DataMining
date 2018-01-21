@@ -8,23 +8,28 @@ package serveurpoolthreads;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import javax.swing.JButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import requetepoolthreads.ConsoleServeur;
 
 /**
  *
- * @author Philippe
+ * @author Doublon
  */
-public class FenApplicationServeur extends javax.swing.JFrame implements ConsoleServeur {
+public class ServerGUI extends javax.swing.JFrame implements ConsoleServeur
+{
     private boolean Started = false;
-    private int Port_CheckIN;
-    private int Port_Bagages;
+    private int Port_Billet;
     private int Max_Clients;
     private Serveur Server = null;
+
     /**
-     * Creates new form FenApplicationServeur
+     * Creates new form ServerGUI
      */
-    public FenApplicationServeur() {
+    public ServerGUI()
+    {
         initComponents();
         setLocationRelativeTo(null); 
         setServer(new Serveur(this));
@@ -38,59 +43,74 @@ public class FenApplicationServeur extends javax.swing.JFrame implements Console
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
 
         jButtonStart = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         TableauEvenements = new javax.swing.JTable();
+        jLabelTitre = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Application_Bagages - Serveur");
 
         jButtonStart.setText("Start");
-        jButtonStart.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jButtonStart.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 jButtonStartActionPerformed(evt);
             }
         });
 
         TableauEvenements.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
+            new Object [][]
+            {
 
             },
-            new String [] {
+            new String []
+            {
                 "Origine", "Requête", "Thread"
             }
         ));
         jScrollPane1.setViewportView(TableauEvenements);
 
+        jLabelTitre.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabelTitre.setText("SERVEUR MASTERCARD");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 580, Short.MAX_VALUE)
-                .addContainerGap())
             .addGroup(layout.createSequentialGroup()
-                .addGap(272, 272, 272)
-                .addComponent(jButtonStart)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 522, Short.MAX_VALUE)
+                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jButtonStart, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(232, 232, 232))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabelTitre)
+                .addGap(202, 202, 202))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(jLabelTitre, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addComponent(jButtonStart)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButtonStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStartActionPerformed
+    private void jButtonStartActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonStartActionPerformed
+    {//GEN-HEADEREND:event_jButtonStartActionPerformed
         if (!isStarted()) 
         {
             try 
@@ -120,100 +140,139 @@ public class FenApplicationServeur extends javax.swing.JFrame implements Console
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String args[])
+    {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+        try
+        {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels())
+            {
+                if ("Nimbus".equals(info.getName()))
+                {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(FenApplicationServeur.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(FenApplicationServeur.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(FenApplicationServeur.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FenApplicationServeur.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex)
+        {
+            java.util.logging.Logger.getLogger(ServerGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex)
+        {
+            java.util.logging.Logger.getLogger(ServerGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex)
+        {
+            java.util.logging.Logger.getLogger(ServerGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex)
+        {
+            java.util.logging.Logger.getLogger(ServerGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new FenApplicationServeur().setVisible(true);
+        java.awt.EventQueue.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                new ServerGUI().setVisible(true);
             }
         });
     }
-
-    @Override
-    public void TraceEvenements(String log) {
+    
+    public void TraceEvenements(String log) 
+    {
         ArrayList<String> Ligne = new ArrayList<>();
         StringTokenizer parser = new StringTokenizer(log, "#");
-        
+
         while(parser.hasMoreTokens()){ 
             String Token = parser.nextToken();
             if (Token != null)
                 Ligne.add(Token);  
         }
-        
+
         DefaultTableModel dtm = (DefaultTableModel) TableauEvenements.getModel();        
         dtm.insertRow(dtm.getRowCount(), Ligne.toArray());
-        
+
         TableauEvenements.setModel(dtm);
     }
-
     
-    
-    public boolean isStarted() {
+    public boolean isStarted()
+    {
         return Started;
     }
 
-    public void setStarted(boolean Started) {
+    public void setStarted(boolean Started)
+    {
         this.Started = Started;
     }
 
-    public int getPort_CheckIN() {
-        return Port_CheckIN;
+    public int getPort_Billet()
+    {
+        return Port_Billet;
     }
 
-    public void setPort_CheckIN(int Port_CheckIN) {
-        this.Port_CheckIN = Port_CheckIN;
+    public void setPort_Billet(int Port_Billet)
+    {
+        this.Port_Billet = Port_Billet;
     }
 
-    public int getPort_Bagages() {
-        return Port_Bagages;
-    }
-
-    public void setPort_Bagages(int Port_Bagages) {
-        this.Port_Bagages = Port_Bagages;
-    }
-
-    public int getMax_Clients() {
+    public int getMax_Clients()
+    {
         return Max_Clients;
     }
 
-    public void setMax_Clients(int Max_Clients) {
+    public void setMax_Clients(int Max_Clients)
+    {
         this.Max_Clients = Max_Clients;
     }
 
-    public Serveur getServer() {
+    public Serveur getServer()
+    {
         return Server;
     }
 
-    public void setServer(Serveur Server) {
+    public void setServer(Serveur Server)
+    {
         this.Server = Server;
+    }
+
+    public JTable getTableauEvenements()
+    {
+        return TableauEvenements;
+    }
+
+    public void setTableauEvenements(JTable TableauEvenements)
+    {
+        this.TableauEvenements = TableauEvenements;
+    }
+
+    public JButton getjButtonStart()
+    {
+        return jButtonStart;
+    }
+
+    public void setjButtonStart(JButton jButtonStart)
+    {
+        this.jButtonStart = jButtonStart;
+    }
+
+    public JScrollPane getjScrollPane1()
+    {
+        return jScrollPane1;
+    }
+
+    public void setjScrollPane1(JScrollPane jScrollPane1)
+    {
+        this.jScrollPane1 = jScrollPane1;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable TableauEvenements;
     private javax.swing.JButton jButtonStart;
+    private javax.swing.JLabel jLabelTitre;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }
