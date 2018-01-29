@@ -1,4 +1,4 @@
-data <- read.table("C:/Users/Doublon/Desktop/R/Exercice6.1/taches_menageres.txt" , sep="" ,header=T , row.names=1)
+data <- read.table("E:/Dropbox/B3/e-Commerce/Application_DataMining/R/Exercice6.1/taches_menageres.txt" , sep="" ,header=T , row.names=1)
 tabconting <- matrix(c(data$Wife , data$Alternating , data$Husband , data$Jointly),ncol=4)
 
 rownames(tabconting) <-  c(rownames(data))
@@ -22,7 +22,7 @@ barplot(tabconting[13,], main="Holidays")
 chisq.test(tabconting)
 
 ############
-data <- read.table("C:/Users/Doublon/Desktop/R/Exercice6.1/salaires.txt" , sep="" ,header=T)
+data <- read.table("E:/Dropbox/B3/e-Commerce/Application_DataMining/R/Exercice6.1/salaires.txt" , sep="" ,header=T)
 tabconting <- matrix(c(data$minority , data$sex),ncol=2)
 
 rownames(tabconting) <-  c(rownames(data))

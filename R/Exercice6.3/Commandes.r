@@ -1,4 +1,4 @@
-data <- read.table("C:/Users/Doublon/Desktop/R/Exercice6.3/USC.csv" , sep=";" ,header=T , row.names=1)
+data <- read.table("E:/Dropbox/B3/e-Commerce/Application_DataMining/R/Exercice6.3/USC.csv" , sep=";" ,header=T , row.names=1)
 library(FactoMineR)
 afc <- CA(data)
 afc
@@ -6,7 +6,7 @@ afc
 afc$eig
 
 #####
-data <- read.table("C:/Users/Doublon/Desktop/R/Exercice6.3/etude-agro-mais.csv" , sep=";" ,header=T , row.names=1)
+data <- read.table("E:/Dropbox/B3/e-Commerce/Application_DataMining/R/Exercice6.3/etude-agro-mais.csv" , sep=";" ,header=T , row.names=1)
 library(FactoMineR)
 
 #je prend les colonnes qui m'interesse et je fais un vecteur avec 

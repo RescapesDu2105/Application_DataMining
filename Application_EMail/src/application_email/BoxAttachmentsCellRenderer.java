@@ -6,11 +6,8 @@
 package application_email;
 
 import java.awt.Component;
-import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.mail.Header;
-import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Part;
 import javax.swing.DefaultListCellRenderer;
